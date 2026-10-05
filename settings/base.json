@@ -10,7 +10,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "rtk hook claude"
+            "command": "bash ~/.claude/bash-rewrite-hook.sh"
           }
         ]
       }

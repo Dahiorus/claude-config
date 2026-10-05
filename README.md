@@ -13,7 +13,7 @@ bin/claude-config install
 ln -s "$PWD/bin/claude-config" ~/.local/bin/claude-config   # facultatif
 ```
 
-Prérequis : `jq` et `git`. `install` s'occupe de rtk, Plannotator, du skill
+Prérequis : `jq` et `git`. `install` s'occupe de rtk, build-brief, Plannotator, du skill
 `angular-developer` et des plugins listés dans `settings/base.json`.
 
 ## Commandes

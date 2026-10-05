@@ -38,12 +38,14 @@ fake_angular_skill() {
 test_deps_nothing_to_install() {
   empty_settings
   make_stub rtk
+  make_stub build-brief
   make_stub plannotator
   fake_angular_skill
   stub_claude '[]' '[]'
   local out
   out="$(run_install)"
   assert_has_line "$out" ok rtk
+  assert_has_line "$out" ok build-brief
   assert_has_line "$out" ok plannotator
   assert_has_line "$out" ok "skill angular-developer"
   assert_not_contains "$(calls)" "install"
@@ -184,4 +186,42 @@ test_deps_curl_has_timeouts() {
   stub_claude '[]' '[]'
   run_install >/dev/null
   assert_contains "$(calls)" "--max-time"
+}
+
+test_deps_build_brief_via_brew() {
+  empty_settings
+  make_stub rtk
+  make_stub brew
+  make_stub plannotator
+  fake_angular_skill
+  stub_claude '[]' '[]'
+  local out
+  out="$(run_install)"
+  assert_contains "$(calls)" "brew install static-var/tap/build-brief"
+  assert_has_line "$out" installed "build-brief (brew)"
+}
+
+test_deps_build_brief_untrusted_tap_is_only_a_warning() {
+  empty_settings
+  make_stub rtk
+  make_stub brew 1
+  make_stub plannotator
+  fake_angular_skill
+  stub_claude '[]' '[]'
+  local rc=0 out
+  out="$(run_install 2>&1)" || rc=$?
+  assert_eq "$rc" 0 "code de sortie"
+  assert_contains "$out" "brew trust --formula static-var/tap/build-brief"
+}
+
+test_deps_build_brief_without_brew() {
+  empty_settings
+  make_stub rtk
+  make_stub plannotator
+  fake_angular_skill
+  stub_claude '[]' '[]'
+  local out
+  out="$(run_install 2>&1)"
+  assert_contains "$out" "brew absent : build-brief non installé"
+  assert_not_contains "$(calls)" "build-brief"
 }
