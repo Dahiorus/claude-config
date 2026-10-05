@@ -130,3 +130,39 @@ test_capture_restores_base_scalar_overridden_by_local_object() {
   "$CLI" capture >/dev/null
   assert_json_eq "$REPO/settings/base.json" '{"a":1}'
 }
+
+test_capture_drops_empty_object_only_in_local() {
+  write_base '{"a":1}'
+  write_local '{"x":{}}'
+  "$CLI" install --no-deps >/dev/null
+  "$CLI" capture >/dev/null
+  assert_json_eq "$REPO/settings/base.json" '{"a":1}'
+}
+
+test_capture_rejects_invalid_local() {
+  write_base '{"model":"opus"}'
+  "$CLI" install --no-deps >/dev/null
+  write_local '{'
+  local rc=0
+  "$CLI" capture >/dev/null 2>&1 || rc=$?
+  [[ "$rc" -ne 0 ]] || fail "capture aurait dû échouer"
+  assert_json_eq "$REPO/settings/base.json" '{"model":"opus"}'
+}
+
+test_capture_treats_arrays_as_leaves() {
+  write_base '{"l":[1,2]}'
+  write_local '{"l":[3]}'
+  "$CLI" install --no-deps >/dev/null
+  jq '.theme = "light"' "$CLAUDE_HOME/settings.json" > "$SANDBOX/s.json"
+  mv "$SANDBOX/s.json" "$CLAUDE_HOME/settings.json"
+  "$CLI" capture >/dev/null
+  assert_json_eq "$REPO/settings/base.json" '{"l":[1,2],"theme":"light"}'
+}
+
+test_capture_prunes_nested_local_only_objects() {
+  write_base '{"a":1,"p":{"keep":true}}'
+  write_local '{"p":{"q":{"r":1}},"z":{"y":{"x":1}}}'
+  "$CLI" install --no-deps >/dev/null
+  "$CLI" capture >/dev/null
+  assert_json_eq "$REPO/settings/base.json" '{"a":1,"p":{"keep":true}}'
+}

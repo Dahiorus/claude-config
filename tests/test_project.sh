@@ -89,3 +89,36 @@ test_init_project_without_dir_fails() {
   "$CLI" init-project >/dev/null 2>&1 || rc=$?
   assert_eq "$rc" 2 "code de sortie"
 }
+
+test_init_project_rejects_dot_templates() {
+  local t rc
+  t="$(new_target p)"
+  for tpl in .. .; do
+    rc=0
+    "$CLI" init-project "$t" --template "$tpl" >/dev/null 2>&1 || rc=$?
+    assert_eq "$rc" 1 "code de sortie pour --template $tpl"
+  done
+  [[ ! -e "$t/bin" && ! -e "$t/default" ]] || fail "rien ne doit être copié"
+}
+
+test_init_project_keeps_mode_and_binary_files() {
+  local t
+  mkdir -p "$REPO/templates/exe"
+  printf '#!/bin/sh\necho {{PROJECT_NAME}}\n' > "$REPO/templates/exe/run.sh"
+  chmod 755 "$REPO/templates/exe/run.sh"
+  printf 'a\0b{{PROJECT_NAME}}\n' > "$REPO/templates/exe/data.bin"
+  t="$(new_target p)"
+  "$CLI" init-project "$t" --template exe >/dev/null
+  [[ -x "$t/run.sh" ]] || fail "run.sh doit rester exécutable"
+  assert_eq "$(sed -n 2p "$t/run.sh")" "echo p" "remplacement dans run.sh"
+  cmp -s "$REPO/templates/exe/data.bin" "$t/data.bin" || fail "data.bin doit être copié à l'identique"
+}
+
+test_init_project_recognizes_gitignore_variants() {
+  local t
+  t="$(new_target p)"
+  git -C "$t" init -q
+  printf '/.claude/settings.local.json\n' > "$t/.gitignore"
+  "$CLI" init-project "$t" >/dev/null
+  assert_eq "$(cat "$t/.gitignore")" "/.claude/settings.local.json" ".gitignore inchangé"
+}

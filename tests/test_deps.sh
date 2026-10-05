@@ -160,3 +160,28 @@ test_deps_plugins_survive_stdin_reading_cli() {
   assert_contains "$c" "claude plugin install b@m"
   assert_contains "$c" "claude plugin install c@m"
 }
+
+test_deps_installer_timeout_is_only_a_warning() {
+  empty_settings
+  make_stub rtk
+  make_stub plannotator
+  mkdir -p "$STUBS"
+  printf '#!/usr/bin/env bash\nsleep 30\n' > "$STUBS/npx"
+  chmod +x "$STUBS/npx"
+  stub_claude '[]' '[]'
+  local out start
+  start=$SECONDS
+  out="$(DEPS_TIMEOUT=1 run_install)"
+  [[ $((SECONDS - start)) -lt 10 ]] || fail "install aurait dû abandonner npx après 1 s"
+  assert_contains "$out" "warn"
+  assert_contains "$out" "angular-developer"
+}
+
+test_deps_curl_has_timeouts() {
+  empty_settings
+  make_stub curl
+  fake_angular_skill
+  stub_claude '[]' '[]'
+  run_install >/dev/null
+  assert_contains "$(calls)" "--max-time"
+}

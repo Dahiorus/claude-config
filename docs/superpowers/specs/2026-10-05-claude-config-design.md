@@ -1,7 +1,7 @@
 # claude-config — Design
 
 Date : 2026-10-05
-Statut : en revue
+Statut : implémenté
 
 ## 1. Objectif
 
@@ -147,7 +147,9 @@ claude-config init-project <dir> [--template <nom>] [--force]
 - Racine du repo calculée à partir de l'emplacement du script ; aucune variable obligatoire.
 - `CLAUDE_HOME` surcharge la destination (défaut `~/.claude`), notamment pour les tests.
 - Sortie : une ligne par action, avec un statut parmi `linked`, `ok`, `relinked`, `backup`, `skipped`,
-  `written`, `warn`.
+  `written`, `warn`, `installed` (dépendance installée), `info` (ex. mode dry-run) et, pour `status`,
+  `missing`, `broken` (symlink vers une cible absente) et `drift` (fichier réel, autre cible, settings
+  différents). Les erreurs vont sur stderr, préfixées de `error`.
 - Code de sortie non nul sur erreur bloquante (repo introuvable, `jq` absent, cible `init-project`
   inexistante, sous-commande inconnue).
 
@@ -155,7 +157,9 @@ claude-config init-project <dir> [--template <nom>] [--force]
 
 1. Vérifie la présence de `jq`.
    Valide les settings fusionnés (base + local) ; en cas d'erreur, rien n'est installé.
-2. Pour chaque fichier de `global/` (hors `skills/`) et chaque dossier `global/skills/*` :
+2. Pour chaque fichier de `global/` (hors `skills/`) et chaque dossier `global/skills/*` (un symlink vers
+   un dossier compte comme un dossier ; les entrées cachées, comme `.gitkeep` ou les fichiers de swap,
+   sont ignorées) :
 
    | État de la destination          | Action                                         | Statut     |
    |---------------------------------|------------------------------------------------|------------|
@@ -195,11 +199,14 @@ la modification n'est pas remontée ; il faut alors éditer `base.json` à la ma
 ### 6.5 `init-project <dir>`
 
 - `<dir>` doit exister (sinon erreur) ; un avertissement s'affiche si ce n'est pas un repo git.
-- Copie récursive de `templates/<nom>/` (défaut `default`) vers `<dir>`.
+- Copie récursive de `templates/<nom>/` (défaut `default`) vers `<dir>`, droits compris. `<nom>` doit
+  correspondre à `[A-Za-z0-9._-]+` et ne peut être ni `.` ni `..`.
 - Fichier existant : conservé (`skipped (exists)`) ; avec `--force`, sauvegardé en `.bak-<date>` puis
   écrasé.
-- Remplace le placeholder `{{PROJECT_NAME}}` dans tous les fichiers copiés par `basename <dir>`.
-- Si `<dir>/.gitignore` existe et ne contient pas `.claude/settings.local.json`, ajoute cette ligne.
+- Remplace le placeholder `{{PROJECT_NAME}}` dans tous les fichiers texte copiés par `basename <dir>` ; les
+  fichiers binaires sont copiés à l'identique.
+- Si `<dir>/.gitignore` existe et n'ignore pas déjà `.claude/settings.local.json` (ligne exacte ou règle
+  équivalente du `.gitignore` racine, vérifiée avec `git check-ignore`), ajoute cette ligne.
 
 ## 7. `deps.sh`
 
@@ -211,6 +218,8 @@ la modification n'est pas remontée ; il faut alors éditer `base.json` à la ma
 - Chaque fonction vérifie d'abord si la dépendance est présente (`command -v …`, présence du dossier
   du skill) et n'installe qu'en cas d'absence.
 - Un échec produit un `warn` et n'interrompt pas `install` (sauf `jq`, déjà vérifié avant).
+- Chaque installeur est borné : `curl` avec `--connect-timeout 15 --max-time 300`, les autres via
+  `timeout $DEPS_TIMEOUT` (600 s par défaut) quand la commande existe. Un dépassement est un échec.
 - Les points marqués « à confirmer » au §3.2 sont vérifiés avec le `--help` de chaque outil avant
   l'écriture du code.
 

@@ -1,10 +1,10 @@
 # Reconstruit base.json à partir des settings courants ($cur) sans y remonter les
 # surcharges de local.json ($loc) : pour chaque chemin feuille de $loc (un tableau
-# compte comme une feuille), on reprend la valeur de $base si elle existe, sinon on
+# compte comme une feuille, un objet vide aussi), on reprend la valeur de $base si elle existe, sinon on
 # supprime le chemin, puis on retire les objets devenus vides absents de $base.
 
 def leafpaths:
-  if type == "object" then
+  if type == "object" and length > 0 then
     to_entries[] | .key as $k | (.value | leafpaths | [$k] + .)
   else
     []

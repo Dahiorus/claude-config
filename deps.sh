@@ -7,18 +7,30 @@
 
 RTK_INSTALL_URL="https://raw.githubusercontent.com/rtk-ai/rtk/refs/heads/master/install.sh"
 PLANNOTATOR_INSTALL_URL="https://plannotator.ai/install.sh"
+# Durée maximale (en secondes) d'un installeur ; au-delà il est abandonné avec un « warn ».
+DEPS_TIMEOUT="${DEPS_TIMEOUT:-600}"
+CURL_OPTS=(--connect-timeout 15 --max-time 300)
+
+# Lance un exécutable avec une limite de durée, si la commande timeout existe.
+bounded() {
+  if command -v timeout >/dev/null 2>&1; then
+    timeout "$DEPS_TIMEOUT" "$@"
+  else
+    "$@"
+  fi
+}
 
 # Binaire seulement : pas de « rtk init -g », le hook et RTK.md sont gérés par ce repo.
 ensure_rtk() {
   if command -v rtk >/dev/null 2>&1; then
     log ok rtk
   elif command -v brew >/dev/null 2>&1; then
-    if brew install rtk </dev/null; then
+    if bounded brew install rtk </dev/null; then
       log installed "rtk (brew)"
     else
       log warn "échec de brew install rtk"
     fi
-  elif curl -fsSL "$RTK_INSTALL_URL" | sh; then
+  elif curl -fsSL "$RTK_INSTALL_URL" "${CURL_OPTS[@]}" | bounded sh; then
     log installed "rtk (script officiel)"
   else
     log warn "échec de l'installation de rtk"
@@ -28,7 +40,7 @@ ensure_rtk() {
 ensure_plannotator() {
   if command -v plannotator >/dev/null 2>&1; then
     log ok plannotator
-  elif curl -fsSL "$PLANNOTATOR_INSTALL_URL" | bash; then
+  elif curl -fsSL "$PLANNOTATOR_INSTALL_URL" "${CURL_OPTS[@]}" | bounded bash; then
     log installed plannotator
   else
     log warn "échec de l'installation de plannotator"
@@ -40,7 +52,7 @@ ensure_angular_developer() {
     log ok "skill angular-developer"
   elif ! command -v npx >/dev/null 2>&1; then
     log warn "npx absent : skill angular-developer non installé"
-  elif npx -y skills add affaan-m/ecc --skill angular-developer -g -a claude-code -y </dev/null; then
+  elif bounded npx -y skills add affaan-m/ecc --skill angular-developer -g -a claude-code -y </dev/null; then
     log installed "skill angular-developer"
   else
     log warn "échec de l'installation du skill angular-developer"
@@ -61,7 +73,7 @@ ensure_plugins() {
       log ok "marketplace $name"
     elif [[ -z "$src" ]]; then
       log warn "marketplace $name : source non gérée"
-    elif claude plugin marketplace add "$src" </dev/null; then
+    elif bounded claude plugin marketplace add "$src" </dev/null; then
       log installed "marketplace $name"
     else
       log warn "échec de l'ajout de la marketplace $name"
@@ -73,7 +85,7 @@ ensure_plugins() {
   while IFS= read -r id; do
     if grep -qxF -- "$id" <<<"$installed"; then
       log ok "plugin $id"
-    elif claude plugin install "$id" --scope user </dev/null; then
+    elif bounded claude plugin install "$id" --scope user </dev/null; then
       log installed "plugin $id"
     else
       log warn "échec de l'installation du plugin $id"

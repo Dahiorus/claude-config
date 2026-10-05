@@ -110,3 +110,12 @@ test_status_reports_link_problems() {
   assert_has_line "$out" drift "RTK.md (fichier réel, pas un symlink)"
   assert_has_line "$out" broken statusline-command.sh
 }
+
+test_install_skips_hidden_files_and_links_symlinked_skills() {
+  printf 'x' > "$REPO/global/.CLAUDE.md.swp"
+  mkdir -p "$SANDBOX/ext-skill"
+  ln -s "$SANDBOX/ext-skill" "$REPO/global/skills/linked-skill"
+  "$CLI" install --no-deps >/dev/null
+  [[ ! -e "$CLAUDE_HOME/.CLAUDE.md.swp" && ! -L "$CLAUDE_HOME/.CLAUDE.md.swp" ]] || fail "fichier caché lié"
+  assert_symlink_to "$CLAUDE_HOME/skills/linked-skill" "$REPO/global/skills/linked-skill"
+}

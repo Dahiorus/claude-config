@@ -3,11 +3,12 @@
 # Sourcé par bin/claude-config, qui définit REPO_ROOT, CLAUDE_HOME et DRY_RUN.
 # shellcheck disable=SC2154
 
-# Chemins relatifs gérés : fichiers de global/ (hors skills/) puis chaque dossier global/skills/*.
+# Chemins relatifs gérés : fichiers de global/ (hors skills/) puis chaque dossier global/skills/*
+# (symlink vers un dossier compris). Les entrées cachées (.swp, .DS_Store, .gitkeep…) sont ignorées.
 managed_links() {
-  find "$REPO_ROOT/global" -mindepth 1 -maxdepth 1 ! -name skills -printf '%P\n' | sort
+  find "$REPO_ROOT/global" -mindepth 1 -maxdepth 1 ! -name skills ! -name '.*' -printf '%P\n' | sort
   if [[ -d "$REPO_ROOT/global/skills" ]]; then
-    find "$REPO_ROOT/global/skills" -mindepth 1 -maxdepth 1 -type d -printf 'skills/%P\n' | sort
+    find "$REPO_ROOT/global/skills" -mindepth 1 -maxdepth 1 -xtype d ! -name '.*' -printf 'skills/%P\n' | sort
   fi
 }
 
