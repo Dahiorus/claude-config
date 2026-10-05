@@ -43,14 +43,30 @@ l'environnement Claude ; dans un repo, `bin/claude-config init-project <dir>` y 
 Ces éléments sont installés par leur propre outil ; le repo ne contient que la commande qui les installe
 (dans `deps.sh`) :
 
-- `jq` (requis par le script)
-- `rtk` (hook `PreToolUse` Bash)
-- Plannotator (CLI + skills `plannotator*` dans `$CLAUDE_HOME/skills/`)
-- skill `angular-developer` (installé dans `~/.agents/skills/` et symlinké dans `$CLAUDE_HOME/skills/`)
+| Dépendance | Présence testée | Installation |
+|---|---|---|
+| `jq` | `command -v jq` | non automatisée : erreur bloquante avec un message (`sudo apt install jq`) |
+| `shellcheck` | `command -v shellcheck` | non automatisée : utilisé par les tests seulement |
+| `rtk` (binaire) | `command -v rtk` | `brew install rtk` si `brew` est disponible, sinon le script officiel `curl -fsSL https://raw.githubusercontent.com/rtk-ai/rtk/refs/heads/master/install.sh \| sh` |
+| Plannotator (CLI + skills `plannotator*`) | `command -v plannotator` | `curl -fsSL https://plannotator.ai/install.sh \| bash` |
+| skill `angular-developer` | `$CLAUDE_HOME/skills/angular-developer` existe | `npx skills add affaan-m/ecc --skill angular-developer -g -a claude-code -y` (source relevée dans `~/.agents/.skill-lock.json` ; flags exacts à confirmer avec `npx skills --help` pendant l'implémentation) |
+| Plugins Claude Code | `claude plugin list` | `claude plugin marketplace add` pour chaque entrée de `extraKnownMarketplaces`, puis `claude plugin install <nom>` pour chaque clé de `enabledPlugins` absente (syntaxe exacte du CLI `claude plugin` à confirmer) |
 
-Les plugins officiels sont déclarés via `enabledPlugins` dans `settings/base.json` ; à vérifier pendant
-l'implémentation que Claude Code les installe automatiquement depuis cette clé. Sinon, `deps.sh` gagne une
-étape dédiée.
+**rtk** : on n'exécute **pas** `rtk init -g`. Le hook `PreToolUse` et `RTK.md` sont déjà gérés par le
+repo (`settings/base.json` et `global/RTK.md`). Lancer `rtk init` réécrirait ces fichiers et créerait un
+écart avec le repo.
+
+**Plugin Plannotator** : il est déclaré dans `settings/base.json` :
+
+```json
+"extraKnownMarketplaces": {
+  "plannotator": { "source": { "source": "github", "repo": "backnotprop/plannotator" } }
+},
+"enabledPlugins": { "plannotator@plannotator": true }
+```
+
+Il est ensuite installé par l'étape « Plugins Claude Code ». L'ordre compte : la CLI d'abord, le plugin
+ensuite.
 
 ### 3.3 Jamais versionné
 
@@ -130,8 +146,7 @@ claude-config init-project <dir> [--template <nom>] [--force]
 ### 6.2 `install`
 
 1. Vérifie la présence de `jq`.
-2. Sauf `--no-deps` : source `deps.sh` et exécute chaque `ensure_<dep>`.
-3. Pour chaque fichier de `global/` (hors `skills/`) et chaque dossier `global/skills/*` :
+2. Pour chaque fichier de `global/` (hors `skills/`) et chaque dossier `global/skills/*` :
 
    | État de la destination          | Action                                         | Statut     |
    |---------------------------------|------------------------------------------------|------------|
@@ -140,9 +155,10 @@ claude-config init-project <dir> [--template <nom>] [--force]
    | symlink vers autre chose        | remplacé                                       | `relinked` |
    | fichier ou dossier réel         | `mv` vers `<nom>.bak-<YYYYmmdd-HHMMSS>`, puis `ln -s` | `backup` + `linked` |
 
-4. Génère les settings fusionnés. Si `$CLAUDE_HOME/settings.json` existe et diffère (comparaison
+3. Génère les settings fusionnés. Si `$CLAUDE_HOME/settings.json` existe et diffère (comparaison
    `jq -S`), il est sauvegardé en `settings.json.bak-<date>` avant écriture (`written`) ; s'il est
    identique : `ok`.
+4. Sauf `--no-deps` : source `deps.sh` et exécute `ensure_all`.
 5. Ne touche jamais aux entrées de `$CLAUDE_HOME` qui ne correspondent à aucun élément du repo
    (ex. `skills/plannotator*`, `skills/synced`, `skills/angular-developer`).
 
@@ -178,13 +194,16 @@ la modification n'est pas remontée ; il faut alors éditer `base.json` à la ma
 
 ## 7. `deps.sh`
 
-- Fichier sourcé par `install`, qui définit des fonctions `ensure_jq`, `ensure_rtk`,
-  `ensure_plannotator` et `ensure_angular_developer`, puis une fonction `ensure_all`.
+- Fichier sourcé par `install`, qui définit les fonctions `ensure_rtk`, `ensure_plannotator`,
+  `ensure_angular_developer` et `ensure_plugins`, puis une fonction `ensure_all` qui les appelle dans cet
+  ordre (voir le tableau du §3.2). `jq` est vérifié par le script lui-même, avant `deps.sh`.
+- `ensure_plugins` lit `extraKnownMarketplaces` et `enabledPlugins` dans les settings fusionnés ; il
+  s'exécute donc après l'écriture de `settings.json`.
 - Chaque fonction vérifie d'abord si la dépendance est présente (`command -v …`, présence du dossier
   du skill) et n'installe qu'en cas d'absence.
 - Un échec produit un `warn` et n'interrompt pas `install` (sauf `jq`, déjà vérifié avant).
-- Les commandes d'installation exactes sont relevées dans la documentation de chaque outil pendant
-  l'implémentation ; celles qui restent introuvables sont demandées à l'utilisateur.
+- Les points marqués « à confirmer » au §3.2 sont vérifiés avec le `--help` de chaque outil avant
+  l'écriture du code.
 
 ## 8. Templates
 
@@ -204,7 +223,8 @@ Pour ajouter un template, il suffit de créer `templates/<nom>/`, sans modifier 
 Avant la première exécution, on copie l'existant dans le repo :
 
 - `~/.claude/CLAUDE.md`, `RTK.md` et `statusline-command.sh` → `global/`
-- `~/.claude/settings.json` → `settings/base.json`
+- `~/.claude/settings.json` → `settings/base.json`, avec en plus l'ajout de la marketplace et du plugin
+  Plannotator (§3.2)
 
 Le premier `install` sur ce poste sauvegarde ensuite les originaux en `.bak-<date>` et les remplace par
 des symlinks vers un contenu identique.
@@ -231,8 +251,8 @@ Cas :
 Pour éviter de modifier `settings/base.json` réel, les tests travaillent sur une copie du repo dans
 `mktemp -d`.
 
-`shellcheck` est lancé sur `bin/claude-config`, `deps.sh` et `tests/run.sh` s'il est installé (ce n'est
-pas le cas actuellement sur ce poste : l'étape est ignorée avec un message).
+`shellcheck` est lancé sur `bin/claude-config`, `deps.sh` et `tests/run.sh`. Un avertissement est un échec.
+Si l'outil est absent, l'étape est ignorée avec un message.
 
 **Validation manuelle finale (ce poste)** : `install --dry-run`, relecture, `install`, `status` (doit
 renvoyer 0), puis nouvelle session Claude pour vérifier la statusline, le hook RTK et la liste des
