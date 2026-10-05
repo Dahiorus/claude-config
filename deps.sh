@@ -6,6 +6,7 @@
 # shellcheck disable=SC2154
 
 RTK_INSTALL_URL="https://raw.githubusercontent.com/rtk-ai/rtk/refs/heads/master/install.sh"
+BUILD_BRIEF_FORMULA="static-var/tap/build-brief"
 PLANNOTATOR_INSTALL_URL="https://plannotator.ai/install.sh"
 # Durée maximale (en secondes) d'un installeur ; au-delà il est abandonné avec un « warn ».
 DEPS_TIMEOUT="${DEPS_TIMEOUT:-600}"
@@ -34,6 +35,19 @@ ensure_rtk() {
     log installed "rtk (script officiel)"
   else
     log warn "échec de l'installation de rtk"
+  fi
+}
+
+# Tap tiers : on n'approuve pas la formule à la place de l'utilisateur (« brew trust --formula … »).
+ensure_build_brief() {
+  if command -v build-brief >/dev/null 2>&1; then
+    log ok build-brief
+  elif ! command -v brew >/dev/null 2>&1; then
+    log warn "brew absent : build-brief non installé"
+  elif bounded brew install "$BUILD_BRIEF_FORMULA" </dev/null; then
+    log installed "build-brief (brew)"
+  else
+    log warn "échec de brew install $BUILD_BRIEF_FORMULA (formule approuvée ? brew trust --formula $BUILD_BRIEF_FORMULA)"
   fi
 }
 
@@ -95,6 +109,7 @@ ensure_plugins() {
 
 ensure_all() {
   ensure_rtk
+  ensure_build_brief
   ensure_plannotator
   ensure_angular_developer
   ensure_plugins

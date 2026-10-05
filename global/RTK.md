@@ -26,4 +26,20 @@ which rtk             # Verify correct binary
 All other commands are automatically rewritten by the Claude Code hook.
 Example: `git status` → `rtk git status` (transparent, 0 tokens overhead)
 
+## Pipes: write `rtk` yourself
+
+The hook does not rewrite commands containing a pipe `|`. When the output is meant to be read,
+prefix the first command with `rtk` explicitly:
+
+```bash
+rtk git show <sha> | head -120      # not: git show <sha> | head -120
+rtk git show <sha> --stat | tail -8
+rtk grep -rn "pattern" src | head -40
+rtk gh pr diff 12 | head -200
+```
+
+Keep the raw command when the output is consumed by a program or must be exact: counting
+(`| wc -l`), parsing (`| jq`, `| awk`, `$(…)`), redirection to a file (`git show sha:path > file`),
+patches (`git diff | git apply`). RTK compacts headers and may drop lines.
+
 Refer to CLAUDE.md for full command reference.
