@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+# Installe et synchronise la config Claude Code versionnée dans ce repo.
+set -euo pipefail
+
+REPO_ROOT="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd -P)"
+CLAUDE_HOME="${CLAUDE_HOME:-$HOME/.claude}"
+DRY_RUN=0
+
+# shellcheck source=lib/common.sh
+source "$REPO_ROOT/lib/common.sh"
+
+usage() {
+  cat <<'USAGE'
+Usage : claude-config <commande> [options]
+
+Commandes :
+  install [--dry-run] [--no-deps]   Installe la config dans $CLAUDE_HOME (défaut ~/.claude)
+  status                            Compare la config installée au repo (code 1 si écart)
+  capture                           Recopie $CLAUDE_HOME/settings.json dans settings/base.json
+  init-project <dir> [--template <nom>] [--force]
+                                    Copie un template de config Claude dans un repo
+USAGE
+}
+
+main() {
+  local cmd="${1:-}"
+  if [[ $# -gt 0 ]]; then
+    shift
+  fi
+  case "$cmd" in
+    -h | --help | help) usage ;;
+    "")
+      usage >&2
+      exit 2
+      ;;
+    *)
+      printf 'error     commande inconnue : %s\n' "$cmd" >&2
+      usage >&2
+      exit 2
+      ;;
+  esac
+}
+
+main "$@"
