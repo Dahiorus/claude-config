@@ -12,6 +12,8 @@ source "$REPO_ROOT/lib/common.sh"
 source "$REPO_ROOT/lib/links.sh"
 # shellcheck source=lib/settings.sh
 source "$REPO_ROOT/lib/settings.sh"
+# shellcheck source=lib/project.sh
+source "$REPO_ROOT/lib/project.sh"
 
 usage() {
   cat <<'USAGE'
@@ -69,6 +71,28 @@ cmd_capture() {
   capture_settings
 }
 
+cmd_init_project() {
+  local dir="" template="default" force=0
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --template)
+        [[ $# -ge 2 ]] || die "--template attend un nom" 2
+        template="$2"
+        shift
+        ;;
+      --force) force=1 ;;
+      -*) die "option inconnue pour init-project : $1" 2 ;;
+      *)
+        [[ -z "$dir" ]] || die "un seul dossier attendu" 2
+        dir="$1"
+        ;;
+    esac
+    shift
+  done
+  [[ -n "$dir" ]] || die "usage : claude-config init-project <dir> [--template <nom>] [--force]" 2
+  init_project "$dir" "$template" "$force"
+}
+
 main() {
   local cmd="${1:-}"
   if [[ $# -gt 0 ]]; then
@@ -78,6 +102,7 @@ main() {
     install) cmd_install "$@" ;;
     status) cmd_status "$@" ;;
     capture) cmd_capture "$@" ;;
+    init-project) cmd_init_project "$@" ;;
     -h | --help | help) usage ;;
     "")
       usage >&2
