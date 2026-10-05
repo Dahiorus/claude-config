@@ -111,3 +111,22 @@ test_capture_rejects_invalid_settings() {
   [[ "$rc" -ne 0 ]] || fail "capture aurait dû échouer"
   assert_json_eq "$REPO/settings/base.json" '{"model":"opus"}'
 }
+
+test_status_rejects_invalid_local() {
+  write_base '{"model":"opus"}'
+  "$CLI" install --no-deps >/dev/null
+  write_local '{'
+  local rc=0 out
+  out="$("$CLI" status 2>&1)" || rc=$?
+  [[ "$rc" -ne 0 ]] || fail "status aurait dû échouer"
+  assert_contains "$out" "local.json"
+  assert_not_contains "$out" "drift"
+}
+
+test_capture_restores_base_scalar_overridden_by_local_object() {
+  write_base '{"a":1}'
+  write_local '{"a":{"b":2}}'
+  "$CLI" install --no-deps >/dev/null
+  "$CLI" capture >/dev/null
+  assert_json_eq "$REPO/settings/base.json" '{"a":1}'
+}

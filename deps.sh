@@ -1,6 +1,7 @@
 # shellcheck shell=bash
 # Dépendances externes : chaque ensure_* vérifie la présence puis installe si besoin.
 # Un échec produit un « warn » et n'interrompt jamais install.
+# Les installeurs lisent </dev/null : ils ne doivent pas consommer le stdin des boucles « while read ».
 # Sourcé par bin/claude-config, qui définit CLAUDE_HOME et log.
 # shellcheck disable=SC2154
 
@@ -12,7 +13,7 @@ ensure_rtk() {
   if command -v rtk >/dev/null 2>&1; then
     log ok rtk
   elif command -v brew >/dev/null 2>&1; then
-    if brew install rtk; then
+    if brew install rtk </dev/null; then
       log installed "rtk (brew)"
     else
       log warn "échec de brew install rtk"
@@ -39,7 +40,7 @@ ensure_angular_developer() {
     log ok "skill angular-developer"
   elif ! command -v npx >/dev/null 2>&1; then
     log warn "npx absent : skill angular-developer non installé"
-  elif npx -y skills add affaan-m/ecc --skill angular-developer -g -a claude-code -y; then
+  elif npx -y skills add affaan-m/ecc --skill angular-developer -g -a claude-code -y </dev/null; then
     log installed "skill angular-developer"
   else
     log warn "échec de l'installation du skill angular-developer"
@@ -54,13 +55,13 @@ ensure_plugins() {
     log warn "claude absent : plugins non installés"
     return 0
   fi
-  known="$(claude plugin marketplace list --json 2>/dev/null | jq -r '.[].name' || true)"
+  known="$(claude plugin marketplace list --json </dev/null 2>/dev/null | jq -r '.[].name' || true)"
   while IFS=$'\t' read -r name src; do
     if grep -qxF -- "$name" <<<"$known"; then
       log ok "marketplace $name"
     elif [[ -z "$src" ]]; then
       log warn "marketplace $name : source non gérée"
-    elif claude plugin marketplace add "$src"; then
+    elif claude plugin marketplace add "$src" </dev/null; then
       log installed "marketplace $name"
     else
       log warn "échec de l'ajout de la marketplace $name"
@@ -68,11 +69,11 @@ ensure_plugins() {
   done < <(jq -r '.extraKnownMarketplaces // {} | to_entries[]
     | [.key, (.value.source.repo // .value.source.url // .value.source.path // "")] | @tsv' "$settings")
 
-  installed="$(claude plugin list --json 2>/dev/null | jq -r '.[].id' || true)"
+  installed="$(claude plugin list --json </dev/null 2>/dev/null | jq -r '.[].id' || true)"
   while IFS= read -r id; do
     if grep -qxF -- "$id" <<<"$installed"; then
       log ok "plugin $id"
-    elif claude plugin install "$id" --scope user; then
+    elif claude plugin install "$id" --scope user </dev/null; then
       log installed "plugin $id"
     else
       log warn "échec de l'installation du plugin $id"

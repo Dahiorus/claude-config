@@ -144,3 +144,19 @@ test_deps_skipped_with_no_deps() {
   run_install --no-deps >/dev/null
   assert_eq "$(calls)" "" "appels externes"
 }
+
+# Un CLI qui lit stdin ne doit pas consommer la liste des plugins restants.
+test_deps_plugins_survive_stdin_reading_cli() {
+  printf '%s\n' '{"enabledPlugins":{"a@m":true,"b@m":true,"c@m":true}}' > "$REPO/settings/base.json"
+  make_stub rtk
+  make_stub plannotator
+  fake_angular_skill
+  stub_claude '[]' '[]'
+  printf 'cat >/dev/null\n' >> "$STUBS/claude"
+  run_install >/dev/null
+  local c
+  c="$(calls)"
+  assert_contains "$c" "claude plugin install a@m"
+  assert_contains "$c" "claude plugin install b@m"
+  assert_contains "$c" "claude plugin install c@m"
+}

@@ -22,6 +22,13 @@ def prune($b; $p):
   else .
   end;
 
+# Si $loc a remplacé un scalaire de $base par un objet, remet ce scalaire en place.
+def restore_scalar($b; $p):
+  ([range(($p | length) - 1; 0; -1) as $i | $p[:$i] | select(. as $q | $b | haspath($q))] | first) as $q
+  | if $q != null and (($b | getpath($q)) | type) != "object" then setpath($q; $b | getpath($q))
+    else .
+    end;
+
 $cur[0] as $c
 | $base[0] as $b
 | $loc[0] as $l
@@ -31,4 +38,5 @@ $cur[0] as $c
         (try setpath($p; $b | getpath($p)) catch $acc)
       else
         (try delpaths([$p]) catch $acc) | prune($b; $p[:-1])
+        | restore_scalar($b; $p)
       end)

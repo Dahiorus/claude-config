@@ -32,7 +32,8 @@ while IFS= read -r t; do
   if [[ -n "$filter" && "$t" != *"$filter"* ]]; then
     continue
   fi
-  if bash "${BASH_SOURCE[0]}" --one "$t" >"$out" 2>&1; then
+  # </dev/null : un test qui lit stdin ne doit pas consommer la liste des tests.
+  if bash "${BASH_SOURCE[0]}" --one "$t" >"$out" 2>&1 </dev/null; then
     passed=$((passed + 1))
     printf 'PASS  %s\n' "$t"
   else
