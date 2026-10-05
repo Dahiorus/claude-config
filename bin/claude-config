@@ -10,6 +10,8 @@ DRY_RUN=0
 source "$REPO_ROOT/lib/common.sh"
 # shellcheck source=lib/links.sh
 source "$REPO_ROOT/lib/links.sh"
+# shellcheck source=lib/settings.sh
+source "$REPO_ROOT/lib/settings.sh"
 
 usage() {
   cat <<'USAGE'
@@ -34,10 +36,12 @@ cmd_install() {
     shift
   done
   require_jq
+  merged_settings >/dev/null
   if [[ "$DRY_RUN" -eq 1 ]]; then
     log info "dry-run : aucune modification"
   fi
   install_links
+  install_settings
 }
 
 cmd_status() {
@@ -47,7 +51,16 @@ cmd_status() {
   require_jq
   local rc=0
   status_links || rc=1
+  status_settings || rc=1
   return "$rc"
+}
+
+cmd_capture() {
+  if [[ $# -gt 0 ]]; then
+    die "capture ne prend pas d'option" 2
+  fi
+  require_jq
+  capture_settings
 }
 
 main() {
@@ -58,6 +71,7 @@ main() {
   case "$cmd" in
     install) cmd_install "$@" ;;
     status) cmd_status "$@" ;;
+    capture) cmd_capture "$@" ;;
     -h | --help | help) usage ;;
     "")
       usage >&2
