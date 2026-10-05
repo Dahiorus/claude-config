@@ -16,3 +16,6 @@ stats-cache.json
 
 # Surcharges propres à une machine.
 settings/local.json
+
+# IDE.
+.idea/
