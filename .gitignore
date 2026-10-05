@@ -1,0 +1,18 @@
+# Garde-fou : rien de tout ça ne doit jamais entrer dans le repo.
+.credentials.json
+history.jsonl
+projects/
+sessions/
+session-env/
+shell-snapshots/
+file-history/
+plugins/
+cache/
+skills/synced/
+policy-limits*
+stats-cache.json
+*.bak
+*.bak-*
+
+# Surcharges propres à une machine.
+settings/local.json

@@ -83,6 +83,12 @@ claude-config/
   README.md
   .gitignore
   bin/claude-config
+  lib/
+    common.sh
+    links.sh
+    settings.sh
+    project.sh
+    capture.jq
   deps.sh
   global/
     CLAUDE.md
@@ -97,6 +103,8 @@ claude-config/
       CLAUDE.md
   tests/
     run.sh
+    helpers.sh
+    test_*.sh
   docs/superpowers/specs/
 ```
 
@@ -146,6 +154,7 @@ claude-config init-project <dir> [--template <nom>] [--force]
 ### 6.2 `install`
 
 1. Vérifie la présence de `jq`.
+   Valide les settings fusionnés (base + local) ; en cas d'erreur, rien n'est installé.
 2. Pour chaque fichier de `global/` (hors `skills/`) et chaque dossier `global/skills/*` :
 
    | État de la destination          | Action                                         | Statut     |
@@ -189,7 +198,7 @@ la modification n'est pas remontée ; il faut alors éditer `base.json` à la ma
 - Copie récursive de `templates/<nom>/` (défaut `default`) vers `<dir>`.
 - Fichier existant : conservé (`skipped (exists)`) ; avec `--force`, sauvegardé en `.bak-<date>` puis
   écrasé.
-- Remplace le placeholder `{{PROJECT_NAME}}` du `CLAUDE.md` copié par `basename <dir>`.
+- Remplace le placeholder `{{PROJECT_NAME}}` dans tous les fichiers copiés par `basename <dir>`.
 - Si `<dir>/.gitignore` existe et ne contient pas `.claude/settings.local.json`, ajoute cette ligne.
 
 ## 7. `deps.sh`
