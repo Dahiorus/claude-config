@@ -27,10 +27,11 @@ USAGE
 }
 
 cmd_install() {
+  local with_deps=1
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --dry-run) DRY_RUN=1 ;;
-      --no-deps) ;;
+      --no-deps) with_deps=0 ;;
       *) die "option inconnue pour install : $1" 2 ;;
     esac
     shift
@@ -42,6 +43,11 @@ cmd_install() {
   fi
   install_links
   install_settings
+  if [[ "$with_deps" -eq 1 && "$DRY_RUN" -eq 0 ]]; then
+    # shellcheck source=deps.sh
+    source "$REPO_ROOT/deps.sh"
+    ensure_all
+  fi
 }
 
 cmd_status() {
