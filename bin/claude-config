@@ -8,6 +8,8 @@ DRY_RUN=0
 
 # shellcheck source=lib/common.sh
 source "$REPO_ROOT/lib/common.sh"
+# shellcheck source=lib/links.sh
+source "$REPO_ROOT/lib/links.sh"
 
 usage() {
   cat <<'USAGE'
@@ -22,12 +24,40 @@ Commandes :
 USAGE
 }
 
+cmd_install() {
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --dry-run) DRY_RUN=1 ;;
+      --no-deps) ;;
+      *) die "option inconnue pour install : $1" 2 ;;
+    esac
+    shift
+  done
+  require_jq
+  if [[ "$DRY_RUN" -eq 1 ]]; then
+    log info "dry-run : aucune modification"
+  fi
+  install_links
+}
+
+cmd_status() {
+  if [[ $# -gt 0 ]]; then
+    die "status ne prend pas d'option" 2
+  fi
+  require_jq
+  local rc=0
+  status_links || rc=1
+  return "$rc"
+}
+
 main() {
   local cmd="${1:-}"
   if [[ $# -gt 0 ]]; then
     shift
   fi
   case "$cmd" in
+    install) cmd_install "$@" ;;
+    status) cmd_status "$@" ;;
     -h | --help | help) usage ;;
     "")
       usage >&2
