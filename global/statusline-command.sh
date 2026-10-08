@@ -144,6 +144,45 @@ ci_repo_full=""
 ci_owner=$(j '.workspace.repo.owner'); ci_rname=$(j '.workspace.repo.name')
 [ -n "$ci_owner" ] && [ -n "$ci_rname" ] && ci_repo_full="${ci_owner}/${ci_rname}"
 
+# Repli si Claude Code ne transmet pas .pr : PR ouverte de la branche via gh
+# (meme mecanisme : cache 60 s, arriere-plan, verrou, timeout).
+# Affiche "numero|review_state" en cache (vide si aucune PR / echec).
+pr_lookup() {
+  local br=$1 dir key f age lock slug
+  dir="${XDG_CACHE_HOME:-$HOME/.cache}/claude-statusline"
+  slug="${ci_repo_full:-$(printf '%s' "$cwd" | cksum | cut -d' ' -f1)}"
+  key=$(printf '%s' "${slug}-${br}" | tr -c 'A-Za-z0-9._-' '_')
+  f="$dir/pr-$key"; lock="$f.lock"
+  mkdir -p "$dir" 2>/dev/null || return
+  age=$(( $(date +%s) - $(stat -c %Y "$f" 2>/dev/null || echo 0) ))
+  if [ "$age" -ge 60 ]; then
+    if [ -e "$lock" ] && [ $(( $(date +%s) - $(stat -c %Y "$lock" 2>/dev/null || echo 0) )) -gt 30 ]; then
+      rm -f "$lock"
+    fi
+    if ( set -o noclobber; : > "$lock" ) 2>/dev/null; then
+      (
+        cd "${cwd:-.}" 2>/dev/null
+        res=$(timeout 15 gh pr list --head "$br" --state open ${ci_repo_full:+-R "$ci_repo_full"} \
+          --json number,isDraft,reviewDecision --jq '.[0] // empty
+            | "\(.number)|\(if .isDraft then "draft"
+                elif .reviewDecision == "APPROVED" then "approved"
+                elif .reviewDecision == "CHANGES_REQUESTED" then "changes_requested"
+                elif .reviewDecision == "REVIEW_REQUIRED" then "pending"
+                else "" end)"' 2>/dev/null)
+        case "$res" in [0-9]*'|'*) ;; *) res="" ;; esac
+        printf '%s\n' "$res" > "$f.tmp.$$" 2>/dev/null && mv -f "$f.tmp.$$" "$f"
+        rm -f "$lock"
+      ) >/dev/null 2>&1 &
+      disown 2>/dev/null
+    fi
+  fi
+  [ -r "$f" ] && head -n1 "$f"
+}
+if [ -z "$pr_num" ] && [ -n "$branch" ] && git -C "$cwd" --no-optional-locks symbolic-ref -q HEAD >/dev/null 2>&1 \
+  && command -v gh >/dev/null 2>&1; then
+  IFS='|' read -r pr_num pr_review <<< "$(pr_lookup "$branch")"
+fi
+
 # Ligne 1 : projet
 l1=""
 [ -n "$repo" ] && l1="📁 ${BLUE}${repo}${R}"
