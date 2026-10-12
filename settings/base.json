@@ -34,9 +34,29 @@
     "chrome-devtools-mcp@claude-plugins-official": true,
     "atlassian@claude-plugins-official": true,
     "sonarqube@claude-plugins-official": true,
-    "plannotator@plannotator": true
+    "plannotator@plannotator": true,
+    "ponytail@ponytail": true
+  },
+  "extraKnownMarketplaces": {
+    "plannotator": {
+      "source": {
+        "source": "github",
+        "repo": "backnotprop/plannotator"
+      }
+    },
+    "ponytail": {
+      "source": {
+        "source": "github",
+        "repo": "DietrichGebert/ponytail"
+      }
+    }
   },
   "language": "French",
+  "modelSettings": {
+    "claude-opus-5-5": {
+      "autoCompactWindow": "auto"
+    }
+  },
   "theme": "dark",
   "editorMode": "normal",
   "switchModelsOnFlag": true,
@@ -68,13 +88,5 @@
       "**Trusted repo**: the vending-app repo at /home/bung@france.groupe.intra/IdeaProjects/vending-app (working directory) and its remote github.com/Dahiorus/vending-app — this repo is PUBLIC, so only its own work belongs there, never confidential or secret material",
       "**Org-specific CLIs**: None configured"
     ]
-  },
-  "extraKnownMarketplaces": {
-    "plannotator": {
-      "source": {
-        "source": "github",
-        "repo": "backnotprop/plannotator"
-      }
-    }
   }
 }
