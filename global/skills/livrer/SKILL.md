@@ -36,7 +36,9 @@ de merger.
 3. **PR** — aucune PR ouverte pour la branche : `gh pr create` (titre = sujet du commit ou de la feature, description fonctionnelle
    en français). PR existante : mettre à jour la description si le périmètre a changé. Donner le lien.
 
-Sans l'argument `merge`, s'arrêter ici et rapporter : commit, lien de la PR, ce qui reste (recette, review).
+Sans l'argument `merge`, s'arrêter ici et rapporter : commit, lien de la PR, ce qui reste (recette, review). Terminer par
+ce rappel, mot pour mot : « Recette : `/clear`, puis « recette de la PR #N » avec tous les retours en un message — liste
+numérotée écran + élément + observé + attendu + périmètre, règle générale plutôt que cas. »
 
 4. **Merge** (`/livrer merge` seulement) — CI de la PR au vert s'il y en a une (`gh pr checks --watch`), puis `gh pr merge --rebase`,
    jamais `--merge`. Si un push sur main déploie : suivre le run (`gh run watch`) jusqu'au succès ou à l'échec, et
