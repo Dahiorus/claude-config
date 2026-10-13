@@ -23,9 +23,9 @@ Une feature suit toujours le même cycle, dans cet ordre. Chaque étape a son ou
 | 5 | Vérification | Suite complète de tests + analyse statique, sortie lue. Une erreur d'environnement (base injoignable, port) se diagnostique, elle ne s'ignore pas |
 | 6 | Recette | Si le plan en prévoit une : la faire soi-même dans le navigateur (Playwright), étape par étape |
 | 7 | Reviews | **Automatiques**, sans attendre de demande, dès la vérification (et la recette) au vert : `ponytail:ponytail-review` et review complète par **Opus** (`sdd-final-reviewer`, modèle passé explicitement) sur toute la branche, en parallèle. Rapporter les deux, puis corriger ce que l'utilisateur retient ; un correctif qui change le comportement amende la spec d'abord |
-| 8 | Squash | Un seul commit par feature (spec + plan + code), message qui résume la feature, `git reset --soft <merge-base>` |
-| 9 | PR | Pousser la branche et ouvrir la PR avec le compte gh indiqué par la mémoire du projet (jeton ponctuel, sans changer le compte actif) |
-| 10 | Re-squash | Si des correctifs arrivent après la PR : refusionner en un commit, `push --force-with-lease=<branche>:<sha attendu>` |
+| 8 | PR | Pousser la branche et ouvrir la PR avec le compte gh indiqué par la mémoire du projet (jeton ponctuel, sans changer le compte actif). La PR peut porter plusieurs commits, poussés tels quels |
+| 9 | Correctifs | Correctifs après la PR (review, recette) : nouveaux commits, `push` simple, sans réécriture |
+| 10 | Squash | Avant le merge seulement : un seul commit par feature (spec + plan + code), message qui résume la feature, `git reset --soft <merge-base>`. PR de plus de ~30-40 fichiers modifiés : un commit par pan fonctionnel métier. Puis `push --force-with-lease=<branche>:<sha attendu>` |
 | 11 | Merge | `gh pr merge --rebase` (ou `--squash`), **jamais** `--merge`. Si un push sur main déploie : suivre le run jusqu'au succès |
 | 12 | Nettoyage | Supprimer la branche distante, les branches locales de la feature (`feat/…`, `docs/…`) après avoir vérifié que main contient leur contenu ; repasser sur main à jour |
 | 13 | Mémoire | Mettre à jour la mémoire du projet : PR, SHA de merge, déploiement, ce qui reste à faire |
@@ -39,7 +39,7 @@ merger attendent toujours une demande explicite de l'utilisateur.
 | Excuse | Réalité |
 |---|---|
 | « Le contexte est frais, pas besoin de /clear » | Le `/clear` est exigé. On s'arrête et on le demande. |
-| « Les commits sont propres, je les garde » | Une feature = un commit. On squash. |
+| « Les commits sont propres, je les merge tels quels » | Au merge, une feature = un commit (un par pan fonctionnel métier au-delà de ~30-40 fichiers). On squash avant de merger. |
 | « Pas le temps, je fais une review courte » | Review complète, ou on dit que ce n'est pas prêt. |
 | « Les tests DB échouent, c'est l'environnement » | Diagnostiquer (port, conteneur) et relancer jusqu'au vert. |
 | « Haiku peut aussi juger la qualité » | Non : compilation et tests seulement. La qualité, c'est Opus à la fin. |
@@ -52,7 +52,7 @@ merger attendent toujours une demande explicite de l'utilisateur.
 ## Signaux d'alarme
 
 - Implémenter dans la session qui a écrit le plan.
-- Ouvrir une PR à plusieurs commits.
+- Merger une PR à plusieurs commits, hors découpage par pan fonctionnel métier d'une PR de plus de ~30-40 fichiers.
 - `gh pr merge --merge`, ou un `push --force` sans `--force-with-lease`.
 - Supprimer ou déplacer un fichier de `src/` quand le déploiement ne supprime pas (rsync sans `--delete`) : le signaler avant le merge.
 - Terminer sans mettre à jour la mémoire.
