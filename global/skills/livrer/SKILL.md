@@ -22,7 +22,7 @@ de merger.
 
 1. **Squash** — `git fetch origin main`, noter le SHA de départ (retour possible par `git reset --hard <sha>`), puis
    repartir de `origin/main` : `git reset --soft $(git merge-base HEAD origin/main)`. Rebaser sur `origin/main` si la
-   branche est en retard. Messages au format de `CONTRIBUTING.md` (français, attribution du system-reminder).
+   branche est en retard. Messages dans la langue et au format de `CONTRIBUTING.md` (attribution du system-reminder).
    - **PR de taille normale** : un seul commit qui résume la feature.
    - **PR trop volumineuse** (plus de ~400 lignes modifiées hors fichiers générés, ou plusieurs changements
      indépendants) : refaire l'historique en commits fonctionnels, chacun un changement cohérent pour un relecteur
