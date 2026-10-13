@@ -52,6 +52,8 @@ test_install_relinks_foreign_symlink() {
 }
 
 test_install_keeps_foreign_entries() {
+  # Les skills du dépôt seraient liés par install : on n'observe que les entrées étrangères.
+  rm -rf "$REPO"/global/skills/*
   mkdir -p "$CLAUDE_HOME/skills/synced/abc" "$CLAUDE_HOME/skills/other" "$SANDBOX/agents/angular-developer"
   printf 'x' > "$CLAUDE_HOME/skills/other/SKILL.md"
   ln -s "$SANDBOX/agents/angular-developer" "$CLAUDE_HOME/skills/angular-developer"
