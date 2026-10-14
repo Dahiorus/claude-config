@@ -1,14 +1,14 @@
 ---
-name: livrer
-description: Livre la branche feat/… courante — push des commits tels quels, PR créée ou mise à jour ; avec l'argument « squash », squash en un commit (ou un par pan fonctionnel métier si la PR est volumineuse) avant le push ; avec « merge », squash puis merge en rebase, suivi du déploiement, nettoyage et mémoire. Invoqué par /livrer [squash] [merge].
+name: pr-deliver
+description: Livre la branche feat/… courante — push des commits tels quels, PR créée ou mise à jour ; avec l'argument « squash », squash en un commit (ou un par pan fonctionnel métier si la PR est volumineuse) avant le push ; avec « merge », squash puis merge en rebase, suivi du déploiement, nettoyage et mémoire. Invoqué par /pr-deliver [squash] [merge].
 disable-model-invocation: true
 argument-hint: "[squash] [merge]"
 ---
 
-# Livrer
+# PR deliver
 
 Raccourci des étapes 8 à 13 du skill `developper-une-feature`, qui reste la référence (règles, signaux d'alarme).
-L'invocation de `/livrer` vaut demande explicite de pousser et d'ouvrir la PR. Arguments combinables, dans n'importe
+L'invocation de `/pr-deliver` vaut demande explicite de pousser et d'ouvrir la PR. Arguments combinables, dans n'importe
 quel ordre : `squash` vaut demande de réécrire l'historique (étape 1), `merge` vaut demande de merger (étapes 4 à 6)
 et implique `squash`, car c'est le merge qui impose l'historique final. Sans `squash` ni `merge`, ne jamais squasher ni
 réécrire les commits : une PR peut porter plusieurs commits ; un historique désordonné se signale au plus dans le rapport.

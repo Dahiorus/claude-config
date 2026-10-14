@@ -71,5 +71,5 @@ L'invocation vaut demande de réécrire la branche et de la pousser. PR de fork 
 
 ## Nettoyage
 
-L'étape Nettoyage de `/livrer merge` supprime le worktree de la branche mergée. Worktree d'une PR fermée sans merge :
+L'étape Nettoyage de `/pr-deliver merge` supprime le worktree de la branche mergée. Worktree d'une PR fermée sans merge :
 `git worktree remove <chemin>` après avoir vérifié qu'il est propre.
