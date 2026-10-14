@@ -42,7 +42,11 @@ ce rappel, mot pour mot : « Recette : `/clear`, puis « recette de la PR #N » 
 numérotée écran + élément + observé + attendu + périmètre, règle générale plutôt que cas. »
 
 4. **Merge** (`merge` seulement) — CI de la PR au vert s'il y en a une (`gh pr checks --watch`), puis `gh pr merge --rebase`,
-   jamais `--merge`. Si un push sur main déploie : suivre le run (`gh run watch`) jusqu'au succès ou à l'échec, et
+   jamais `--merge`. Dépôt avec un `Jenkinsfile` à la racine : le statut `continuous-integration/jenkins/pr-head` n'apparaît
+   qu'une fois le build lancé, et rien côté GitHub n'empêche de merger sans lui. Ne merger que lorsqu'il est `SUCCESS` sur le
+   SHA poussé (`gh pr view --json headRefOid,statusCheckRollup`). Absent ou `PENDING` : attendre et revérifier toutes
+   les quelques minutes, sans timeout plus court que celui du `Jenkinsfile`. `FAILURE`/`ERROR`, ou toujours absent après
+   ~15 min : ne pas merger, rapporter avec le lien Jenkins (`targetUrl`). Si un push sur main déploie : suivre le run (`gh run watch`) jusqu'au succès ou à l'échec, et
    le rapporter.
 5. **Nettoyage** — `git switch main && git pull --ff-only` ; supprimer la branche locale (et son worktree) après
    avoir vérifié que main contient son contenu ; supprimer la branche distante si le dépôt ne le fait pas au merge.
