@@ -144,6 +144,21 @@ ci_repo_full=""
 ci_owner=$(j '.workspace.repo.owner'); ci_rname=$(j '.workspace.repo.name')
 [ -n "$ci_owner" ] && [ -n "$ci_rname" ] && ci_repo_full="${ci_owner}/${ci_rname}"
 
+# Le compte gh actif peut ne pas voir le depot : retenir (cache 1 jour) le compte qui y a acces.
+if [ -n "$ci_repo_full" ] && command -v gh >/dev/null 2>&1; then
+  gh_user_f="${XDG_CACHE_HOME:-$HOME/.cache}/claude-statusline/ghuser-$(printf '%s' "$ci_repo_full" | tr -c 'A-Za-z0-9._-' '_')"
+  if [ $(( $(date +%s) - $(stat -c %Y "$gh_user_f" 2>/dev/null || echo 0) )) -ge 86400 ]; then
+    mkdir -p "${gh_user_f%/*}" 2>/dev/null
+    for u in $(gh auth status 2>/dev/null | sed -n 's/.* account \([^ ]*\) .*/\1/p'); do
+      GH_TOKEN=$(gh auth token --user "$u" 2>/dev/null) timeout 5 gh api "repos/$ci_repo_full" --silent >/dev/null 2>&1 \
+        && { printf '%s\n' "$u" > "$gh_user_f"; break; }
+    done
+    [ -s "$gh_user_f" ] || : > "$gh_user_f"
+  fi
+  gh_user=$(head -n1 "$gh_user_f" 2>/dev/null)
+  [ -n "$gh_user" ] && GH_TOKEN=$(gh auth token --user "$gh_user" 2>/dev/null) && export GH_TOKEN
+fi
+
 # Repli si Claude Code ne transmet pas .pr : PR ouverte de la branche via gh
 # (meme mecanisme : cache 60 s, arriere-plan, verrou, timeout).
 # Affiche "numero|review_state" en cache (vide si aucune PR / echec).
