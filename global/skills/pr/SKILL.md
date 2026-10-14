@@ -1,8 +1,8 @@
 ---
 name: pr
-description: Agit sur une PR du dépôt courant sans git checkout — « view » (défaut) l'affiche, « approvals » compte les approbations (2 = prête pour la QA), « switch » bascule la session dans son worktree, « test » lance la vérification dans son worktree, « rebase » la rebase sur origin/main, résout les conflits et pousse. Invoqué par /pr <n°|branche> [view|approvals|switch|test|rebase].
+description: Agit sur une PR du dépôt courant sans git checkout — « view » (défaut) l'affiche, « approvals » compte les approbations (2 = prête pour la QA), « switch » bascule la session dans son worktree, « test » lance la vérification dans son worktree, « rebase » la rebase sur origin/main, résout les conflits et pousse, « recette » déroule les scénarios et les retours de recette sur l'environnement dédié de la PR ou en local, corrige et pousse. Invoqué par /pr <n°|branche> [view|approvals|switch|test|rebase|recette].
 disable-model-invocation: true
-argument-hint: "<n°|branche> [view|approvals|switch|test|rebase]"
+argument-hint: "<n°|branche> [view|approvals|switch|test|rebase|recette]"
 ---
 
 # PR
@@ -30,7 +30,7 @@ touché.
   Rapport : `2/2 approbations (alice, bob) → prête pour la QA`, ou `1/2 (alice) — il en manque 1`. Au-delà de 2,
   toujours prête. Signaler aussi les `CHANGES_REQUESTED` encore actifs.
 
-## Worktree de la PR (`switch`, `test`, `rebase`)
+## Worktree de la PR (`switch`, `test`, `rebase`, `recette`)
 
 Emplacement : `<racine>.worktrees/pr-<n°>`, à côté du dépôt, où `<racine>` est le premier chemin de
 `git worktree list` (le dépôt principal).
@@ -68,6 +68,32 @@ L'invocation vaut demande de réécrire la branche et de la pousser. PR de fork 
 5. Approbations existantes (`approvals`) → prévenir qu'un push forcé peut les invalider, puis pousser :
    `git push --force-with-lease=<headRefName>:<SHA distant noté> origin <headRefName>`, jamais `--force` seul.
 6. Rapport : commits rejoués, fichiers en conflit et résolution choisie, résultat des tests, nouveau SHA.
+
+### `recette`
+
+Exécuter la recette sur l'environnement dédié de la PR ou, à défaut, sur l'application lancée depuis le worktree, puis
+corriger. Les retours de l'utilisateur viennent avec l'invocation ou dans le message qui suit (liste numérotée écran +
+élément + observé + attendu + périmètre).
+
+1. **Scénarios** — les retours de l'utilisateur, plus la recette prévue par la PR (description, plan commité sur la
+   branche). Aucun des deux → déduire les scénarios de la description et du diff, les lister et attendre l'accord.
+2. **Environnement** — la PR a un environnement dédié si son titre se termine par `[DEPLOY_PR][<env-id>]` (convention
+   de renoshield) : son lien est dans la description, dans le bloc ajouté par le déploiement
+   (`:heavy_check_mark: … http://…-<env-id>…`). Bloc présent et marqué réussi → recetter sur ce lien, sans lancement
+   local. Sinon (pas de tag, bloc absent ou en échec, lien injoignable) → le dire et démarrer l'application dans
+   `<chemin>` (commande du CLAUDE.md du projet, dépendances installées si le worktree est neuf), en arrière-plan. Port
+   déjà pris ou service injoignable : le diagnostiquer, ne pas recetter une autre instance.
+3. **Exécution** — chaque scénario étape par étape (Playwright pour une interface web), avec observé et attendu.
+   Rapport : un tableau scénario → conforme / non conforme, capture d'écran à l'appui des écarts.
+4. **Correctifs** — les retours de l'utilisateur valent demande de correction ; un écart trouvé par un scénario déduit
+   se propose d'abord. Appliquer la règle générale plutôt que le cas, sur tout le périmètre indiqué. Intention ambiguë
+   ou changement de comportement non prévu par la spec → demander. Puis vérification du projet et nouvelle exécution
+   des scénarios touchés, en local : rouge → ne pas pousser, rapporter. Sur environnement dédié, les rejouer aussi
+   après le push, une fois le build du nouveau SHA au vert (redéploiement).
+5. **Push** — nouveaux commits au format de `CONTRIBUTING.md`, `push` simple, sans réécriture ni squash. PR de fork ou
+   `state` ≠ `OPEN` → corriger dans le worktree sans pousser, et le dire.
+6. **Arrêt** — arrêter l'application lancée en local. Rapport : environnement recetté (lien ou local), scénarios et
+   résultat, correctifs (SHA), ce qui reste.
 
 ## Nettoyage
 

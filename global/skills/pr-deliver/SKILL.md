@@ -38,7 +38,7 @@ réécrire les commits : une PR peut porter plusieurs commits ; un historique d�
    en français). PR existante : mettre à jour la description si le périmètre a changé. Donner le lien.
 
 Sans l'argument `merge`, s'arrêter ici et rapporter : commit(s), lien de la PR, ce qui reste (recette, review). Terminer par
-ce rappel, mot pour mot : « Recette : `/clear`, puis « recette de la PR #N » avec tous les retours en un message — liste
+ce rappel, mot pour mot : « Recette : `/clear`, puis `/pr N recette` avec tous les retours en un message — liste
 numérotée écran + élément + observé + attendu + périmètre, règle générale plutôt que cas. »
 
 4. **Merge** (`merge` seulement) — CI de la PR au vert s'il y en a une (`gh pr checks --watch`), puis `gh pr merge --rebase`,
