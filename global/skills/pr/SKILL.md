@@ -1,8 +1,8 @@
 ---
 name: pr
-description: Agit sur une PR du dépôt courant sans git checkout — « view » (défaut) l'affiche, « approvals » compte les approbations (2 = prête pour la QA), « switch » bascule la session dans son worktree, « test » lance la vérification dans son worktree, « rebase » la rebase sur origin/main, résout les conflits et pousse, « recette » déroule les scénarios et les retours de recette sur l'environnement dédié de la PR ou en local, corrige et pousse. Invoqué par /pr <n°|branche> [view|approvals|switch|test|rebase|recette].
+description: Agit sur une PR du dépôt courant sans git checkout — « view » (défaut) l'affiche, « approvals » compte les approbations (2 = prête pour la QA), « switch » bascule la session dans son worktree, « test » lance la vérification dans son worktree, « rebase » la rebase sur origin/main, résout les conflits et pousse, « recette » déroule les scénarios et les retours de recette sur l'environnement dédié de la PR ou en local, corrige et pousse, « update-desc » met à jour sa description d'après les retours de Claude dans la session. Invoqué par /pr <n°|branche> [view|approvals|switch|test|rebase|recette|update-desc].
 disable-model-invocation: true
-argument-hint: "<n°|branche> [view|approvals|switch|test|rebase|recette]"
+argument-hint: "<n°|branche> [view|approvals|switch|test|rebase|recette|update-desc]"
 ---
 
 # PR
@@ -29,6 +29,13 @@ touché.
 
   Rapport : `2/2 approbations (alice, bob) → prête pour la QA`, ou `1/2 (alice) — il en manque 1`. Au-delà de 2,
   toujours prête. Signaler aussi les `CHANGES_REQUESTED` encore actifs.
+- **`update-desc`** — l'invocation vaut demande de réécrire la description. Sources : les retours de Claude dans la
+  session (recette, correctifs, review, rebase), puis les commits de la PR que la description ne reflète pas encore
+  (`gh pr view <n°> --json body,commits,files`). Suivre le format de description du projet (AGENTS.md, CLAUDE.md,
+  CONTRIBUTING.md, `.github/pull_request_template.md`), en français, fonctionnelle : elle décrit l'état final de la
+  PR, pas l'historique des correctifs. Garder tel quel ce que l'auteur n'a pas écrit (bloc d'un bot de déploiement en
+  tête, comme `<span id="carmen">…</span>`), les liens et les sections inchangées ; ne pas toucher au titre. Rien à
+  changer → le dire. Sinon `gh pr edit <n°> --body-file <fichier>`, puis rapport : sections modifiées et pourquoi.
 
 ## Worktree de la PR (`switch`, `test`, `rebase`, `recette`)
 
