@@ -23,7 +23,7 @@ Prérequis : `jq` et `git`. `install` s'occupe de rtk, build-brief, Plannotator,
 | `install [--dry-run] [--no-deps]` | Symlinke `global/*` dans `~/.claude`, génère `settings.json`, installe les dépendances |
 | `status` | Liste les écarts entre le repo et `~/.claude` (code 1 en cas d'écart) |
 | `capture` | Recopie `~/.claude/settings.json` dans `settings/base.json` (à relire avec `git diff`, puis à commiter) |
-| `init-project <dir> [--template <nom>] [--force]` | Copie `templates/<nom>/` (défaut `default`) dans un repo |
+| `init-project <dir> [--template <nom>] [--force]` | Copie `templates/<nom>/` (défaut `default`) dans un repo. Templates : `default`, `android` (hook build-brief sur `./gradlew`, convention gitmoji) |
 
 Les fichiers existants sont toujours sauvegardés en `<nom>.bak-<date>` avant d'être remplacés.
 
