@@ -47,7 +47,17 @@
     "sonarqube@claude-plugins-official": true,
     "plannotator@plannotator": true,
     "ponytail@ponytail": true,
-    "shortcuts@claude-config": true
+    "shortcuts@claude-config": true,
+    "skill-creator@anthropic-plugin-directory": true,
+    "vercel@anthropic-plugin-directory": true,
+    "security-guidance@anthropic-plugin-directory": true,
+    "typescript-lsp@claude-plugins-official": true,
+    "claude-code-setup@anthropic-plugin-directory": true,
+    "figma@claude-plugins-official": true,
+    "commit-commands@anthropic-plugin-directory": true,
+    "php-lsp@claude-plugins-official": true,
+    "caveman-mode-short-answers@anthropic-plugin-directory": true,
+    "claude-md-management@anthropic-plugin-directory": true
   },
   "extraKnownMarketplaces": {
     "plannotator": {
