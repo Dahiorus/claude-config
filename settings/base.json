@@ -46,7 +46,8 @@
     "atlassian@claude-plugins-official": true,
     "sonarqube@claude-plugins-official": true,
     "plannotator@plannotator": true,
-    "ponytail@ponytail": true
+    "ponytail@ponytail": true,
+    "shortcuts@claude-config": true
   },
   "extraKnownMarketplaces": {
     "plannotator": {
@@ -59,6 +60,12 @@
       "source": {
         "source": "github",
         "repo": "DietrichGebert/ponytail"
+      }
+    },
+    "claude-config": {
+      "source": {
+        "source": "github",
+        "repo": "Dahiorus/claude-config"
       }
     }
   },

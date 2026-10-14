@@ -1,0 +1,7 @@
+{
+  "name": "claude-config",
+  "owner": { "name": "Brondon Ung" },
+  "plugins": [
+    { "name": "shortcuts", "source": "./mods/shortcuts", "description": "Panneau listant les raccourcis clavier de Claude Code" }
+  ]
+}

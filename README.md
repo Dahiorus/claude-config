@@ -30,6 +30,7 @@ Les fichiers existants sont toujours sauvegardés en `<nom>.bak-<date>` avant d'
 ## Où modifier quoi
 
 - `CLAUDE.md`, `RTK.md`, statusline, skills perso : directement dans `global/` (ils sont symlinkés).
+- Plugins perso : dans `mods/<nom>/`, déclarés dans `.claude-plugin/marketplace.json` et activés dans `settings/base.json` (`<nom>@claude-config`). Pas de dossier `plugins/` : ignoré par `.gitignore`.
 - Settings : via Claude Code (`/config`…), puis `claude-config capture`. On peut aussi éditer
   `settings/base.json` à la main, puis lancer `claude-config install`.
 - Surcharges propres à une machine : `settings/local.json` (non versionné), fusionné par-dessus la base.
