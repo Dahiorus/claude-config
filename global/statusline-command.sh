@@ -13,6 +13,8 @@ pr_num=$(j '.pr.number')
 pr_kind=$(j '.pr.kind')
 pr_review=$(j '.pr.review_state')
 ctx=$(j '.context_window.used_percentage')
+tok_in=$(j '.context_window.total_input_tokens')
+tok_out=$(j '.context_window.total_output_tokens')
 cost=$(j '.cost.total_cost_usd')
 five=$(j '.rate_limits.five_hour.used_percentage')
 five_at=$(j '.rate_limits.five_hour.resets_at')
@@ -247,6 +249,10 @@ if [ -n "$ctx" ]; then
   done
   c=$(color_for "$p")
   l2="🧠 ${GRAY}ctx${R} ${c}${bar} ${p}%${R}"
+fi
+if [ -n "$tok_in" ]; then
+  fmt_tok() { awk -v n="${1:-0}" 'BEGIN{ if (n>=1000000) printf "%.1fM", n/1e6; else if (n>=1000) printf "%.1fk", n/1e3; else printf "%d", n }'; }
+  l2="${l2:+$l2$sep}🔢 ${GRAY}tokens${R} $(fmt_tok "$tok_in") ${GRAY}in${R} / $(fmt_tok "$tok_out") ${GRAY}out${R}"
 fi
 if [ -n "$cost" ]; then
   l2="${l2:+$l2$sep}💰 ${YELLOW}\$$(printf '%.2f' "$cost" 2>/dev/null)${R}"
