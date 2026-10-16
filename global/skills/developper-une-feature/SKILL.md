@@ -16,13 +16,13 @@ Une feature suit toujours le même cycle, dans cet ordre. Chaque étape a son ou
 
 | # | Étape | Comment |
 |---|---|---|
-| 1 | Conception | `superpowers:brainstorming` → spec dans `docs/superpowers/specs/`, **toujours** ouverte dans Plannotator (`plannotator-annotate` avec les arguments `<fichier de la spec> --gate --json`, mode approbation) : appliquer chaque annotation, rouvrir jusqu'à l'approbation |
-| 2 | Plan | `superpowers:writing-plans`, **fidèle à la spec** : aucun écart de signature, de champ d'API ni de code d'erreur. Si la spec tient mal face au code, proposer d'amender la spec. Plan commité **sur la branche `feat/…`** (il fait partie de la PR). Puis relecture du plan dans Plannotator (`plannotator-annotate` avec les arguments `<fichier du plan> --gate --json`, mode approbation) : appliquer chaque annotation, commiter, rouvrir jusqu'à l'approbation |
+| 1 | Conception | `superpowers:brainstorming` → spec dans `docs/superpowers/specs/`, avec les sections de fidélité (ci-dessous), **toujours** ouverte dans Plannotator (`plannotator-annotate` avec les arguments `<fichier de la spec> --gate --json`, mode approbation) : appliquer chaque annotation, rouvrir jusqu'à l'approbation |
+| 2 | Plan | `superpowers:writing-plans`, **fidèle à la spec** : aucun écart de signature, de champ d'API ni de code d'erreur. Table de traçabilité obligatoire (ci-dessous) ; chaque tâche cite les § de spec qu'elle implémente. Si la spec tient mal face au code, proposer d'amender la spec. Plan commité **sur la branche `feat/…`** (il fait partie de la PR). Puis relecture du plan dans Plannotator (`plannotator-annotate` avec les arguments `<fichier du plan> --gate --json`, mode approbation) : appliquer chaque annotation, commiter, rouvrir jusqu'à l'approbation |
 | 3 | `/clear` | Plan approuvé dans Plannotator, écrit dans cette session (ou session déjà utilisée) → **s'arrêter** et demander `/clear` puis la relance de l'exécution. Ne jamais enchaîner |
-| 4 | Exécution | `superpowers:subagent-driven-development`. Implémenteur **Sonnet**. Contrôle par tâche **Haiku, effort low** : compilation + tests de la tâche, rien d'autre. Agents `sdd-implementer` / `sdd-task-reviewer` / `sdd-final-reviewer` du projet s'ils existent. Toujours passer le modèle explicitement |
+| 4 | Exécution | `superpowers:subagent-driven-development`. Implémenteur **Sonnet**. Contrôle par tâche **Haiku, effort low** : compilation + **tests du contexte borné entier** (`tests/<Contexte>`, pas seulement ceux de la tâche) + présence de chaque test nommé dans le brief et de la preuve du rouge dans le rapport, rien d'autre. Un écart de l'implémenteur au brief, même « pratique », revient au contrôleur, qui amende la spec ou fait corriger : jamais accepté en silence. Agents `sdd-implementer` / `sdd-task-reviewer` / `sdd-final-reviewer` du projet s'ils existent. Toujours passer le modèle explicitement |
 | 5 | Vérification | Suite complète de tests + analyse statique, sortie lue. Une erreur d'environnement (base injoignable, port) se diagnostique, elle ne s'ignore pas |
 | 6 | Recette | Si le plan en prévoit une : la faire soi-même dans le navigateur (Playwright), étape par étape |
-| 7 | Reviews | **Automatiques**, sans attendre de demande, dès la vérification (et la recette) au vert : `ponytail:ponytail-review` et review complète par **Opus** (`sdd-final-reviewer`, modèle passé explicitement) sur toute la branche, en parallèle. La review Opus applique aussi la grille qualité ci-dessous. Rapporter les deux, puis corriger ce que l'utilisateur retient ; un correctif qui change le comportement amende la spec d'abord |
+| 7 | Reviews | **Automatiques**, sans attendre de demande, dès la vérification (et la recette) au vert : `ponytail:ponytail-review` et review complète par **Opus** (`sdd-final-reviewer`, modèle passé explicitement) sur toute la branche, en parallèle. La review Opus vérifie d'abord la fidélité (demande initiale → spec → plan → code, ci-dessous) puis applique la grille qualité. Rapporter les deux, puis corriger ce que l'utilisateur retient ; un correctif qui change le comportement amende la spec d'abord |
 | 8 | PR | Pousser la branche et ouvrir la PR avec le compte gh indiqué par la mémoire du projet (jeton ponctuel, sans changer le compte actif). La PR peut porter plusieurs commits, poussés tels quels |
 | 9 | Correctifs | Correctifs après la PR (review, recette) : nouveaux commits, `push` simple, sans réécriture |
 | 10 | Squash | Avant le merge seulement : un seul commit par feature (spec + plan + code), message qui résume la feature, `git reset --soft <merge-base>`. PR de plus de ~30-40 fichiers modifiés : un commit par pan fonctionnel métier. Puis `push --force-with-lease=<branche>:<sha attendu>` |
@@ -33,6 +33,34 @@ Une feature suit toujours le même cycle, dans cet ordre. Chaque étape a son ou
 Une demande peut couvrir plusieurs étapes (« implémente, squash »). L'exécution enchaîne d'elle-même vérification,
 recette et reviews (étapes 5 à 7) : ne jamais demander s'il faut lancer les reviews. Pousser, ouvrir la PR et
 merger attendent toujours une demande explicite de l'utilisateur.
+
+## Fidélité à la demande
+
+La demande de l'utilisateur est la référence ; la spec la précise, le plan l'argumente, le code l'exécute. Rien ne
+s'ajoute ni ne se perd en route.
+
+**Spec** — quatre sections obligatoires, relues dans Plannotator :
+1. **Demande initiale** : les mots de l'utilisateur, cités tels quels (et la recette ou le ticket d'origine s'il y en
+   a). Toute exigence de la spec s'y rattache ; ce qui ne s'y rattache pas est retiré ou validé par l'utilisateur.
+2. **Portée de chaque règle** : pour chaque règle nouvelle ou modifiée, la liste de tous les endroits qu'elle touche
+   (écrans, boutons, champs, routes d'API, commandes, exports), établie en cherchant dans le code les usages de la
+   donnée ou du concept, pas de mémoire. Chaque endroit dit ce qu'il devient, y compris « inchangé, parce que… ».
+3. **Données existantes** : pour chaque validation ou contrainte ajoutée, ce que deviennent les enregistrements déjà
+   en base qui ne la respectent pas (bloqués à l'enregistrement, corrigés par migration, tolérés).
+4. **Critères d'acceptation** : cas nominaux, refus, et **cas combinés** (deux champs en erreur ensemble, deux règles
+   qui se croisent, statut × état des données).
+
+**Plan** — une table de traçabilité en tête : chaque exigence de la spec (§) → tâche → test qui la prouve. Une
+exigence sans test, ou une tâche sans exigence, est un défaut du plan. Les tests du plan couvrent les cas combinés
+des critères d'acceptation. Un test existant que le plan rend faux est nommé dans la tâche qui le casse.
+
+**Exécution** — l'implémenteur prouve le rouge (sortie du test qui échoue, dans son rapport) avant d'écrire le code,
+et lance les tests du contexte borné entier avant de commiter. Ce que le brief ne dit pas ne s'invente pas :
+NEEDS_CONTEXT. Un test existant modifié est signalé avec sa raison.
+
+**Review finale** — avant la grille qualité, Opus vérifie la chaîne : chaque phrase de la demande initiale est
+couverte par la spec, chaque exigence de la spec par du code et un test, et le diff ne contient rien que la spec ne
+demande. Un écart (ajout, omission, règle appliquée à une partie seulement de sa portée) est au moins Important.
 
 ## Grille qualité (review Opus)
 
@@ -74,6 +102,10 @@ enfreint et correctif attendu ; ou « conforme ».
 | « Le plan est clair, je le résume dans le chat » | Le plan passe par Plannotator, approuvé avant le `/clear`. |
 | « La spec est courte, l'utilisateur la lira dans le chat » | La spec s'ouvre toujours dans Plannotator. |
 | « Fermé sans annotation, c'est approuvé » | Non : seul `"decision": "approved"` (bouton Approuver de `--gate`) vaut approbation. Une session fermée (`dismissed`) se rouvre ou se confirme dans le chat. |
+| « La règle ne touche que ce champ » | Chercher ses usages dans le code et lister toute sa portée dans la spec. |
+| « La nouvelle validation ne concerne que les nouvelles saisies » | Elle s'applique aussi aux données en base au prochain enregistrement : la spec dit ce qu'elles deviennent. |
+| « Les tests du plan passent, la tâche est finie » | Le contexte borné entier passe, et le rouge a été vu avant le code. |
+| « Tests et code écrits d'un jet, c'est pareil » | Non : sans rouge constaté, le test ne prouve rien. |
 | « Je demande si l'utilisateur veut une review » | Non : ponytail-review et Opus se lancent seuls à la fin du développement. |
 
 ## Signaux d'alarme
