@@ -22,7 +22,7 @@ Une feature suit toujours le même cycle, dans cet ordre. Chaque étape a son ou
 | 4 | Exécution | `superpowers:subagent-driven-development`. Implémenteur **Sonnet**. Contrôle par tâche **Haiku, effort low** : compilation + tests de la tâche, rien d'autre. Agents `sdd-implementer` / `sdd-task-reviewer` / `sdd-final-reviewer` du projet s'ils existent. Toujours passer le modèle explicitement |
 | 5 | Vérification | Suite complète de tests + analyse statique, sortie lue. Une erreur d'environnement (base injoignable, port) se diagnostique, elle ne s'ignore pas |
 | 6 | Recette | Si le plan en prévoit une : la faire soi-même dans le navigateur (Playwright), étape par étape |
-| 7 | Reviews | **Automatiques**, sans attendre de demande, dès la vérification (et la recette) au vert : `ponytail:ponytail-review` et review complète par **Opus** (`sdd-final-reviewer`, modèle passé explicitement) sur toute la branche, en parallèle. Rapporter les deux, puis corriger ce que l'utilisateur retient ; un correctif qui change le comportement amende la spec d'abord |
+| 7 | Reviews | **Automatiques**, sans attendre de demande, dès la vérification (et la recette) au vert : `ponytail:ponytail-review` et review complète par **Opus** (`sdd-final-reviewer`, modèle passé explicitement) sur toute la branche, en parallèle. La review Opus applique aussi la grille qualité ci-dessous. Rapporter les deux, puis corriger ce que l'utilisateur retient ; un correctif qui change le comportement amende la spec d'abord |
 | 8 | PR | Pousser la branche et ouvrir la PR avec le compte gh indiqué par la mémoire du projet (jeton ponctuel, sans changer le compte actif). La PR peut porter plusieurs commits, poussés tels quels |
 | 9 | Correctifs | Correctifs après la PR (review, recette) : nouveaux commits, `push` simple, sans réécriture |
 | 10 | Squash | Avant le merge seulement : un seul commit par feature (spec + plan + code), message qui résume la feature, `git reset --soft <merge-base>`. PR de plus de ~30-40 fichiers modifiés : un commit par pan fonctionnel métier. Puis `push --force-with-lease=<branche>:<sha attendu>` |
@@ -33,6 +33,33 @@ Une feature suit toujours le même cycle, dans cet ordre. Chaque étape a son ou
 Une demande peut couvrir plusieurs étapes (« implémente, squash »). L'exécution enchaîne d'elle-même vérification,
 recette et reviews (étapes 5 à 7) : ne jamais demander s'il faut lancer les reviews. Pousser, ouvrir la PR et
 merger attendent toujours une demande explicite de l'utilisateur.
+
+## Grille qualité (review Opus)
+
+But : du code qu'un humain relit sans effort. Entrée : `git diff main...HEAD` et les fichiers qu'il touche. Grille
+du projet (WORKFLOW.md, AGENTS.md) si elle existe, sinon celle-ci, adaptée au langage :
+
+- **SOLID** : une classe, une raison de changer ; dépendances vers des interfaces du domaine ; branchement exhaustif
+  sur un type fermé plutôt qu'une chaîne de tests de type ; pas d'interface fourre-tout à moitié implémentée.
+- **KISS** : la solution la plus directe ; pas de généricité, de couche ni d'indirection sans second usage.
+- **DRY** : une règle métier à un seul endroit, remontée dans le module partagé plutôt que copiée entre features.
+  Deux lignes semblables par hasard ne sont pas un doublon.
+- **YAGNI** : rien que la spec ou le plan ne demandent (le détail revient à ponytail-review).
+- **Object calisthenics** :
+  1. un niveau d'indentation par fonction, deux au plus ;
+  2. pas de `else` après un `return` : retour anticipé ou branchement exhaustif ;
+  3. une primitive qui porte une règle métier devient un type ;
+  4. une collection qui porte une règle devient un type à elle ;
+  5. un seul point par ligne pour traverser des objets (`a.b.c.d`) ; chaînes de transformations permises, une étape
+     par ligne ;
+  6. pas d'abréviation dans les noms (`qty`, `cfg`, `mgr`) hors vocabulaire du domaine ;
+  7. fonction ≤ 20 lignes (composant d'interface ≤ 40), fichier ≤ 200 lignes ;
+  8. ≤ 4 dépendances par constructeur ;
+  9. pas d'état mutable exposé : objets immuables, flux en lecture seule, *Tell, don't ask*.
+
+Ne pas signaler : code généré, tests (longueur libre), écart imposé par le framework ou une API externe, dépassement
+d'une ou deux lignes des seuils du point 7. Sortie : écarts classés par gravité, avec `fichier:ligne`, principe
+enfreint et correctif attendu ; ou « conforme ».
 
 ## Excuses et réalité
 
