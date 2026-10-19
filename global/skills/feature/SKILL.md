@@ -1,9 +1,9 @@
 ---
-name: developper-une-feature
-description: Use when the user asks to build, implement or ship a feature end to end (spec, plan, implementation, review, PR, merge), or says « implémente le plan », « fais une review », « squash », « pousse la PR », « merge » on feature work.
+name: feature
+description: Use when the user invokes /feature, asks to build, implement or ship a feature end to end (spec, plan, implementation, review, PR, merge), or says « implémente le plan », « fais une review », « squash », « pousse la PR », « merge » on feature work.
 ---
 
-# Développer une feature
+# Feature
 
 ## Principe
 
@@ -17,7 +17,8 @@ Une feature suit toujours le même cycle, dans cet ordre. Chaque étape a son ou
 | # | Étape | Comment |
 |---|---|---|
 | 1 | Conception | `superpowers:brainstorming` → spec dans `docs/superpowers/specs/`, avec les sections de fidélité (ci-dessous), **toujours** ouverte dans Plannotator (`plannotator-annotate` avec les arguments `<fichier de la spec> --gate --json`, mode approbation) : appliquer chaque annotation, rouvrir jusqu'à l'approbation |
-| 2 | Plan | `superpowers:writing-plans`, **fidèle à la spec** : aucun écart de signature, de champ d'API ni de code d'erreur. Table de traçabilité obligatoire (ci-dessous) ; chaque tâche cite les § de spec qu'elle implémente. Si la spec tient mal face au code, proposer d'amender la spec. Plan commité **sur la branche `feat/…`** (il fait partie de la PR). Puis relecture du plan dans Plannotator (`plannotator-annotate` avec les arguments `<fichier du plan> --gate --json`, mode approbation) : appliquer chaque annotation, commiter, rouvrir jusqu'à l'approbation |
+| 1b | Passage au plan | Dès `"decision": "approved"`, **sans demander** : (a) relire les annotations jointes à l'approbation, appliquer chacune à la spec et commiter ; une annotation qui change le comportement ou la portée → rouvrir Plannotator (`--gate`) ; (b) vérifier chaque fichier de la section « Portée » : il existe, la signature ou le champ cité correspond au code actuel ; (c) chercher dans tout le dépôt (grep, LSP) les usages de chaque symbole, route, champ ou concept modifié : un usage absent de « Portée » → amender la spec et rouvrir Plannotator, sinon le noter pour le plan. Tout est cohérent → étape 2 dans la foulée |
+| 2 | Plan | `superpowers:writing-plans`, **fidèle à la spec** : aucun écart de signature, de champ d'API ni de code d'erreur. Table de traçabilité obligatoire (ci-dessous), avec les usages vérifiés à l'étape 1b ; chaque tâche cite les § de spec qu'elle implémente. Si la spec tient mal face au code, proposer d'amender la spec. Plan commité **sur la branche `feat/…`** (il fait partie de la PR). Puis relecture du plan dans Plannotator (`plannotator-annotate` avec les arguments `<fichier du plan> --gate --json`, mode approbation) : appliquer chaque annotation, commiter, rouvrir jusqu'à l'approbation |
 | 3 | `/clear` | Plan approuvé dans Plannotator, écrit dans cette session (ou session déjà utilisée) → **s'arrêter** et demander `/clear` puis la relance de l'exécution. Ne jamais enchaîner |
 | 4 | Exécution | `superpowers:subagent-driven-development`. Implémenteur **Sonnet**. Contrôle par tâche **Haiku, effort low** : compilation + **tests du contexte borné entier** (`tests/<Contexte>`, pas seulement ceux de la tâche) + présence de chaque test nommé dans le brief et de la preuve du rouge dans le rapport, rien d'autre. Un écart de l'implémenteur au brief, même « pratique », revient au contrôleur, qui amende la spec ou fait corriger : jamais accepté en silence. Agents `sdd-implementer` / `sdd-task-reviewer` / `sdd-final-reviewer` du projet s'ils existent. Toujours passer le modèle explicitement |
 | 5 | Vérification | Suite complète de tests + analyse statique, sortie lue. Une erreur d'environnement (base injoignable, port) se diagnostique, elle ne s'ignore pas |
@@ -50,7 +51,8 @@ s'ajoute ni ne se perd en route.
 4. **Critères d'acceptation** : cas nominaux, refus, et **cas combinés** (deux champs en erreur ensemble, deux règles
    qui se croisent, statut × état des données).
 
-**Plan** — une table de traçabilité en tête : chaque exigence de la spec (§) → tâche → test qui la prouve. Une
+**Plan** — une table de traçabilité en tête : chaque exigence de la spec (§) → tâche → test qui la prouve ; pour
+chaque fichier touché, les usages trouvés à l'étape 1b et ce qu'ils deviennent. Une
 exigence sans test, ou une tâche sans exigence, est un défaut du plan. Les tests du plan couvrent les cas combinés
 des critères d'acceptation. Un test existant que le plan rend faux est nommé dans la tâche qui le casse.
 
@@ -101,6 +103,8 @@ enfreint et correctif attendu ; ou « conforme ».
 | « Petit écart pratique au plan, je le signale » | Pas d'écart. On amende la spec. |
 | « Le plan est clair, je le résume dans le chat » | Le plan passe par Plannotator, approuvé avant le `/clear`. |
 | « La spec est courte, l'utilisateur la lira dans le chat » | La spec s'ouvre toujours dans Plannotator. |
+| « Spec approuvée, je demande si je passe au plan » | Non : l'approbation déclenche l'étape 1b puis le plan. |
+| « Approuvée, donc les annotations jointes ne comptent pas » | Si : elles s'appliquent à la spec avant d'écrire le plan. |
 | « Fermé sans annotation, c'est approuvé » | Non : seul `"decision": "approved"` (bouton Approuver de `--gate`) vaut approbation. Une session fermée (`dismissed`) se rouvre ou se confirme dans le chat. |
 | « La règle ne touche que ce champ » | Chercher ses usages dans le code et lister toute sa portée dans la spec. |
 | « La nouvelle validation ne concerne que les nouvelles saisies » | Elle s'applique aussi aux données en base au prochain enregistrement : la spec dit ce qu'elles deviennent. |
@@ -111,6 +115,7 @@ enfreint et correctif attendu ; ou « conforme ».
 ## Signaux d'alarme
 
 - Implémenter dans la session qui a écrit le plan.
+- Écrire le plan sans avoir cherché les usages des symboles modifiés.
 - Merger une PR à plusieurs commits, hors découpage par pan fonctionnel métier d'une PR de plus de ~30-40 fichiers.
 - `gh pr merge --merge`, ou un `push --force` sans `--force-with-lease`.
 - Supprimer ou déplacer un fichier de `src/` quand le déploiement ne supprime pas (rsync sans `--delete`) : le signaler avant le merge.
