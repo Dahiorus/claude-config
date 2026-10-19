@@ -25,8 +25,9 @@ ligne faite, numérotation, sections, date « Mis à jour le ». Sans convention
 - **`show`** — les points ouverts (ni rayés, ni cochés `[x]`), groupés par section, numéros d'origine conservés s'il y en a, une
   ligne chacun : titre et résumé. Puis le total. Pas de vérification du code.
 - **`sync [depuis <date|sha>]`** — vérifier chaque point ouvert contre le code, puis mettre le fichier à jour.
-  1. Mettre à jour `origin/main` : `git fetch origin main:refs/remotes/origin/main` (un simple `git fetch origin main`
-     ne met parfois à jour que `FETCH_HEAD`). Point de départ : l'argument (date ou SHA), sinon le SHA du dernier
+  1. Mettre à jour `origin/main` : `git fetch origin main` (pas de refspec explicite : avec `fetch.prune`, il supprime
+     `origin/main` une fois sur deux). `origin/main` différent de `FETCH_HEAD` (refspec restreint) → travailler sur
+     `FETCH_HEAD` à sa place. Point de départ : l'argument (date ou SHA), sinon le SHA du dernier
      commit de `origin/main` qui touche le fichier (`git log -1 --format=%H origin/main -- <fichier>`). Puis les
      commits (`git log <sha>..origin/main`, ou `--since=<date>` pour une date) et les PR mergées après ce commit
      (`gh pr list -R <owner/repo> --state merged --search "merged:>=<date du commit>"`, `<owner/repo>` tiré de
