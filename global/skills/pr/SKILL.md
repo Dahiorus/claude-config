@@ -11,7 +11,7 @@ Une action par invocation, `view` par défaut. La PR est cherchée dans le dép�
 et les `git push` passent par le compte indiqué par la mémoire du projet (jeton ponctuel
 `GH_TOKEN=$(gh auth token -u <compte>)`, sans changer le compte actif). Seul `switch` change la branche de l'arbre
 courant, et seulement s'il est propre : les autres actions travaillent dans l'arbre de la PR, le travail en cours n'est
-pas touché. `push`, `squash` et `merge` reprennent les étapes 8 à 13 du skill `developper-une-feature`, qui reste la
+pas touché. `push`, `squash` et `merge` reprennent les étapes 8 à 13 du skill `feature`, qui reste la
 référence (règles, signaux d'alarme).
 
 ## Aide
