@@ -1,13 +1,17 @@
 ---
 name: pr
-description: Agit sur une PR du dépôt courant — « view » (défaut) l'affiche, « approvals » compte les approbations (2 = prête pour la QA), « switch » extrait sa branche dans l'arbre courant (worktree proposé si l'arbre n'est pas propre), « test » lance la vérification, « push » pousse la branche et crée ou met à jour la PR, « squash » réécrit l'historique en un commit (ou un par pan fonctionnel si la PR est volumineuse) et pousse, « rebase » la rebase sur origin/main, résout les conflits et pousse, « recette » déroule les scénarios et les retours de recette sur l'environnement dédié de la PR ou en local, corrige et pousse, « merge » squashe puis merge en rebase, suit le déploiement, nettoie et met à jour la mémoire, « update-desc » met à jour sa description d'après les retours de Claude dans la session, « help » affiche la syntaxe et les actions. Invoqué par /pr <n°|branche> [view|approvals|switch|test|push|squash|rebase|recette|merge|update-desc|help].
-disable-model-invocation: true
-argument-hint: "<n°|branche> [view|approvals|switch|test|push|squash|rebase|recette|merge|update-desc|help]"
+description: Use when the user invokes /pr, or asks to act on a pull request of the current repo — show it, count approvals, check it out, test it, push and open it, squash, rebase, run its recette, merge it, rewrite its description, review someone else's PR or address its review comments (« pousse et crée la PR », « squash et merge », « rebase la PR 42 », « fais la recette de la PR », « relis la PR 114 », « review la partie front », « traite les commentaires de alice », « la PR a-t-elle ses approbations », « mets à jour la description de la PR »).
+argument-hint: "<n°|branche> [action…] [consigne]"
 ---
 
 # PR
 
-Une action par invocation, `view` par défaut. La PR est cherchée dans le dépôt courant uniquement. Les commandes `gh`
+Sans `/pr`, l'action vient de la demande : `squash`, `rebase`, `merge` et `review` seulement si l'utilisateur les
+nomme, jamais déduites.
+
+`view` par défaut. Plusieurs actions à la suite (`/pr 81 squash update-desc`, `/pr push recette`) s'exécutent dans
+l'ordre, arrêt au premier échec. Le texte libre qui suit les actions est une consigne pour elles (« en mode boîte
+noire », « la partie front », « de amercadal »). La PR est cherchée dans le dépôt courant uniquement. Les commandes `gh`
 et les `git push` passent par le compte indiqué par la mémoire du projet (jeton ponctuel
 `GH_TOKEN=$(gh auth token -u <compte>)`, sans changer le compte actif). Seul `switch` change la branche de l'arbre
 courant, et seulement s'il est propre : les autres actions travaillent dans l'arbre de la PR, le travail en cours n'est
@@ -16,11 +20,11 @@ référence (règles, signaux d'alarme).
 
 ## Aide
 
-`/pr`, `/pr help` ou action inconnue → afficher ce bloc tel quel (action inconnue : la nommer avant), sans rien faire
-d'autre :
+`/pr` ou `/pr help` → afficher ce bloc tel quel, sans rien faire d'autre. Action inconnue proche d'une action connue
+(`viw`, `sswitch`) → proposer celle-ci et attendre ; sinon la nommer et afficher ce bloc.
 
 ```text
-/pr <n°|branche> [action]      PR du dépôt courant, action « view » par défaut
+/pr <n°|branche> [action…] [consigne]   PR du dépôt courant, « view » par défaut
 
   view          affiche la PR
   approvals     compte les approbations (2 = prête pour la QA)
@@ -33,9 +37,12 @@ d'autre :
                 liste numérotée écran + élément + observé + attendu + périmètre
   merge         squash si besoin, merge en rebase, déploiement, nettoyage, mémoire
   update-desc   réécrit la description d'après la session et les commits
+  review        relit la PR d'un autre, publie les commentaires (statut « commenté »)
+  comments      traite les commentaires non résolus, corrige, pousse, répond aux fils
   help          cette aide
 
-Exemples : /pr 42 · /pr 42 switch · /pr push · /pr feat/x push · /pr 42 merge · /pr main switch
+Exemples : /pr 42 · /pr 42 switch · /pr push recette · /pr 42 squash merge · /pr 42 review la partie front
+           /pr 42 comments de alice · /pr main switch
 ```
 
 ## Résoudre la PR
@@ -78,7 +85,7 @@ branche qui n'a pas encore de PR (`/pr push` sans référence vise la branche co
 session n'était pas entrée par `EnterWorktree`, donner le chemin du dépôt principal à ouvrir. Dans le dépôt principal
 propre : `git switch main && git pull --ff-only` ; pas propre → le dire et s'arrêter.
 
-## Arbre de la PR (`test`, `push`, `squash`, `rebase`, `recette`, `merge`)
+## Arbre de la PR (`test`, `push`, `squash`, `rebase`, `recette`, `merge`, `review`, `comments`)
 
 Branche déjà extraite quelque part (`git worktree list` la montre, arbre courant compris) → travailler dans ce chemin.
 Sinon worktree `<racine>.worktrees/pr-<n°>`, à côté du dépôt, où `<racine>` est le premier chemin de
@@ -93,8 +100,8 @@ Sinon worktree `<racine>.worktrees/pr-<n°>`, à côté du dépôt, où `<racine
 
 `push` sur une branche sans PR qui n'est extraite nulle part → le dire et s'arrêter.
 
-Préconditions communes à `push`, `squash`, `rebase` et `merge` (s'arrêter et le dire si l'une manque) : branche ≠
-`main` ; arbre propre, ou modifications en cours à intégrer (les lister et demander avant de les commiter) ; PR de fork
+Préconditions communes à `push`, `squash`, `rebase`, `merge` et `comments` (s'arrêter et le dire si l'une manque) :
+branche ≠ `main` ; arbre propre, ou modifications en cours à intégrer (les lister et demander avant de les commiter) ; PR de fork
 ou `state` ≠ `OPEN` → refuser, sauf `push` qui n'a pas encore de PR.
 
 ### `test`
@@ -108,10 +115,12 @@ L'invocation vaut demande explicite de pousser et d'ouvrir la PR. Jamais de squa
 porter plusieurs commits ; un historique désordonné se signale au plus dans le rapport.
 
 1. Vérification au vert dans cette session, sinon la lancer et lire la sortie. Rouge → on ne pousse pas.
-2. `git push` simple (`-u origin <branche>` la première fois).
-3. Aucune PR ouverte pour la branche : `gh pr create` (titre = sujet du commit ou de la feature, description
+2. **Reste à faire** — le projet en a un (skill `todo`) : y rayer les points que la PR règle et ajouter ses « hors
+   périmètre » et reliquats (spec, plan, rapport de recette), puis le commiter avec la PR. Rien à changer → passer.
+3. `git push` simple (`-u origin <branche>` la première fois).
+4. Aucune PR ouverte pour la branche : `gh pr create` (titre = sujet du commit ou de la feature, description
    fonctionnelle en français). PR existante : mettre à jour la description si le périmètre a changé (`update-desc`).
-4. Rapport : commit(s), lien de la PR, ce qui reste (recette, review). Terminer par ce rappel, mot pour mot :
+5. Rapport : commit(s), lien de la PR, ce qui reste (recette, review). Terminer par ce rappel, mot pour mot :
    « Recette : `/clear`, puis `/pr N recette` avec tous les retours en un message — liste numérotée écran + élément +
    observé + attendu + périmètre, règle générale plutôt que cas. »
 
@@ -176,8 +185,9 @@ puis corriger. Les retours de l'utilisateur viennent avec l'invocation ou dans l
 
 L'invocation vaut demande de squasher et de merger : c'est le merge qui impose l'historique final.
 
-1. **Squash** — étapes de `squash`, sauf si l'historique en est déjà le résultat (un commit, ou un par pan fonctionnel,
-   sans commit de correctif depuis) et à jour avec `origin/main`.
+1. **Squash** — reste à faire à jour d'abord (étape 2 de `push`), puis étapes de `squash`, sauf si l'historique en
+   est déjà le résultat (un commit, ou un par pan fonctionnel, sans commit de correctif depuis) et à jour avec
+   `origin/main`.
 2. **Merge** — CI de la PR au vert s'il y en a une (`gh pr checks --watch`), puis `gh pr merge --rebase`, jamais
    `--merge`. Dépôt avec un `Jenkinsfile` à la racine : le statut `continuous-integration/jenkins/pr-head` n'apparaît
    qu'une fois le build lancé, et rien côté GitHub n'empêche de merger sans lui. Ne merger que lorsqu'il est `SUCCESS`
@@ -192,6 +202,35 @@ L'invocation vaut demande de squasher et de merger : c'est le merge qui impose l
 4. **Mémoire** — mettre à jour la mémoire du projet : PR, SHA de merge, déploiement, ce qui reste à faire.
 5. Rapport : une ligne par étape faite (SHA, lien de PR, état du déploiement) et ce qui n'a pas été fait, avec la
    raison.
+
+### `review`
+
+L'invocation vaut demande de relire et de publier. PR dont on est l'auteur → refuser (`push`, `recette`).
+
+1. Diff de la PR contre sa base (`git diff origin/<baseRefName>...HEAD` dans l'arbre de la PR), restreint au
+   périmètre de la consigne s'il y en a un, et les fichiers qu'il touche. Contexte : description, spec ou issue liée.
+2. Grille : celle du projet (WORKFLOW.md, AGENTS.md, CONTRIBUTING.md), sinon la grille qualité du skill `feature`.
+   Bugs et sécurité d'abord, puis lisibilité ; chaque remarque est vérifiée dans le code, pas supposée. Pas de
+   remarque de goût sans règle du projet derrière.
+3. Publier une seule review `COMMENT`, jamais `APPROVE` ni `REQUEST_CHANGES` :
+   `gh api repos/<owner/repo>/pulls/<n°>/reviews --input <fichier>` avec `event: "COMMENT"`, un `body` de synthèse
+   et un `comments` par remarque (`path`, `line` du nouveau fichier, `side: "RIGHT"`), en français, problème +
+   suggestion. Ligne hors du diff → dans le `body`, avec `fichier:ligne`.
+4. Rapport : lien de la review, remarques par gravité.
+
+### `comments`
+
+L'invocation vaut demande de corriger, pousser et répondre.
+
+1. Fils non résolus (`gh api graphql`, `reviewThreads` avec `isResolved`, `comments { databaseId path line body
+   author { login } }`), filtrés par auteur si la consigne le dit (« de alice »). Aucun → le dire et s'arrêter.
+2. Pour chaque fil : corriger (règle générale plutôt que cas, comme pour `recette`), ou, si le commentaire paraît
+   faux ou ambigu, ne pas corriger et le lister. Changement de comportement non prévu par la spec → demander.
+3. Vérification du projet ; rouge → ne pas pousser. Commits au format de `CONTRIBUTING.md`, `push` simple.
+4. Répondre à chaque fil corrigé (`gh api repos/<owner/repo>/pulls/<n°>/comments/<databaseId>/replies -f body=…`) :
+   ce qui a changé et le SHA. Ne pas résoudre les fils : c'est au relecteur. Fils non corrigés : réponse proposée
+   dans le rapport, publiée après accord.
+5. Rapport : tableau fil → corrigé (SHA) / en attente (raison), lien de la PR.
 
 ## Nettoyage d'une PR fermée sans merge
 
