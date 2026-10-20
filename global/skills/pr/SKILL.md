@@ -33,7 +33,7 @@ référence (règles, signaux d'alarme).
   push          pousse les commits tels quels, crée la PR ou met à jour sa description
   squash        réécrit en un commit (un par pan fonctionnel si PR volumineuse), push forcé
   rebase        rebase sur origin/main, résout les conflits, push forcé
-  recette       déroule la recette (env. dédié ou local), corrige, pousse ; retours en
+  recette       déroule la recette (env. de la PR, sinon local), corrige, pousse ; retours en
                 liste numérotée écran + élément + observé + attendu + périmètre
   merge         squash si besoin, merge en rebase, déploiement, nettoyage, mémoire
   update-desc   réécrit la description d'après la session et les commits
@@ -157,17 +157,19 @@ L'invocation vaut demande de réécrire la branche et de la pousser.
 
 ### `recette`
 
-Exécuter la recette sur l'environnement dédié de la PR ou, à défaut, sur l'application lancée depuis l'arbre de la PR,
-puis corriger. Les retours de l'utilisateur viennent avec l'invocation ou dans le message qui suit (liste numérotée
-écran + élément + observé + attendu + périmètre).
+Exécuter la recette sur l'environnement de recette indiqué dans la description de la PR ou, par défaut, en local sur
+l'application lancée depuis l'arbre de la PR, puis corriger. Les retours de l'utilisateur viennent avec l'invocation
+ou dans le message qui suit (liste numérotée écran + élément + observé + attendu + périmètre).
 
 1. **Scénarios** — les retours de l'utilisateur, plus la recette prévue par la PR (description, plan commité sur la
    branche). Aucun des deux → déduire les scénarios de la description et du diff, les lister et attendre l'accord.
-2. **Environnement** — la PR a un environnement dédié si son titre se termine par `[DEPLOY_PR][<env-id>]` (convention
-   de renoshield) : son lien est dans la description, dans le bloc ajouté par le déploiement
-   (`:heavy_check_mark: … http://…-<env-id>…`). Bloc présent et marqué réussi → recetter sur ce lien, sans lancement
-   local. Sinon (pas de tag, bloc absent ou en échec, lien injoignable) → le dire et démarrer l'application dans
-   l'arbre de la PR (commande du CLAUDE.md du projet, dépendances installées si le worktree est neuf), en arrière-plan.
+2. **Environnement** — chercher dans la description de la PR un environnement de recette : lien d'un environnement
+   déployé pour la PR, par exemple le bloc ajouté par le déploiement d'une PR titrée `[DEPLOY_PR][<env-id>]`
+   (convention de renoshield : `:heavy_check_mark: … http://…-<env-id>…`). Lien présent, déploiement réussi →
+   recetter sur ce lien, sans lancement local. Aucun environnement dans la description → recette en local, par
+   défaut, sans demander. Environnement indiqué mais en échec ou injoignable → le dire, puis recette en local. En
+   local : démarrer l'application dans l'arbre de la PR (commande du CLAUDE.md du projet, dépendances installées si
+   le worktree est neuf), en arrière-plan.
    Port déjà pris ou service injoignable : le diagnostiquer, ne pas recetter une autre instance.
 3. **Exécution** — chaque scénario étape par étape (Playwright pour une interface web), avec observé et attendu.
    Rapport : un tableau scénario → conforme / non conforme, capture d'écran à l'appui des écarts.
