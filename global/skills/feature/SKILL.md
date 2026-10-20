@@ -40,16 +40,26 @@ merger attendent toujours une demande explicite de l'utilisateur.
 La demande de l'utilisateur est la référence ; la spec la précise, le plan l'argumente, le code l'exécute. Rien ne
 s'ajoute ni ne se perd en route.
 
-**Spec** — quatre sections obligatoires, relues dans Plannotator :
+**Spec** — six sections obligatoires, relues dans Plannotator :
 1. **Demande initiale** : les mots de l'utilisateur, cités tels quels (et la recette ou le ticket d'origine s'il y en
    a). Toute exigence de la spec s'y rattache ; ce qui ne s'y rattache pas est retiré ou validé par l'utilisateur.
 2. **Portée de chaque règle** : pour chaque règle nouvelle ou modifiée, la liste de tous les endroits qu'elle touche
    (écrans, boutons, champs, routes d'API, commandes, exports), établie en cherchant dans le code les usages de la
    donnée ou du concept, pas de mémoire. Chaque endroit dit ce qu'il devient, y compris « inchangé, parce que… ».
+   Pour chaque donnée, colonne ou signature ajoutée ou modifiée : **tous ses lecteurs et écrivains**, dans le code
+   serveur, l'interface, les gabarits et les exports, et dans les autres contextes ou modules qui la consomment
+   (requêtes qui doivent la sélectionner, présentateurs, feuilles, imports). Un champ ajouté qu'un lecteur ne
+   sélectionne pas, ou qu'un autre module ignore, est un oubli classique.
 3. **Données existantes** : pour chaque validation ou contrainte ajoutée, ce que deviennent les enregistrements déjà
    en base qui ne la respectent pas (bloqués à l'enregistrement, corrigés par migration, tolérés).
 4. **Critères d'acceptation** : cas nominaux, refus, et **cas combinés** (deux champs en erreur ensemble, deux règles
    qui se croisent, statut × état des données).
+5. **Filet sur l'existant** : pour chaque fichier modifié dont le comportement actuel n'est couvert par aucun test,
+   les tests de caractérisation à écrire **avant** de le modifier (comportement actuel figé, vert sur `main`), pour
+   qu'une régression sur ce qui ne devait pas changer se voie. Le plan en fait sa première tâche.
+6. **Origine** : chaque point traité (repris du reste à faire, d'une recette, d'une review) et chaque point laissé
+   « hors périmètre » porte son origine : *régression* introduite par une PR (la citer), *défaut ancien* découvert,
+   ou *hors périmètre* d'une spec (la citer). Le reste à faire reprend cette origine.
 
 **Plan** — une table de traçabilité en tête : chaque exigence de la spec (§) → tâche → test qui la prouve ; pour
 chaque fichier touché, les usages trouvés à l'étape 1b et ce qu'ils deviennent. Une
