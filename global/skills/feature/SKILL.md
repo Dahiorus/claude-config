@@ -40,7 +40,7 @@ merger attendent toujours une demande explicite de l'utilisateur.
 La demande de l'utilisateur est la référence ; la spec la précise, le plan l'argumente, le code l'exécute. Rien ne
 s'ajoute ni ne se perd en route.
 
-**Spec** — six sections obligatoires, relues dans Plannotator :
+**Spec** — sept sections obligatoires, relues dans Plannotator :
 1. **Demande initiale** : les mots de l'utilisateur, cités tels quels (et la recette ou le ticket d'origine s'il y en
    a). Toute exigence de la spec s'y rattache ; ce qui ne s'y rattache pas est retiré ou validé par l'utilisateur.
 2. **Portée de chaque règle** : pour chaque règle nouvelle ou modifiée, la liste de tous les endroits qu'elle touche
@@ -60,11 +60,17 @@ s'ajoute ni ne se perd en route.
 6. **Origine** : chaque point traité (repris du reste à faire, d'une recette, d'une review) et chaque point laissé
    « hors périmètre » porte son origine : *régression* introduite par une PR (la citer), *défaut ancien* découvert,
    ou *hors périmètre* d'une spec (la citer). Le reste à faire reprend cette origine.
+7. **Dette du code touché** : pour chaque méthode que la feature modifie, ses écarts à la grille qualité (longueur,
+   dépendances du constructeur, absence de tests…), relevés en même temps que la portée. Chaque écart reçoit une
+   décision dans Plannotator : *corrigé dans cette PR* ou *reporté au reste à faire*. Seulement les méthodes
+   modifiées, jamais le fichier entier.
 
 **Plan** — une table de traçabilité en tête : chaque exigence de la spec (§) → tâche → test qui la prouve ; pour
 chaque fichier touché, les usages trouvés à l'étape 1b et ce qu'ils deviennent. Une
 exigence sans test, ou une tâche sans exigence, est un défaut du plan. Les tests du plan couvrent les cas combinés
-des critères d'acceptation. Un test existant que le plan rend faux est nommé dans la tâche qui le casse.
+des critères d'acceptation. Un test existant que le plan rend faux est nommé dans la tâche qui le casse. Les tâches
+s'enchaînent dans cet ordre, un commit chacune : tests de caractérisation (§5), refacto sans changement de
+comportement (écarts *corrigés* du §7), puis la feature.
 
 **Exécution** — l'implémenteur prouve le rouge (sortie du test qui échoue, dans son rapport) avant d'écrire le code,
 et lance les tests du contexte borné entier avant de commiter. Ce que le brief ne dit pas ne s'invente pas :
@@ -115,6 +121,7 @@ enfreint et correctif attendu ; ou « conforme ».
 | « Fermé sans annotation, c'est approuvé » | Non : seul `"decision": "approved"` (bouton Approuver de `--gate`) vaut approbation. Une session fermée (`dismissed`) se rouvre ou se confirme dans le chat. |
 | « La règle ne touche que ce champ » | Chercher ses usages dans le code et lister toute sa portée dans la spec. |
 | « La nouvelle validation ne concerne que les nouvelles saisies » | Elle s'applique aussi aux données en base au prochain enregistrement : la spec dit ce qu'elles deviennent. |
+| « La méthode était déjà longue avant moi » | La spec dit ce qu'elle devient (corrigée ou reportée au reste à faire). |
 | « Les tests du plan passent, la tâche est finie » | Le contexte borné entier passe, et le rouge a été vu avant le code. |
 | « Tests et code écrits d'un jet, c'est pareil » | Non : sans rouge constaté, le test ne prouve rien. |
 | « Les retours de review sont dans le chat, ça suffit » | Ils vont dans `final-review.md` : le `/clear` les efface du chat. |
