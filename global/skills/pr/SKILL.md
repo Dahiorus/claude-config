@@ -1,7 +1,7 @@
 ---
 name: pr
-description: Use when the user invokes /pr, or asks to act on a pull request of the current repo — show it, count approvals, check it out, test it, push and open it, squash, rebase, run its recette, merge it, rewrite its description, review someone else's PR or address its review comments (« pousse et crée la PR », « squash et merge », « rebase la PR 42 », « fais la recette de la PR », « relis la PR 114 », « review la partie front », « traite les commentaires de alice », « la PR a-t-elle ses approbations », « mets à jour la description de la PR »).
-argument-hint: "<n°|branche> [action…] [consigne]"
+description: Use when the user invokes /pr, or asks to list the pull requests of the current repo (« liste les PR ») or act on one — show it, count approvals, check it out, test it, push and open it, squash, rebase, run its recette, merge it, rewrite its description, review someone else's PR or address its review comments (« pousse et crée la PR », « squash et merge », « rebase la PR 42 », « fais la recette de la PR », « relis la PR 114 », « review la partie front », « traite les commentaires de alice », « la PR a-t-elle ses approbations », « mets à jour la description de la PR »).
+argument-hint: "list | <n°|branche> [action…] [consigne]"
 ---
 
 # PR
@@ -26,6 +26,7 @@ référence (règles, signaux d'alarme).
 ```text
 /pr <n°|branche> [action…] [consigne]   PR du dépôt courant, « view » par défaut
 
+  list          liste les PR du dépôt (sans n°) : open par défaut, closed
   view          affiche la PR
   approvals     compte les approbations (2 = prête pour la QA)
   switch        extrait la branche ici ; arbre pas propre → propose son worktree
@@ -41,18 +42,27 @@ référence (règles, signaux d'alarme).
   comments      traite les commentaires non résolus, corrige, pousse, répond aux fils
   help          cette aide
 
-Exemples : /pr 42 · /pr 42 switch · /pr push recette · /pr 42 squash merge · /pr 42 review la partie front
+Exemples : /pr list · /pr list closed · /pr 42 · /pr 42 switch · /pr push recette · /pr 42 squash merge · /pr 42 review la partie front
            /pr 42 comments de alice · /pr main switch
 ```
 
 ## Résoudre la PR
 
 `gh pr view <n°|branche> --json number,headRefName,isCrossRepository,state`. Introuvable → le dire et s'arrêter
-(PR d'un autre dépôt : lancer `/pr` depuis ce projet). Ne visent pas de PR : `/pr main switch`, et `push` sur une
+(PR d'un autre dépôt : lancer `/pr` depuis ce projet). Ne visent pas de PR : `/pr list`, `/pr main switch`, et `push` sur une
 branche qui n'a pas encore de PR (`/pr push` sans référence vise la branche courante, `main` comprise : voir `push`).
 
 ## Actions sans arbre
 
+- **`list`** — tableau markdown, rendu tel quel dans la réponse (pas dans un bloc de code) ; la consigne se traduit en
+  options `gh` (`open` ou « ouvertes » → défaut, `closed` ou « fermées » → `--state closed`, « toutes » → `--state all`, « de alice » → `--author alice`,
+  « les miennes » → `--author @me`) :
+
+  ```bash
+  gh pr list --json number,title,headRefName,state,isDraft,author,updatedAt --jq '
+    "| N° | Titre | Branche | État | Auteur | Mise à jour |", "|---|---|---|---|---|---|",
+    (.[] | "| #\(.number) | \(.title | gsub("\\|"; "\\|")) | `\(.headRefName)` | \(if .isDraft then "DRAFT" else .state end) | \(.author.login) | \(.updatedAt[:10]) |")'
+  ```
 - **`view`** — `gh pr view <n°>` et rendre la sortie telle quelle.
 - **`approvals`** — dernier avis décisif de chaque relecteur (un `COMMENTED` n'annule pas une approbation) :
 
