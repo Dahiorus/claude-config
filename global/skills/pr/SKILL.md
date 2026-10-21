@@ -49,7 +49,7 @@ Exemples : /pr 42 · /pr 42 switch · /pr push recette · /pr 42 squash merge ·
 
 `gh pr view <n°|branche> --json number,headRefName,isCrossRepository,state`. Introuvable → le dire et s'arrêter
 (PR d'un autre dépôt : lancer `/pr` depuis ce projet). Ne visent pas de PR : `/pr main switch`, et `push` sur une
-branche qui n'a pas encore de PR (`/pr push` sans référence vise la branche courante).
+branche qui n'a pas encore de PR (`/pr push` sans référence vise la branche courante, `main` comprise : voir `push`).
 
 ## Actions sans arbre
 
@@ -101,7 +101,7 @@ Sinon worktree `<racine>.worktrees/pr-<n°>`, à côté du dépôt, où `<racine
 `push` sur une branche sans PR qui n'est extraite nulle part → le dire et s'arrêter.
 
 Préconditions communes à `push`, `squash`, `rebase`, `merge` et `comments` (s'arrêter et le dire si l'une manque) :
-branche ≠ `main` ; arbre propre, ou modifications en cours à intégrer (les lister et demander avant de les commiter) ; PR de fork
+branche ≠ `main` (sauf `push`, qui crée alors sa branche) ; arbre propre, ou modifications en cours à intégrer (les lister et demander avant de les commiter) ; PR de fork
 ou `state` ≠ `OPEN` → refuser, sauf `push` qui n'a pas encore de PR.
 
 ### `test`
@@ -114,6 +114,11 @@ neuf) dans l'arbre de la PR, sans quitter l'arbre courant. Rapporter le résulta
 L'invocation vaut demande explicite de pousser et d'ouvrir la PR. Jamais de squash ni de réécriture : une PR peut
 porter plusieurs commits ; un historique désordonné se signale au plus dans le rapport.
 
+0. **Depuis `main`** — `git fetch origin main` ; ni modification en cours ni commit en avance sur `origin/main`
+   (`git log origin/main..HEAD`) → rien à pousser, le dire et s'arrêter. Sinon `git switch -c <type>/<sujet>` depuis
+   l'état courant (type d'après le contenu : `feat`, `fix`, `docs`, `chore` ; sujet court en kebab-case), qui emporte
+   commits et modifications, puis `git branch -f main origin/main` pour remettre `main` au niveau du distant (ses
+   commits vivent désormais sur la branche). Modifications en cours : les lister et demander avant de les commiter.
 1. Vérification au vert dans cette session, sinon la lancer et lire la sortie. Rouge → on ne pousse pas.
 2. **Reste à faire** — le projet en a un (skill `todo`) : y rayer les points que la PR règle et ajouter ses « hors
    périmètre » et reliquats (spec, plan, rapport de recette), puis le commiter avec la PR. Rien à changer → passer.
