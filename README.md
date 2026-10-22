@@ -40,7 +40,7 @@ Les fichiers existants sont toujours sauvegardés en `<nom>.bak-<date>` avant d'
 
 | Script | Effet |
 |---|---|
-| `scripts/morning_brief.py [--data\|--selftest]` | Point du matin : PR à relire et tes PR (CI, reviews, conflits) sur les repos GitHub de `~/IdeaProjects`, résumées par `claude -p`. Prérequis : `gh` et `claude` connectés |
+| `scripts/morning_brief.py [--data\|--selftest]` | Point du matin : PR à relire et tes PR (CI, reviews, conflits) sur les repos GitHub de `~/IdeaProjects`, résumées par `claude -p`. Lancé en arrière-plan par le hook `SessionStart` (`global/morning-brief-hook.sh`) à la première session du jour, résultat dans `~/morning-brief/<date>.md` avec une notification. Prérequis : `gh` et `claude` connectés |
 
 ## Jamais versionné
 

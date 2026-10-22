@@ -33,6 +33,15 @@
             "command": "jq -n --rawfile m ~/.claude/session-intro.md \"{systemMessage: \\$m}\""
           }
         ]
+      },
+      {
+        "matcher": "startup",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.claude/morning-brief-hook.sh"
+          }
+        ]
       }
     ]
   },
