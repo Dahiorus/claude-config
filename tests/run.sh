@@ -45,7 +45,7 @@ done < <(declare -F | awk '{print $3}' | grep '^test_' | sort || true)
 
 if [[ -z "$filter" ]]; then
   if command -v shellcheck >/dev/null 2>&1; then
-    mapfile -t files < <(cd "$REPO_SRC" && ls -d bin/claude-config deps.sh global/bash-rewrite-hook.sh lib/*.sh tests/*.sh 2>/dev/null || true)
+    mapfile -t files < <(cd "$REPO_SRC" && ls -d bin/claude-config deps.sh global/bash-rewrite-hook.sh global/morning-brief-hook.sh lib/*.sh tests/*.sh 2>/dev/null || true)
     if (cd "$REPO_SRC" && shellcheck -x "${files[@]}"); then
       passed=$((passed + 1))
       printf 'PASS  shellcheck\n'
