@@ -70,7 +70,10 @@ chaque fichier touché, les usages trouvés à l'étape 1b et ce qu'ils devienne
 exigence sans test, ou une tâche sans exigence, est un défaut du plan. Les tests du plan couvrent les cas combinés
 des critères d'acceptation. Un test existant que le plan rend faux est nommé dans la tâche qui le casse. Les tâches
 s'enchaînent dans cet ordre, un commit chacune : tests de caractérisation (§5), refacto sans changement de
-comportement (écarts *corrigés* du §7), puis la feature.
+comportement (écarts *corrigés* du §7), puis la feature. Tout code du plan (classe, test, commande, extrait de
+configuration) est présenté dans un bloc de code délimité par ```` ``` ```` et étiqueté avec son langage (`kotlin`,
+`typescript`, `php`, `sql`, `bash`, `yaml`…), jamais en ligne dans la prose ni dans un bloc sans langage ; le chemin
+du fichier précède le bloc.
 
 **Exécution** — l'implémenteur prouve le rouge (sortie du test qui échoue, dans son rapport) avant d'écrire le code,
 et lance les tests du contexte borné entier avant de commiter. Ce que le brief ne dit pas ne s'invente pas :
@@ -115,6 +118,7 @@ enfreint et correctif attendu ; ou « conforme ».
 | « Haiku peut aussi juger la qualité » | Non : compilation et tests seulement. La qualité, c'est Opus à la fin. |
 | « Petit écart pratique au plan, je le signale » | Pas d'écart. On amende la spec. |
 | « Le plan est clair, je le résume dans le chat » | Le plan passe par Plannotator, approuvé avant le `/clear`. |
+| « Le code est court, je l'écris dans la phrase » | Tout code du plan va dans un bloc délimité, étiqueté avec son langage. |
 | « La spec est courte, l'utilisateur la lira dans le chat » | La spec s'ouvre toujours dans Plannotator. |
 | « Spec approuvée, je demande si je passe au plan » | Non : l'approbation déclenche l'étape 1b puis le plan. |
 | « Approuvée, donc les annotations jointes ne comptent pas » | Si : elles s'appliquent à la spec avant d'écrire le plan. |
