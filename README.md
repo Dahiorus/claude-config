@@ -36,6 +36,12 @@ Les fichiers existants sont toujours sauvegardés en `<nom>.bak-<date>` avant d'
 - Surcharges propres à une machine : `settings/local.json` (non versionné), fusionné par-dessus la base.
 - Nouveau template : créer `templates/<nom>/`. `{{PROJECT_NAME}}` y est remplacé par le nom du dossier cible.
 
+## Scripts
+
+| Script | Effet |
+|---|---|
+| `scripts/morning_brief.py [--data\|--selftest]` | Point du matin : PR à relire et tes PR (CI, reviews, conflits) sur les repos GitHub de `~/IdeaProjects`, résumées par `claude -p`. Prérequis : `gh` et `claude` connectés |
+
 ## Jamais versionné
 
 Credentials, historique, sessions, caches, `skills/synced/` : voir `.gitignore`.
