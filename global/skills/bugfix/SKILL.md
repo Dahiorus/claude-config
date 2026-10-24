@@ -33,11 +33,11 @@ Comportement attendu absent ou ambigu → le demander, ne pas le choisir.
 | 5 | Correctif | À la cause, une seule fois, dans le code partagé ; le même défaut ailleurs se corrige aussi (règle générale plutôt que cas). Rien d'autre : ni refactor ni amélioration en passant. Test au vert |
 | 6 | Vérification | Suite complète de tests + analyse statique, sortie lue. Rouge ailleurs → diagnostiquer, pas ignorer |
 | 7 | Recette | Bug visible dans une interface : rejouer le scénario du constat sur l'application locale (Playwright) |
-| 8 | Review | **Automatique** : `ponytail:ponytail-review`. Correctif de plus de ~50 lignes hors tests, ou code sensible (sécurité, argent, données) → aussi Opus (`sdd-final-reviewer`, modèle passé explicitement, grille qualité du skill `feature`), en parallèle. Écrites dans `.superpowers/sdd/<fix>/final-review.md`, numérotées comme dans `feature` ; corriger ce que l'utilisateur retient, chaque point avec son SHA |
+| 8 | Review | **Automatique** : `ponytail:ponytail-review`. Correctif de plus de ~50 lignes hors tests, ou code sensible (sécurité, argent, données) → aussi Opus (`sdd-final-reviewer`, modèle passé explicitement, grille qualité du skill `feature`), en parallèle. Écrites dans `.superpowers/sdd/<fix>/final-review.md`, numérotées comme dans `feature`, triées comme dans `feature` (« Tri des retours ») : « à corriger » corrigés d'office, « à trancher » rapportés ; corriger ce que l'utilisateur retient, chaque point avec son SHA |
 | 9 | Livraison | Commit `🐛` au format de `CONTRIBUTING.md` : la cause et le correctif. Puis skill `pr` (`push`, `recette`, `merge`) sur demande explicite ; reste à faire, `notify` et mémoire comme dans `feature` |
 
 Les étapes 1 à 8 s'enchaînent sans demander. Rapport à la fin de l'étape 8 : cause, correctif (`fichier:ligne`),
-sortie du test rouge puis verte, vérification, reviews, ce qui reste.
+sortie du test rouge puis verte, vérification, reviews (seuls les « à trancher » détaillés), ce qui reste.
 
 ## Excuses et réalité
 
