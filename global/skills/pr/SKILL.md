@@ -131,7 +131,8 @@ porter plusieurs commits ; un historique désordonné se signale au plus dans le
    commits vivent désormais sur la branche). Modifications en cours : les lister et demander avant de les commiter.
 1. Vérification au vert dans cette session, sinon la lancer et lire la sortie. Rouge → on ne pousse pas.
 2. **Reste à faire** — le projet en a un (skill `todo`) : y rayer les points que la PR règle et ajouter ses « hors
-   périmètre » et reliquats (spec, plan, rapport de recette), puis le commiter avec la PR. Rien à changer → passer.
+   périmètre » et reliquats (spec, plan, rapport de recette, points non retenus de `final-review.md`), puis le
+   commiter avec la PR. Rien à changer → passer.
 3. `git push` simple (`-u origin <branche>` la première fois).
 4. Aucune PR ouverte pour la branche : `gh pr create` (titre = sujet du commit ou de la feature, description
    fonctionnelle en français). PR existante : mettre à jour la description si le périmètre a changé (`update-desc`).
