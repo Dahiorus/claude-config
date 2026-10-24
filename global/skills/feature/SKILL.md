@@ -23,9 +23,9 @@ Une feature suit toujours le même cycle, dans cet ordre. Chaque étape a son ou
 | 4 | Exécution | `superpowers:subagent-driven-development`. Implémenteur **Sonnet**, dont le brief rappelle la grille qualité (ci-dessous). Contrôle par tâche **Haiku, effort low** : compilation + **tests du contexte borné entier** (`tests/<Contexte>`, pas seulement ceux de la tâche) + présence de chaque test nommé dans le brief et de la preuve du rouge dans le rapport, rien d'autre. Un écart de l'implémenteur au brief, même « pratique », revient au contrôleur, qui amende la spec ou fait corriger : jamais accepté en silence. Agents `sdd-implementer` / `sdd-task-reviewer` / `sdd-final-reviewer` du projet s'ils existent. Toujours passer le modèle explicitement |
 | 5 | Vérification | Suite complète de tests + analyse statique, sortie lue. Une erreur d'environnement (base injoignable, port) se diagnostique, elle ne s'ignore pas |
 | 6 | Recette | Si le plan en prévoit une : la faire soi-même dans le navigateur (Playwright), étape par étape |
-| 7 | Reviews | **Automatiques**, sans attendre de demande, dès la vérification (et la recette) au vert : `ponytail:ponytail-review` et review complète par **Opus** (`sdd-final-reviewer`, modèle passé explicitement) sur toute la branche, en parallèle. La review Opus vérifie d'abord la fidélité (demande initiale → spec → plan → code, ci-dessous) puis applique la grille qualité. Écrire les deux dans `.superpowers/sdd/<feature>/final-review.md`, numérotées une fois pour toutes (`P1…` pour ponytail, `C1…`, `I1…`, `M1…` par gravité pour Opus), rapporter, puis corriger ce que l'utilisateur retient (« corrige 1 et M3 », y compris après un `/clear` : relire ce fichier) ; chaque point corrigé y reçoit son SHA. Un correctif qui change le comportement amende la spec d'abord. Les correctifs retenus faits, **sans attendre de demande** : le projet a un reste à faire (skill `todo`) → y rayer ce que la feature règle, ajouter les « hors périmètre » de la spec et les points de review non retenus (avec leur origine, §6 de la spec), commiter ; chaque point non retenu de `final-review.md` y reçoit la mention « reste à faire » |
+| 7 | Reviews | **Automatiques**, sans attendre de demande, dès la vérification (et la recette) au vert : `ponytail:ponytail-review` et review complète par **Opus** (`sdd-final-reviewer`, modèle passé explicitement) sur toute la branche, en parallèle. La review Opus vérifie d'abord la fidélité (demande initiale → spec → plan → code, ci-dessous) puis applique la grille qualité. Écrire les deux dans `.superpowers/sdd/<feature>/final-review.md`, numérotées une fois pour toutes (`P1…` pour ponytail, `C1…`, `I1…`, `M1…` par gravité pour Opus), puis **trier les points** (ci-dessous) : corriger d'office les « à corriger », rapporter les « à trancher », puis corriger ce que l'utilisateur retient (« corrige 1 et M3 », « corrige tout » = suivre les recommandations, y compris après un `/clear` : relire ce fichier) ; chaque point corrigé y reçoit son SHA. Un correctif qui change le comportement amende la spec d'abord. Les correctifs retenus faits, **sans attendre de demande** : le projet a un reste à faire (skill `todo`) → y rayer ce que la feature règle, ajouter les « hors périmètre » de la spec et les points de review non retenus (avec leur origine, §6 de la spec), commiter ; chaque point non retenu de `final-review.md` y reçoit la mention « reste à faire » |
 | 8 | PR | Pousser la branche et ouvrir la PR avec le compte gh indiqué par la mémoire du projet (jeton ponctuel, sans changer le compte actif). La PR peut porter plusieurs commits, poussés tels quels. Reste à faire déjà à jour depuis l'étape 7 ; ce qui a changé depuis s'y reporte avant de pousser, comme le fait `/pr push` (étape 2) |
-| 9 | Correctifs | Correctifs après la PR (review, recette) : nouveaux commits, `push` simple, sans réécriture |
+| 9 | Correctifs | Correctifs après la PR (review, recette) : retours triés comme à l'étape 7, puis nouveaux commits, `push` simple, sans réécriture |
 | 10 | Squash | Avant le merge seulement, reste à faire à jour (étape 7) : un seul commit par feature (spec + plan + code), message qui résume la feature, `git reset --soft <merge-base>`. PR de plus de ~30-40 fichiers modifiés : un commit par pan fonctionnel métier. Puis `push --force-with-lease=<branche>:<sha attendu>` |
 | 11 | Merge | `gh pr merge --rebase` (ou `--squash`), **jamais** `--merge`. Si un push sur main déploie : suivre le run jusqu'au succès |
 | 12 | Nettoyage | Supprimer la branche distante, les branches locales de la feature (`feat/…`, `docs/…`) après avoir vérifié que main contient leur contenu ; repasser sur main à jour |
@@ -83,6 +83,21 @@ NEEDS_CONTEXT. Un test existant modifié est signalé avec sa raison.
 couverte par la spec, chaque exigence de la spec par du code et un test, et le diff ne contient rien que la spec ne
 demande. Un écart (ajout, omission, règle appliquée à une partie seulement de sa portée) est au moins Important.
 
+## Tri des retours (review, recette, commentaires)
+
+L'utilisateur ne lit que ce qui demande son avis. Avant de rapporter, chaque point est vérifié dans le code (esprit
+`superpowers:receiving-code-review` : la review peut se tromper) et classé dans `final-review.md` :
+
+- **À corriger** : point confirmé, correctif sans effet sur le comportement ni la portée, une seule façon raisonnable
+  de faire. Corrigé d'office, un commit par point ou groupe cohérent, SHA reporté.
+- **Écarté** : faux positif, écart imposé par le framework, hors grille. Une ligne de raison, rien à faire.
+- **À trancher** : le correctif change le comportement ou la portée, touche la spec, ou plusieurs options se valent.
+  2-3 lignes : impact concret, options, recommandation.
+
+Le rapport dans le chat ne détaille que les « à trancher » ; les deux autres catégories tiennent en une ligne de
+décompte avec renvoi au fichier. « Corrige tout » vaut « suis tes recommandations ». Dans le doute entre deux
+catégories, « à trancher ».
+
 ## Grille qualité (plan, implémentation, review Opus)
 
 But : du code qu'un humain relit sans effort. Entrée de la review : `git diff main...HEAD` et les fichiers qu'il
@@ -130,6 +145,8 @@ enfreint et correctif attendu ; ou « conforme ».
 | « Tests et code écrits d'un jet, c'est pareil » | Non : sans rouge constaté, le test ne prouve rien. |
 | « Les retours de review sont dans le chat, ça suffit » | Ils vont dans `final-review.md` : le `/clear` les efface du chat. |
 | « J'attends qu'on me dise de mettre à jour le reste à faire » | Non : il se met à jour seul dès les correctifs de review faits. |
+| « L'utilisateur a dit « corrige tout », j'applique chaque point » | Chaque point est vérifié puis trié ; « tout » = les recommandations, les écartés restent écartés. |
+| « Je rapporte tous les points, l'utilisateur triera » | Je trie ; seuls les « à trancher » demandent sa lecture. |
 | « Je demande si l'utilisateur veut une review » | Non : ponytail-review et Opus se lancent seuls à la fin du développement. |
 
 ## Signaux d'alarme

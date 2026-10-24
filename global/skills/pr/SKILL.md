@@ -189,9 +189,10 @@ ou dans le message qui suit (liste numérotée écran + élément + observé + a
    Port déjà pris ou service injoignable : le diagnostiquer, ne pas recetter une autre instance.
 3. **Exécution** — chaque scénario étape par étape (Playwright pour une interface web), avec observé et attendu.
    Rapport : un tableau scénario → conforme / non conforme, capture d'écran à l'appui des écarts.
-4. **Correctifs** — les retours de l'utilisateur valent demande de correction ; un écart trouvé par un scénario déduit
-   se propose d'abord. Appliquer la règle générale plutôt que le cas, sur tout le périmètre indiqué. Intention ambiguë
-   ou changement de comportement non prévu par la spec → demander. Puis vérification du projet et nouvelle exécution
+4. **Correctifs** — les retours de l'utilisateur valent demande de correction ; les écarts trouvés par un scénario
+   déduit se trient comme dans `feature` (« Tri des retours ») : « à corriger » corrigés d'office, « à trancher »
+   rapportés. Appliquer la règle générale plutôt que le cas, sur tout le périmètre indiqué. Intention ambiguë ou
+   changement de comportement non prévu par la spec → « à trancher ». Puis vérification du projet et nouvelle exécution
    des scénarios touchés, en local : rouge → ne pas pousser, rapporter. Sur environnement dédié, les rejouer aussi
    après le push, une fois le build du nouveau SHA au vert (redéploiement).
 5. **Push** — nouveaux commits au format de `CONTRIBUTING.md`, `push` simple, sans réécriture ni squash. PR de fork ou
@@ -242,13 +243,15 @@ L'invocation vaut demande de corriger, pousser et répondre.
 
 1. Fils non résolus (`gh api graphql`, `reviewThreads` avec `isResolved`, `comments { databaseId path line body
    author { login } }`), filtrés par auteur si la consigne le dit (« de alice »). Aucun → le dire et s'arrêter.
-2. Pour chaque fil : corriger (règle générale plutôt que cas, comme pour `recette`), ou, si le commentaire paraît
-   faux ou ambigu, ne pas corriger et le lister. Changement de comportement non prévu par la spec → demander.
+2. Pour chaque fil : vérifier le commentaire dans le code, puis le trier comme dans `feature` (« Tri des retours ») :
+   « à corriger » → corrigé (règle générale plutôt que cas, comme pour `recette`) ; « écarté » (faux ou hors règle
+   du projet) → raison ; « à trancher » (ambigu, changement de comportement non prévu par la spec) → options et
+   recommandation, rien n'est corrigé avant l'accord.
 3. Vérification du projet ; rouge → ne pas pousser. Commits au format de `CONTRIBUTING.md`, `push` simple.
 4. Répondre à chaque fil corrigé (`gh api repos/<owner/repo>/pulls/<n°>/comments/<databaseId>/replies -f body=…`) :
    ce qui a changé et le SHA. Ne pas résoudre les fils : c'est au relecteur. Fils non corrigés : réponse proposée
    dans le rapport, publiée après accord.
-5. Rapport : tableau fil → corrigé (SHA) / en attente (raison), lien de la PR.
+5. Rapport : décompte corrigés (SHA) / écartés, puis seuls les « à trancher » détaillés, lien de la PR.
 
 ## Nettoyage d'une PR fermée sans merge
 
