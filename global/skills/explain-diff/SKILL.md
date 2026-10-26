@@ -1,6 +1,7 @@
 ---
 name: explain-diff
 description: Use when the person must understand or validate a change they did not follow closely (a session's edits, a commit range, a PR, a branch, a module) before merging or deciding, or asks "what changed", "explique ce qui a changé", "montre-moi ce que tu as fait".
+model: sonnet
 ---
 
 # Explain a change

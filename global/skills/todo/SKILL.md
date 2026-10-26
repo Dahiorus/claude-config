@@ -1,6 +1,7 @@
 ---
 name: todo
 description: Use when the user invokes /todo, or asks to show, list, update, clean up or add to the project's « reste à faire » (reste-à-faire, TODO, reliquats, features restantes), or to check which leftovers recent commits or merged PRs have fixed.
+model: sonnet
 argument-hint: "[show|sync [depuis <date|sha>]|add <texte>|done <n°…>]"
 ---
 
