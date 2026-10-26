@@ -1,6 +1,7 @@
 ---
 name: notify
 description: Use when the user invokes /notify, or asks to warn, notify or tell another Claude session or project (« préviens la session android », « notifie claude-config », « dis à la session gecco de… », « transmets à android »).
+model: sonnet
 argument-hint: "<projet|session> <message>"
 ---
 
