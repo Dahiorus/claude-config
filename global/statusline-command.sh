@@ -195,6 +195,35 @@ pr_lookup() {
   fi
   [ -r "$f" ] && head -n1 "$f"
 }
+# .pr reste attache a la session apres le merge : masquer une PR mergee ou fermee
+# (meme mecanisme : cache 60 s, arriere-plan, verrou, timeout).
+pr_state() {
+  local num=$1 dir key f age lock slug
+  dir="${XDG_CACHE_HOME:-$HOME/.cache}/claude-statusline"
+  slug="${ci_repo_full:-$(printf '%s' "$cwd" | cksum | cut -d' ' -f1)}"
+  key=$(printf '%s' "${slug}-${num}" | tr -c 'A-Za-z0-9._-' '_')
+  f="$dir/state-$key"; lock="$f.lock"
+  mkdir -p "$dir" 2>/dev/null || return
+  age=$(( $(date +%s) - $(stat -c %Y "$f" 2>/dev/null || echo 0) ))
+  if [ "$age" -ge 60 ]; then
+    if [ -e "$lock" ] && [ $(( $(date +%s) - $(stat -c %Y "$lock" 2>/dev/null || echo 0) )) -gt 30 ]; then
+      rm -f "$lock"
+    fi
+    if ( set -o noclobber; : > "$lock" ) 2>/dev/null; then
+      (
+        st=$(cd "${cwd:-.}" 2>/dev/null; timeout 15 gh pr view "$num" ${ci_repo_full:+-R "$ci_repo_full"} --json state --jq .state 2>/dev/null)
+        printf '%s\n' "$st" > "$f.tmp.$$" 2>/dev/null && mv -f "$f.tmp.$$" "$f"
+        rm -f "$lock"
+      ) >/dev/null 2>&1 &
+      disown 2>/dev/null
+    fi
+  fi
+  [ -r "$f" ] && head -n1 "$f"
+}
+if [ -n "$pr_num" ] && [ "$pr_kind" != "mr" ] && command -v gh >/dev/null 2>&1; then
+  case "$(pr_state "$pr_num")" in MERGED|CLOSED) pr_num=""; pr_review="" ;; esac
+fi
+
 if [ -z "$pr_num" ] && [ -n "$branch" ] && git -C "$cwd" --no-optional-locks symbolic-ref -q HEAD >/dev/null 2>&1 \
   && command -v gh >/dev/null 2>&1; then
   IFS='|' read -r pr_num pr_review <<< "$(pr_lookup "$branch")"
