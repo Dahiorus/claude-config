@@ -30,7 +30,7 @@ Comportement attendu absent ou ambigu → le demander, ne pas le choisir.
 | 2 | Branche | `fix/<sujet>` depuis `origin/main` à jour (`git fetch origin main`), jamais sur `main` ni sur la branche d'une autre PR. Arbre pas propre → le dire et s'arrêter |
 | 3 | Cause | `superpowers:systematic-debugging` : reproduire (test, commande, Playwright) avant de corriger, remonter à la cause racine, puis chercher (grep, LSP) tous les appelants du code fautif et les autres occurrences du même défaut. Non reproductible → rapporter ce qui a été essayé, ne rien corriger à l'aveugle |
 | 4 | Rouge | Un test qui reproduit le bug au plus près de la cause, lancé et vu échouer pour la bonne raison ; sortie gardée pour le rapport. Bug impossible à tester automatiquement → le dire et décrire la vérification manuelle |
-| 5 | Correctif | À la cause, une seule fois, dans le code partagé ; le même défaut ailleurs se corrige aussi (règle générale plutôt que cas). Rien d'autre : ni refactor ni amélioration en passant. Test au vert |
+| 5 | Correctif | À la cause, une seule fois, dans le code partagé ; le même défaut ailleurs se corrige aussi (règle générale plutôt que cas). Rien d'autre : ni refactor ni amélioration en passant. Code front qui touche une API Angular → skill `angular-developer`, comme dans `feature`. Test au vert |
 | 6 | Vérification | Suite complète de tests + analyse statique, sortie lue. Rouge ailleurs → diagnostiquer, pas ignorer |
 | 7 | Recette | Bug visible dans une interface : rejouer le scénario du constat sur l'application locale (Playwright) |
 | 8 | Review | **Automatique** : `ponytail:ponytail-review`. Correctif de plus de ~50 lignes hors tests, ou code sensible (sécurité, argent, données) → aussi Opus (`sdd-final-reviewer`, modèle passé explicitement, grille qualité du skill `feature`), en parallèle. Écrites dans `.superpowers/sdd/<fix>/final-review.md`, numérotées comme dans `feature`, triées comme dans `feature` (« Tri des retours ») : « à corriger » corrigés d'office, « à trancher » rapportés ; corriger ce que l'utilisateur retient, chaque point avec son SHA |
@@ -38,6 +38,12 @@ Comportement attendu absent ou ambigu → le demander, ne pas le choisir.
 
 Les étapes 1 à 8 s'enchaînent sans demander. Rapport à la fin de l'étape 8 : cause, correctif (`fichier:ligne`),
 sortie du test rouge puis verte, vérification, reviews (seuls les « à trancher » détaillés), ce qui reste.
+
+**PHP : outil `LSP` (plugin `php-lsp`, Intelephense)**, avec les règles et limites du paragraphe du même nom du
+skill `feature` : à l'étape 3, `findReferences`/`incomingCalls` sur le code fautif pour ses appelants, et
+`workspaceSymbol` pour les autres occurrences du défaut ; à l'étape 5, `hover`/`goToDefinition` avant d'appeler un
+symbole et `findReferences` avant d'en changer la signature. Toujours avec le grep, jamais à sa place ; correctif
+dans un worktree → session lancée depuis le worktree.
 
 ## Excuses et réalité
 
