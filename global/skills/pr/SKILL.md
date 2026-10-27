@@ -230,7 +230,8 @@ L'invocation vaut demande de relire et de publier. PR dont on est l'auteur → r
 1. Diff de la PR contre sa base (`git diff origin/<baseRefName>...HEAD` dans l'arbre de la PR), restreint au
    périmètre de la consigne s'il y en a un, et les fichiers qu'il touche. Contexte : description, spec ou issue liée.
 2. Grille : celle du projet (WORKFLOW.md, AGENTS.md, CONTRIBUTING.md), sinon la grille qualité du skill `feature`.
-   Bugs et sécurité d'abord, puis lisibilité ; chaque remarque est vérifiée dans le code, pas supposée. Pas de
+   Diff qui touche une API Angular → skill `angular-developer` aussi, comme dans `feature`. Bugs et sécurité
+   d'abord, puis lisibilité ; chaque remarque est vérifiée dans le code, pas supposée. Pas de
    remarque de goût sans règle du projet derrière.
 3. Criticité : skill `pr-risk` sur la PR, qui publie (ou met à jour) son commentaire de risque : niveau, nombre de
    relectures humaines, dangers à vérifier.

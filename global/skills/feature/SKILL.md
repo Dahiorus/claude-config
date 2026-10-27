@@ -79,6 +79,22 @@ du fichier précède le bloc.
 et lance les tests du contexte borné entier avant de commiter. Ce que le brief ne dit pas ne s'invente pas :
 NEEDS_CONTEXT. Un test existant modifié est signalé avec sa raison.
 
+**PHP : outil `LSP` (plugin `php-lsp`, Intelephense)** — dans un projet PHP, l'outil `LSP` sert à chaque étape qui
+cherche ou modifie un symbole : portée de la spec et usages de l'étape 1b (`findReferences`, `incomingCalls`,
+`workspaceSymbol`), implémentation (signature et type réels par `hover`/`goToDefinition` avant d'appeler une classe,
+appelants par `findReferences` avant de changer une signature ou de supprimer une classe), review finale (lecteurs
+oubliés). Le brief de l'implémenteur et la consigne du reviewer Opus le rappellent. Il **complète le grep sans le
+remplacer** : il manque les appels dynamiques (`$this->{$m}()`, routes, chaînes, gabarits, JS) et les propriétés non
+typées. Il n'indexe que le dépôt où la session a démarré : feature dans un worktree → session lancée depuis le
+worktree, sinon `LSP` lit le code de `main` sans le dire (vérifier qu'un symbole de la branche est trouvé). Erreur
+« no server » → `volta install intelephense` (ou `npm install -g intelephense`), puis redémarrer la session.
+
+**Angular : skill `angular-developer`** — dans un projet Angular, l'invoquer au plan, à l'implémentation et à la
+review finale dès que le code front touche une API Angular (signals, `linkedSignal`, `resource`, formulaires, DI,
+routage, ARIA, tests de composants) ; le brief de l'implémenteur et la consigne du reviewer Opus le rappellent. Une
+retouche de CSS ou de libellé n'en a pas besoin. Les conventions du projet (`AGENTS.md` du front) priment : ses
+consignes `ng generate` et `ng build` cèdent à la vérification du projet.
+
 **Review finale** — avant la grille qualité, Opus vérifie la chaîne : chaque phrase de la demande initiale est
 couverte par la spec, chaque exigence de la spec par du code et un test, et le diff ne contient rien que la spec ne
 demande. Un écart (ajout, omission, règle appliquée à une partie seulement de sa portée) est au moins Important.
