@@ -38,7 +38,8 @@ référence (règles, signaux d'alarme).
                 liste numérotée écran + élément + observé + attendu + périmètre
   merge         squash si besoin, merge en rebase, déploiement, nettoyage, mémoire
   update-desc   réécrit la description d'après la session et les commits
-  review        relit la PR d'un autre, publie les commentaires (statut « commenté »)
+  review        relit la PR d'un autre, évalue sa criticité (relecture humaine requise ?),
+                publie les commentaires (statut « commenté »)
   comments      traite les commentaires non résolus, corrige, pousse, répond aux fils
   help          cette aide
 
@@ -231,11 +232,14 @@ L'invocation vaut demande de relire et de publier. PR dont on est l'auteur → r
 2. Grille : celle du projet (WORKFLOW.md, AGENTS.md, CONTRIBUTING.md), sinon la grille qualité du skill `feature`.
    Bugs et sécurité d'abord, puis lisibilité ; chaque remarque est vérifiée dans le code, pas supposée. Pas de
    remarque de goût sans règle du projet derrière.
-3. Publier une seule review `COMMENT`, jamais `APPROVE` ni `REQUEST_CHANGES` :
-   `gh api repos/<owner/repo>/pulls/<n°>/reviews --input <fichier>` avec `event: "COMMENT"`, un `body` de synthèse
-   et un `comments` par remarque (`path`, `line` du nouveau fichier, `side: "RIGHT"`), en français, problème +
-   suggestion. Ligne hors du diff → dans le `body`, avec `fichier:ligne`.
-4. Rapport : lien de la review, remarques par gravité.
+3. Criticité : skill `pr-risk` sur la PR, qui publie (ou met à jour) son commentaire de risque : niveau, nombre de
+   relectures humaines, dangers à vérifier.
+4. Publier une seule review `COMMENT`, jamais `APPROVE` ni `REQUEST_CHANGES` :
+   `gh api repos/<owner/repo>/pulls/<n°>/reviews --input <fichier>` avec `event: "COMMENT"`, un `body` qui ouvre
+   sur la criticité (`Criticité : <niveau> — <0|1|2> relecture(s) humaine(s), détail dans le commentaire de risque`)
+   avant la synthèse, et un `comments` par remarque (`path`, `line` du nouveau fichier, `side: "RIGHT"`), en
+   français, problème + suggestion. Ligne hors du diff → dans le `body`, avec `fichier:ligne`.
+5. Rapport : verdict de `pr-risk` (niveau, relectures, dangers), lien de la review, remarques par gravité.
 
 ### `comments`
 
