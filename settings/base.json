@@ -78,7 +78,10 @@
     "commit-commands@anthropic-plugin-directory": true,
     "php-lsp@claude-plugins-official": true,
     "caveman-mode-short-answers@anthropic-plugin-directory": true,
-    "claude-md-management@anthropic-plugin-directory": true
+    "claude-md-management@anthropic-plugin-directory": true,
+    "jk@harnais": true,
+    "context7@claude-plugins-official": true,
+    "humanizer@harnais": true
   },
   "extraKnownMarketplaces": {
     "plannotator": {
@@ -97,6 +100,12 @@
       "source": {
         "source": "github",
         "repo": "Dahiorus/claude-config"
+      }
+    },
+    "harnais": {
+      "source": {
+        "source": "github",
+        "repo": "softwarevidal/harnais"
       }
     }
   },
