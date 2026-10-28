@@ -36,7 +36,8 @@ référence (règles, signaux d'alarme).
   rebase        rebase sur origin/main, résout les conflits, push forcé
   recette       déroule la recette (env. de la PR, sinon local), corrige, pousse ; retours en
                 liste numérotée écran + élément + observé + attendu + périmètre
-  merge         squash si besoin, merge en rebase, déploiement, nettoyage, mémoire
+  merge         reliquats faisables traités dans la PR, squash si besoin, merge en rebase, déploiement,
+                nettoyage, mémoire
   update-desc   réécrit la description d'après la session et les commits
   review        relit la PR d'un autre, évalue sa criticité (relecture humaine requise ?),
                 publie les commentaires (statut « commenté »)
@@ -205,22 +206,27 @@ ou dans le message qui suit (liste numérotée écran + élément + observé + a
 
 L'invocation vaut demande de squasher et de merger : c'est le merge qui impose l'historique final.
 
-1. **Squash** — reste à faire à jour d'abord (étape 2 de `push`), puis étapes de `squash`, sauf si l'historique en
+1. **Reliquats** — avant d'envoyer quoi que ce soit au reste à faire, passer en revue les points qu'il recevrait (ceux
+   de l'étape 2 de `push`, plus ceux déjà ajoutés par cette PR) et ceux qu'il contient déjà sur le périmètre de la
+   PR. Chacun se trie comme dans `feature` (« Tri des retours ») : faisable ici (petit, dans le périmètre, une seule
+   façon raisonnable, sans effet sur la spec) → le faire dans la PR, un commit par point, vérification du projet au
+   vert ; sinon → reste à faire, avec sa raison en une ligne. Rien de faisable → passer.
+2. **Squash** — reste à faire à jour d'abord (étape 2 de `push`), puis étapes de `squash`, sauf si l'historique en
    est déjà le résultat (un commit, ou un par pan fonctionnel, sans commit de correctif depuis) et à jour avec
    `origin/main`.
-2. **Merge** — CI de la PR au vert s'il y en a une (`gh pr checks --watch`), puis `gh pr merge --rebase`, jamais
+3. **Merge** — CI de la PR au vert s'il y en a une (`gh pr checks --watch`), puis `gh pr merge --rebase`, jamais
    `--merge`. Dépôt avec un `Jenkinsfile` à la racine : le statut `continuous-integration/jenkins/pr-head` n'apparaît
    qu'une fois le build lancé, et rien côté GitHub n'empêche de merger sans lui. Ne merger que lorsqu'il est `SUCCESS`
    sur le SHA poussé (`gh pr view --json headRefOid,statusCheckRollup`). Absent ou `PENDING` : attendre et revérifier
    toutes les quelques minutes, sans timeout plus court que celui du `Jenkinsfile`. `FAILURE`/`ERROR`, ou toujours
    absent après ~15 min : ne pas merger, rapporter avec le lien Jenkins (`targetUrl`). Si un push sur main déploie :
    suivre le run (`gh run watch`) jusqu'au succès ou à l'échec, et le rapporter.
-3. **Nettoyage** — branche extraite dans le dépôt principal : `git switch main && git pull --ff-only` ; sinon
+4. **Nettoyage** — branche extraite dans le dépôt principal : `git switch main && git pull --ff-only` ; sinon
    `git fetch origin main`. Worktree `pr-<n°>` : `git worktree remove <chemin>` après avoir vérifié qu'il est propre
    (session dedans : `ExitWorktree` avec `action: "keep"` d'abord). Supprimer la branche locale après avoir vérifié
    que main contient son contenu ; supprimer la branche distante si le dépôt ne le fait pas au merge.
-4. **Mémoire** — mettre à jour la mémoire du projet : PR, SHA de merge, déploiement, ce qui reste à faire.
-5. Rapport : une ligne par étape faite (SHA, lien de PR, état du déploiement) et ce qui n'a pas été fait, avec la
+5. **Mémoire** — mettre à jour la mémoire du projet : PR, SHA de merge, déploiement, ce qui reste à faire.
+6. Rapport : une ligne par étape faite (SHA, lien de PR, état du déploiement) et ce qui n'a pas été fait, avec la
    raison.
 
 ### `review`
