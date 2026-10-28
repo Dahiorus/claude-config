@@ -38,6 +38,9 @@ rtk grep -rn "pattern" src | head -40
 rtk gh pr diff 12 | head -200
 ```
 
+Inside a git worktree session (after `EnterWorktree`), never write `rtk git …`: Claude Code refuses it.
+Run plain `git …` there; the hook leaves it unwrapped.
+
 Keep the raw command when the output is consumed by a program or must be exact: counting
 (`| wc -l`), parsing (`| jq`, `| awk`, `$(…)`), redirection to a file (`git show sha:path > file`),
 patches (`git diff | git apply`). RTK compacts headers and may drop lines.
