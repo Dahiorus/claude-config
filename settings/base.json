@@ -103,7 +103,7 @@
   "language": "French",
   "modelSettings": {
     "claude-opus-5-5": {
-      "autoCompactWindow": 250000
+      "autoCompactWindow": 275000
     }
   },
   "theme": "dark",
