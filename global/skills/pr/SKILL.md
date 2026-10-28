@@ -189,7 +189,9 @@ ou dans le message qui suit (liste numérotée écran + élément + observé + a
    local : démarrer l'application dans l'arbre de la PR (commande du CLAUDE.md du projet, dépendances installées si
    le worktree est neuf), en arrière-plan.
    Port déjà pris ou service injoignable : le diagnostiquer, ne pas recetter une autre instance.
-3. **Exécution** — chaque scénario étape par étape (Playwright pour une interface web), avec observé et attendu.
+3. **Exécution** — chaque scénario étape par étape, avec observé et attendu. Interface web : un scénario = un seul
+   appel `browser_run_code_unsafe` de Playwright qui enchaîne ses étapes et renvoie l'observé de chacune ; snapshot
+   et capture seulement sur un écart (chaque appel MCP relit tout le contexte).
    Rapport : un tableau scénario → conforme / non conforme, capture d'écran à l'appui des écarts.
 4. **Correctifs** — les retours de l'utilisateur valent demande de correction ; les écarts trouvés par un scénario
    déduit se trient comme dans `feature` (« Tri des retours ») : « à corriger » corrigés d'office, « à trancher »
