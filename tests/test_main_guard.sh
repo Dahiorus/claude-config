@@ -54,3 +54,12 @@ test_guard_uses_dash_c_directory() {
   git init -q -b main "$SANDBOX/other"
   assert_eq "$(guard 'git -C ../other commit -m x')" deny "-C"
 }
+
+test_guard_judges_only_git_commands() {
+  make_repo
+  assert_eq "$(guard 'echo git push')" allow "echo"
+  assert_eq "$(guard 'grep -rn git commit .')" allow "grep"
+  assert_eq "$(guard 'sudo git commit -m x')" deny "sudo"
+  assert_eq "$(guard 'GIT_TRACE=1 git push')" deny "variable"
+  assert_eq "$(guard '/usr/bin/git push')" deny "chemin"
+}

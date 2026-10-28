@@ -66,3 +66,23 @@ test_hook_failing_build_brief_is_ignored() {
   printf '#!/usr/bin/env bash\nexit 3\n' > "$STUBS/build-brief"
   assert_eq "$(hook_command 'git status')" "rtk git status" "commande"
 }
+
+hook_command_in() {
+  jq -nc --arg c "$1" --arg d "$2" '{tool_name:"Bash",cwd:$d,tool_input:{command:$c}}' \
+    | PATH="$STUBS:/usr/bin:/bin" bash "$REPO/global/bash-rewrite-hook.sh" | jq -r '.hookSpecificOutput.updatedInput.command'
+}
+
+test_hook_git_in_subdirectory_goes_to_rtk() {
+  stub_rewriters
+  git init -q "$SANDBOX/main"
+  mkdir -p "$SANDBOX/main/sub"
+  assert_eq "$(hook_command_in 'git status' "$SANDBOX/main/sub")" "rtk git status" "commande"
+}
+
+test_hook_git_in_linked_worktree_stays_plain() {
+  stub_rewriters
+  git init -q -b main "$SANDBOX/main"
+  git -C "$SANDBOX/main" -c user.name=t -c user.email=t@t commit -q --allow-empty -m init
+  git -C "$SANDBOX/main" worktree add -q "$SANDBOX/wt" 2>/dev/null
+  assert_eq "$(hook_command_in 'git status' "$SANDBOX/wt")" "" "commande"
+}

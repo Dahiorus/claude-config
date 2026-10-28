@@ -17,8 +17,9 @@ fi
 cwd="$(jq -r '.cwd // empty' <<<"$input" 2>/dev/null)"
 cwd="${cwd:-$PWD}"
 # Worktree lié (EnterWorktree) : Claude Code refuse « rtk git … », git doit rester en tête de commande.
+# Chemins absolus : depuis un sous-dossier, git renvoie --git-dir absolu mais --git-common-dir relatif.
 in_linked_worktree() {
-  [[ "$(git -C "$cwd" rev-parse --git-dir 2>/dev/null)" != "$(git -C "$cwd" rev-parse --git-common-dir 2>/dev/null)" ]]
+  [[ "$(git -C "$cwd" rev-parse --path-format=absolute --git-dir 2>/dev/null)" != "$(git -C "$cwd" rev-parse --path-format=absolute --git-common-dir 2>/dev/null)" ]]
 }
 
 rtk_out=""
