@@ -23,9 +23,12 @@ week_at=$(j '.rate_limits.seven_day.resets_at')
 
 export LC_NUMERIC=C
 
+cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}/claude-statusline"
+
 branch=""; staged=0; modified=0
 if [ -n "$cwd" ]; then
-  cache="/tmp/statusline-git-$(id -u)-$(printf '%s' "$cwd" | cksum | cut -d' ' -f1)"
+  cache="$cache_dir/git-$(printf '%s' "$cwd" | cksum | cut -d' ' -f1)"
+  mkdir -p "$cache_dir" 2>/dev/null
   mtime=$(stat -c %Y "$cache" 2>/dev/null || echo 0)
   if [ $(( $(date +%s) - mtime )) -lt 5 ]; then
     IFS='|' read -r branch staged modified < "$cache"
@@ -70,34 +73,23 @@ color_for() {
   else printf '%s' "$GREEN"; fi
 }
 
-# Etat CI de la PR : cache fichier (TTL 60 s), rafraichi en arriere-plan.
-# Affiche la valeur en cache (meme perimee) : pass | fail | pending | (vide)
-pr_ci_state() {
-  local num=$1 dir key f age lock slug
-  dir="${XDG_CACHE_HOME:-$HOME/.cache}/claude-statusline"
+# Valeur en cache pour <type> <cle> (meme perimee, vide si inconnue / echec).
+# Au-dela de 60 s, la commande qui suit est relancee en arriere-plan depuis $cwd (verrou perime apres 30 s).
+cached() {
+  local f lock age slug
   slug="${ci_repo_full:-$(printf '%s' "$cwd" | cksum | cut -d' ' -f1)}"
-  key=$(printf '%s' "${slug}-${num}" | tr -c 'A-Za-z0-9._-' '_')
-  f="$dir/ci-$key"; lock="$f.lock"
-  mkdir -p "$dir" 2>/dev/null || return
+  f="$cache_dir/$1-$(printf '%s' "${slug}-$2" | tr -c 'A-Za-z0-9._-' '_')"; lock="$f.lock"
+  shift 2
+  mkdir -p "$cache_dir" 2>/dev/null || return
   age=$(( $(date +%s) - $(stat -c %Y "$f" 2>/dev/null || echo 0) ))
   if [ "$age" -ge 60 ]; then
-    # verrou perime apres 30 s
     if [ -e "$lock" ] && [ $(( $(date +%s) - $(stat -c %Y "$lock" 2>/dev/null || echo 0) )) -gt 30 ]; then
       rm -f "$lock"
     fi
     if ( set -o noclobber; : > "$lock" ) 2>/dev/null; then
       (
-        out=$(cd "${cwd:-.}" 2>/dev/null; timeout 15 gh pr checks "$num" ${ci_repo_full:+-R "$ci_repo_full"} --json bucket 2>/dev/null)
-        st=""
-        if printf '%s' "$out" | jq -e 'type=="array"' >/dev/null 2>&1; then
-          st=$(printf '%s' "$out" | jq -r '
-            [.[].bucket] as $b
-            | if ($b | map(select(. == "fail" or . == "cancel")) | length) > 0 then "fail"
-              elif ($b | map(select(. == "pending")) | length) > 0 then "pending"
-              elif ($b | map(select(. == "pass")) | length) > 0 then "pass"
-              else "" end')
-        fi
-        printf '%s\n' "$st" > "$f.tmp.$$" 2>/dev/null && mv -f "$f.tmp.$$" "$f"
+        out=$(cd "${cwd:-.}" 2>/dev/null; "$@")
+        printf '%s\n' "$out" > "$f.tmp.$$" 2>/dev/null && mv -f "$f.tmp.$$" "$f"
         rm -f "$lock"
       ) >/dev/null 2>&1 &
       disown 2>/dev/null
@@ -105,42 +97,45 @@ pr_ci_state() {
   fi
   [ -r "$f" ] && head -n1 "$f"
 }
-# Fils de revue non resolus : meme mecanisme (cache 60 s, arriere-plan, verrou, timeout).
-# Affiche le nombre en cache (vide si inconnu / echec).
-pr_threads_count() {
-  local num=$1 dir key f age lock slug
-  dir="${XDG_CACHE_HOME:-$HOME/.cache}/claude-statusline"
-  slug="${ci_repo_full:-$(printf '%s' "$cwd" | cksum | cut -d' ' -f1)}"
-  key=$(printf '%s' "${slug}-${num}" | tr -c 'A-Za-z0-9._-' '_')
-  f="$dir/threads-$key"; lock="$f.lock"
-  mkdir -p "$dir" 2>/dev/null || return
-  age=$(( $(date +%s) - $(stat -c %Y "$f" 2>/dev/null || echo 0) ))
-  if [ "$age" -ge 60 ]; then
-    if [ -e "$lock" ] && [ $(( $(date +%s) - $(stat -c %Y "$lock" 2>/dev/null || echo 0) )) -gt 30 ]; then
-      rm -f "$lock"
-    fi
-    if ( set -o noclobber; : > "$lock" ) 2>/dev/null; then
-      (
-        cd "${cwd:-.}" 2>/dev/null
-        nwo="$ci_repo_full"
-        [ -z "$nwo" ] && nwo=$(timeout 10 gh repo view --json nameWithOwner --jq .nameWithOwner 2>/dev/null)
-        cnt=""
-        case "$nwo" in
-          */*)
-            out=$(timeout 15 gh api graphql \
-              -f query='query($o:String!,$n:String!,$p:Int!){repository(owner:$o,name:$n){pullRequest(number:$p){reviewThreads(first:100){nodes{isResolved}}}}}' \
-              -F o="${nwo%%/*}" -F n="${nwo#*/}" -F p="$num" \
-              --jq '[.data.repository.pullRequest.reviewThreads.nodes[]|select(.isResolved|not)]|length' 2>/dev/null)
-            case "$out" in ''|*[!0-9]*) ;; *) cnt="$out" ;; esac
-            ;;
-        esac
-        printf '%s\n' "$cnt" > "$f.tmp.$$" 2>/dev/null && mv -f "$f.tmp.$$" "$f"
-        rm -f "$lock"
-      ) >/dev/null 2>&1 &
-      disown 2>/dev/null
-    fi
-  fi
-  [ -r "$f" ] && head -n1 "$f"
+
+# Etat CI de la PR : pass | fail | pending | (vide)
+fetch_ci_state() {
+  local out
+  out=$(timeout 15 gh pr checks "$1" ${ci_repo_full:+-R "$ci_repo_full"} --json bucket 2>/dev/null)
+  printf '%s' "$out" | jq -e 'type=="array"' >/dev/null 2>&1 || return
+  printf '%s' "$out" | jq -r '
+    [.[].bucket] as $b
+    | if ($b | map(select(. == "fail" or . == "cancel")) | length) > 0 then "fail"
+      elif ($b | map(select(. == "pending")) | length) > 0 then "pending"
+      elif ($b | map(select(. == "pass")) | length) > 0 then "pass"
+      else "" end'
+}
+# Nombre de fils de revue non resolus (vide si inconnu).
+fetch_threads_count() {
+  local nwo="$ci_repo_full" out
+  [ -z "$nwo" ] && nwo=$(timeout 10 gh repo view --json nameWithOwner --jq .nameWithOwner 2>/dev/null)
+  case "$nwo" in */*) ;; *) return ;; esac
+  out=$(timeout 15 gh api graphql \
+    -f query='query($o:String!,$n:String!,$p:Int!){repository(owner:$o,name:$n){pullRequest(number:$p){reviewThreads(first:100){nodes{isResolved}}}}}' \
+    -F o="${nwo%%/*}" -F n="${nwo#*/}" -F p="$1" \
+    --jq '[.data.repository.pullRequest.reviewThreads.nodes[]|select(.isResolved|not)]|length' 2>/dev/null)
+  case "$out" in ''|*[!0-9]*) ;; *) printf '%s' "$out" ;; esac
+}
+# Repli si Claude Code ne transmet pas .pr : "numero|review_state" de la PR ouverte de la branche.
+fetch_branch_pr() {
+  local res
+  res=$(timeout 15 gh pr list --head "$1" --state open ${ci_repo_full:+-R "$ci_repo_full"} \
+    --json number,isDraft,reviewDecision --jq '.[0] // empty
+      | "\(.number)|\(if .isDraft then "draft"
+          elif .reviewDecision == "APPROVED" then "approved"
+          elif .reviewDecision == "CHANGES_REQUESTED" then "changes_requested"
+          elif .reviewDecision == "REVIEW_REQUIRED" then "pending"
+          else "" end)"' 2>/dev/null)
+  case "$res" in [0-9]*'|'*) printf '%s' "$res" ;; esac
+}
+# .pr reste attache a la session apres le merge : son etat sert a masquer une PR mergee ou fermee.
+fetch_pr_state() {
+  timeout 15 gh pr view "$1" ${ci_repo_full:+-R "$ci_repo_full"} --json state --jq .state 2>/dev/null
 }
 ci_repo_full=""
 ci_owner=$(j '.workspace.repo.owner'); ci_rname=$(j '.workspace.repo.name')
@@ -148,7 +143,7 @@ ci_owner=$(j '.workspace.repo.owner'); ci_rname=$(j '.workspace.repo.name')
 
 # Le compte gh actif peut ne pas voir le depot : retenir (cache 1 jour) le compte qui y a acces.
 if [ -n "$ci_repo_full" ] && command -v gh >/dev/null 2>&1; then
-  gh_user_f="${XDG_CACHE_HOME:-$HOME/.cache}/claude-statusline/ghuser-$(printf '%s' "$ci_repo_full" | tr -c 'A-Za-z0-9._-' '_')"
+  gh_user_f="$cache_dir/ghuser-$(printf '%s' "$ci_repo_full" | tr -c 'A-Za-z0-9._-' '_')"
   if [ $(( $(date +%s) - $(stat -c %Y "$gh_user_f" 2>/dev/null || echo 0) )) -ge 86400 ]; then
     mkdir -p "${gh_user_f%/*}" 2>/dev/null
     for u in $(gh auth status 2>/dev/null | sed -n 's/.* account \([^ ]*\) .*/\1/p'); do
@@ -161,72 +156,13 @@ if [ -n "$ci_repo_full" ] && command -v gh >/dev/null 2>&1; then
   [ -n "$gh_user" ] && GH_TOKEN=$(gh auth token --user "$gh_user" 2>/dev/null) && export GH_TOKEN
 fi
 
-# Repli si Claude Code ne transmet pas .pr : PR ouverte de la branche via gh
-# (meme mecanisme : cache 60 s, arriere-plan, verrou, timeout).
-# Affiche "numero|review_state" en cache (vide si aucune PR / echec).
-pr_lookup() {
-  local br=$1 dir key f age lock slug
-  dir="${XDG_CACHE_HOME:-$HOME/.cache}/claude-statusline"
-  slug="${ci_repo_full:-$(printf '%s' "$cwd" | cksum | cut -d' ' -f1)}"
-  key=$(printf '%s' "${slug}-${br}" | tr -c 'A-Za-z0-9._-' '_')
-  f="$dir/pr-$key"; lock="$f.lock"
-  mkdir -p "$dir" 2>/dev/null || return
-  age=$(( $(date +%s) - $(stat -c %Y "$f" 2>/dev/null || echo 0) ))
-  if [ "$age" -ge 60 ]; then
-    if [ -e "$lock" ] && [ $(( $(date +%s) - $(stat -c %Y "$lock" 2>/dev/null || echo 0) )) -gt 30 ]; then
-      rm -f "$lock"
-    fi
-    if ( set -o noclobber; : > "$lock" ) 2>/dev/null; then
-      (
-        cd "${cwd:-.}" 2>/dev/null
-        res=$(timeout 15 gh pr list --head "$br" --state open ${ci_repo_full:+-R "$ci_repo_full"} \
-          --json number,isDraft,reviewDecision --jq '.[0] // empty
-            | "\(.number)|\(if .isDraft then "draft"
-                elif .reviewDecision == "APPROVED" then "approved"
-                elif .reviewDecision == "CHANGES_REQUESTED" then "changes_requested"
-                elif .reviewDecision == "REVIEW_REQUIRED" then "pending"
-                else "" end)"' 2>/dev/null)
-        case "$res" in [0-9]*'|'*) ;; *) res="" ;; esac
-        printf '%s\n' "$res" > "$f.tmp.$$" 2>/dev/null && mv -f "$f.tmp.$$" "$f"
-        rm -f "$lock"
-      ) >/dev/null 2>&1 &
-      disown 2>/dev/null
-    fi
-  fi
-  [ -r "$f" ] && head -n1 "$f"
-}
-# .pr reste attache a la session apres le merge : masquer une PR mergee ou fermee
-# (meme mecanisme : cache 60 s, arriere-plan, verrou, timeout).
-pr_state() {
-  local num=$1 dir key f age lock slug
-  dir="${XDG_CACHE_HOME:-$HOME/.cache}/claude-statusline"
-  slug="${ci_repo_full:-$(printf '%s' "$cwd" | cksum | cut -d' ' -f1)}"
-  key=$(printf '%s' "${slug}-${num}" | tr -c 'A-Za-z0-9._-' '_')
-  f="$dir/state-$key"; lock="$f.lock"
-  mkdir -p "$dir" 2>/dev/null || return
-  age=$(( $(date +%s) - $(stat -c %Y "$f" 2>/dev/null || echo 0) ))
-  if [ "$age" -ge 60 ]; then
-    if [ -e "$lock" ] && [ $(( $(date +%s) - $(stat -c %Y "$lock" 2>/dev/null || echo 0) )) -gt 30 ]; then
-      rm -f "$lock"
-    fi
-    if ( set -o noclobber; : > "$lock" ) 2>/dev/null; then
-      (
-        st=$(cd "${cwd:-.}" 2>/dev/null; timeout 15 gh pr view "$num" ${ci_repo_full:+-R "$ci_repo_full"} --json state --jq .state 2>/dev/null)
-        printf '%s\n' "$st" > "$f.tmp.$$" 2>/dev/null && mv -f "$f.tmp.$$" "$f"
-        rm -f "$lock"
-      ) >/dev/null 2>&1 &
-      disown 2>/dev/null
-    fi
-  fi
-  [ -r "$f" ] && head -n1 "$f"
-}
 if [ -n "$pr_num" ] && [ "$pr_kind" != "mr" ] && command -v gh >/dev/null 2>&1; then
-  case "$(pr_state "$pr_num")" in MERGED|CLOSED) pr_num=""; pr_review="" ;; esac
+  case "$(cached state "$pr_num" fetch_pr_state "$pr_num")" in MERGED|CLOSED) pr_num=""; pr_review="" ;; esac
 fi
 
 if [ -z "$pr_num" ] && [ -n "$branch" ] && git -C "$cwd" --no-optional-locks symbolic-ref -q HEAD >/dev/null 2>&1 \
   && command -v gh >/dev/null 2>&1; then
-  IFS='|' read -r pr_num pr_review <<< "$(pr_lookup "$branch")"
+  IFS='|' read -r pr_num pr_review <<< "$(cached pr "$branch" fetch_branch_pr "$branch")"
 fi
 
 # Ligne 1 : projet
@@ -251,13 +187,13 @@ if [ -n "$pr_num" ]; then
   esac
   pr_ci_txt=""; pr_th_txt=""
   if [ "$pr_kind" != "mr" ] && command -v gh >/dev/null 2>&1; then
-    ci_state=$(pr_ci_state "$pr_num")
+    ci_state=$(cached ci "$pr_num" fetch_ci_state "$pr_num")
     case "$ci_state" in
       pass)    pr_ci_txt="${GREEN}● CI ok${R}" ;;
       fail)    pr_ci_txt="${RED}● CI ko${R}" ;;
       pending) pr_ci_txt="${YELLOW}● CI…${R}" ;;
     esac
-    th=$(pr_threads_count "$pr_num")
+    th=$(cached threads "$pr_num" fetch_threads_count "$pr_num")
     case "$th" in ''|*[!0-9]*) ;; *) [ "$th" -gt 0 ] && pr_th_txt="${YELLOW}💬 ${th}${R}" ;; esac
   fi
   l1="${l1:+$l1 }🔀 ${MAGENTA}${pr_label}${R}${pr_rs_txt:+ $pr_rs_txt}${pr_ci_txt:+ $pr_ci_txt}${pr_th_txt:+ $pr_th_txt}"

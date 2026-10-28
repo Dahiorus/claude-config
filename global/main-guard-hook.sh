@@ -16,8 +16,9 @@ branch_of() { git -C "$1" branch --show-current 2>/dev/null; }
 violates() {
   local -a w=("$@")
   local i=0 n=${#w[@]} dir="$cwd"
-  while ((i < n)) && [[ "${w[i]}" != git && "${w[i]}" != */git ]]; do ((i++)); done
-  ((i < n)) || return 1
+  # Seuls les préfixes de lancement précèdent git : « echo git push » n'est pas un push.
+  while ((i < n)) && [[ "${w[i]}" =~ ^(rtk|sudo|env|command|[A-Za-z_][A-Za-z0-9_]*=.*)$ ]]; do ((i++)); done
+  [[ "${w[i]:-}" == git || "${w[i]:-}" == */git ]] || return 1
   ((i++))
   while ((i < n)) && [[ "${w[i]}" == -* ]]; do
     case "${w[i]}" in
