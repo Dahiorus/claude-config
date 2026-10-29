@@ -48,7 +48,9 @@ ligne faite, numérotation, sections, date « Mis à jour le ». Sans convention
      ici** (prod, base, appareil), **à trancher**.
   3. Specs et PR mergées depuis le point de départ : leurs « hors périmètre » et reliquats absents du fichier sont des
      ajouts à proposer. Ils sont souvent dans le corps des règles plutôt que dans une section :
-     `grep -in "hors périmètre\|reliquat"` sur les specs ajoutées ou modifiées par ces commits.
+     `grep -in "hors périmètre\|reliquat"` sur les specs ajoutées ou modifiées par ces commits. Idem pour les
+     `TODO`, `FIXME` et `shortcut:` ajoutés par ces commits (`git diff <sha>..origin/main | grep -E '^\+.*(TODO|FIXME|shortcut:)'`,
+     avec une date : `<sha>` = `git rev-list -1 --before=<date> origin/main`), sans doublon avec un point existant.
   4. Appliquer : rayer ou retirer les points **faits** (avec la PR), mettre la date à jour. Ne pas toucher aux autres
      verdicts ni aux ajouts proposés : ils attendent la décision de l'utilisateur.
   5. Rapport : un tableau point → verdict → preuve, puis les décisions attendues.
