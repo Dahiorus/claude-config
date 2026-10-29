@@ -244,10 +244,12 @@ L'invocation vaut demande de relire et de publier. PR dont on est l'auteur → r
 3. Criticité : skill `pr-risk` sur la PR, qui publie (ou met à jour) son commentaire de risque : niveau, nombre de
    relectures humaines, dangers à vérifier.
 4. Publier une seule review `COMMENT`, jamais `APPROVE` ni `REQUEST_CHANGES` :
-   `gh api repos/<owner/repo>/pulls/<n°>/reviews --input <fichier>` avec `event: "COMMENT"`, un `body` qui ouvre
-   sur la criticité (`Criticité : <niveau> — <0|1|2> relecture(s) humaine(s), détail dans le commentaire de risque`)
-   avant la synthèse, et un `comments` par remarque (`path`, `line` du nouveau fichier, `side: "RIGHT"`), en
-   français, problème + suggestion. Ligne hors du diff → dans le `body`, avec `fichier:ligne`.
+   `gh api repos/<owner/repo>/pulls/<n°>/reviews --input <fichier>` avec `event: "COMMENT"`, un `body` de synthèse
+   (la criticité reste dans le seul commentaire de `pr-risk`, ne pas la répéter), et un `comments` par remarque
+   (`path`, `line` du nouveau fichier, `side: "RIGHT"`), en français, préfixé du gitmoji de sa nature (🐛 bug,
+   🔒️ sécurité, ⚡️ performance, ✅ test, ♻️ lisibilité, 📝 doc, 💬 question) puis de `**[bloquant]**`,
+   `**[non-bloquant]**` ou `**[question]**`, puis problème + suggestion (ou la question). Ligne hors du diff → dans
+   le `body`, avec `fichier:ligne` et le même préfixe.
 5. Rapport : verdict de `pr-risk` (niveau, relectures, dangers), lien de la review, remarques par gravité.
 
 ### `comments`

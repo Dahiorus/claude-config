@@ -163,43 +163,48 @@ Not read: <files or "nothing">.
 ```
 
 No-PR mode: print the terminal verdict, then the comment body below without
-the marker, titled "Risk", for the user to paste into the PR description.
+the marker, titled "Risque", for the user to paste into the PR description.
 Post nothing.
 
 PR mode: write the comment body to `${TMPDIR:-/tmp}/pr-risk-<N>.md`, then post it.
 
+The comment is in French. Tiers: Low → Faible, Medium → Moyen, High → Élevé.
+Dangers: 1 Irréversible, 2 Rayon d'impact, 3 Échec silencieux, 4 Rupture de
+contrat, 5 Sécurité, 6 Chaîne de build, 7 Trou de tests, 8 Écart d'intention,
+9 Justesse clinique.
+
 ````
 <!-- pr-risk -->
-## PR risk: <TIER> · <0|1|2> human review(s)
-**Reason:** <one sentence>
+## Risque de la PR : <NIVEAU> · <0|1|2> relecture(s) humaine(s)
+**Raison :** <une phrase>
 
 ### Dangers
 
-**1. <Danger>** · `<file>`
-<what can go wrong and why it matters, 1–2 sentences>
-→ **Check:** <one thing a reviewer must verify>
+**1. <Danger>** · `<fichier>`
+<ce qui peut mal tourner et pourquoi c'est important, 1–2 phrases>
+→ **À vérifier :** <une chose que le relecteur doit vérifier>
 
-**2. <Danger>** · `<file>`
+**2. <Danger>** · `<fichier>`
 ...
 
-**Intent:** <matches the description | mismatch: <what> | No description: intent not checked.>
+**Intention :** <conforme à la description | écart : <quoi> | Pas de description : intention non vérifiée.>
 
-### Blast radius
+### Rayon d'impact
 ```mermaid
 graph LR
-  A["changed symbol"] --> B["caller"] --> C["entry point"]
+  A["symbole modifié"] --> B["appelant"] --> C["point d'entrée"]
 ```
 
-### Rollback
-<revert is enough | what else is needed>
+### Retour arrière
+<un revert suffit | ce qu'il faut en plus>
 
-<sub>Risk assessment, not a code review. Not read: <files or "nothing">.</sub>
+<sub>Évaluation du risque, pas une revue de code. Non lu : <fichiers ou « rien »>.</sub>
 ````
 
-- Low with no danger: replace the "Dangers" section with "No danger found."
+- Low with no danger: replace the "Dangers" section with "Aucun danger trouvé."
 - No table for dangers: long cells make GitHub columns too narrow to read.
   Keep the line breaks: GitHub shows each one in a comment.
-- "Blast radius" only for Medium and High, and only with callers you found.
+- "Rayon d'impact" only for Medium and High, and only with callers you found.
   Keep it under 10 nodes. Quote every node label.
 
 Post without asking. Edit the existing comment, never add a second one:
