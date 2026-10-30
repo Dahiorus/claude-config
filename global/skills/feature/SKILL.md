@@ -1,6 +1,7 @@
 ---
 name: feature
-description: Use when the user invokes /feature, asks to build or ship a feature end to end (spec, plan, implementation, review, PR, merge), starts designing one (« commence la spec », « écris le plan »), or says « implémente le plan », « corrige 1 et M3 », « pousse la PR » on feature work. Not for fixing a bug (use bugfix).
+description: Use when the user invokes /feature, asks to build or ship a feature end to end (spec, plan, implementation, review, PR, merge), starts designing one (« commence la spec », « écris le plan »), says « implémente le plan », « corrige 1 et M3 », « pousse la PR » on feature work, or asks for the feature's report (`/feature report`, « fais un bilan de la feature »). Not for fixing a bug (use bugfix).
+argument-hint: "[report] [consigne]"
 ---
 
 # Feature
@@ -34,6 +35,35 @@ Une feature suit toujours le même cycle, dans cet ordre. Chaque étape a son ou
 Une demande peut couvrir plusieurs étapes (« implémente, squash »). L'exécution enchaîne d'elle-même vérification,
 recette et reviews (étapes 5 à 7) : ne jamais demander s'il faut lancer les reviews. Pousser, ouvrir la PR et
 merger attendent toujours une demande explicite de l'utilisateur.
+
+## `report` : bilan de la feature
+
+`/feature report` (« fais un bilan de la feature ») décrit la branche `feat/…` courante, à n'importe quelle étape,
+sans rien modifier ni commiter. Il tient même après un `/clear`.
+
+**Sources, lues avant d'écrire :** `git log` et `git diff --stat main...HEAD` (commits, fichiers, +/−), état
+poussé/en cours ; la spec et le plan de la branche ; `final-review.md` ; le reste à faire ; la PR (`gh` avec le
+compte de la mémoire du projet). Le fonctionnel et les refactorings se confirment dans le diff, pas seulement dans
+la spec : ce qui n'a pas été relu se dit à la fin.
+
+**Forme** (titres omis s'ils sont vides) :
+1. **En une phrase** : ce que la feature apporte et pourquoi, puis l'état de la branche (commits, fichiers, +/−,
+   poussée ou non, PR avec lien, dernier SHA).
+2. **Fonctionnel** : tableau orienté utilisateur, *Écran ou objectif | Avant | Après* (ou *Objectif | Livré*),
+   libellés réels entre guillemets.
+3. **Couche par couche** : tableau *Couche | Apport* (domaine, lecture serveur ou API, base et migration, écrans,
+   tests avec leur nombre).
+4. **Refactorings** : extractions, déplacements, types introduits, méthodes découpées (avant → après en lignes) ;
+   la dette du §7 de la spec, corrigée ou reportée.
+5. **Bugs corrigés en route** : chacun avec sa cause en une ligne.
+6. **Robustesse** : données existantes (§3 de la spec), compatibilité avec un ancien serveur ou client, mode
+   dégradé.
+7. **Vérification** : dernier passage des tests et de l'analyse statique, recette faite (tableau scénario | ✅/❌),
+   points de review à trancher restants. Rien n'est relancé : dire de quand date le résultat.
+8. **Ce qui reste** : liste numérotée (points du reste à faire avec leur numéro, hors périmètre, recette, review,
+   squash, merge).
+
+Finir par une ligne sur ce qui n'a pas été vérifié, puis proposer en une ligne de le publier en page.
 
 ## Fidélité à la demande
 
