@@ -1,6 +1,6 @@
 ---
 name: feature
-description: Use when the user invokes /feature, asks to build, implement or ship a feature end to end (spec, plan, implementation, review, PR, merge), starts designing one (« on attaque… », « commence la spec », « rédige la spec », « écris le plan », « nouvelle feature »), or says « implémente le plan », « fais une review », « corrige 1 et M3 », « squash », « pousse la PR », « merge » on feature work. Not for fixing a bug or a regression (use bugfix).
+description: Use when the user invokes /feature, asks to build or ship a feature end to end (spec, plan, implementation, review, PR, merge), starts designing one (« commence la spec », « écris le plan »), or says « implémente le plan », « corrige 1 et M3 », « pousse la PR » on feature work. Not for fixing a bug (use bugfix).
 ---
 
 # Feature

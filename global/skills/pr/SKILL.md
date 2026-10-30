@@ -1,6 +1,6 @@
 ---
 name: pr
-description: Use when the user invokes /pr, or asks to list the pull requests of the current repo (« liste les PR ») or act on one — show it, count approvals, check it out, test it, push and open it, squash, rebase, run its recette, merge it, rewrite its description, review someone else's PR or address its review comments (« pousse et crée la PR », « squash et merge », « rebase la PR 42 », « fais la recette de la PR », « relis la PR 114 », « review la partie front », « traite les commentaires de alice », « la PR a-t-elle ses approbations », « mets à jour la description de la PR »).
+description: Use when the user invokes /pr, or asks to list the current repo's pull requests or act on one — show, check out, test, push and open, squash, rebase, recette, merge, rewrite its description, review it or address its review comments (« pousse et crée la PR », « squash et merge », « relis la PR 114 », « traite les commentaires de alice »).
 argument-hint: "list | <n°|branche> [action…] [consigne]"
 ---
 
