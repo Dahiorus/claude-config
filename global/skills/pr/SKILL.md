@@ -39,7 +39,7 @@ référence (règles, signaux d'alarme).
   merge         reliquats faisables traités dans la PR, squash si besoin, merge en rebase, déploiement,
                 nettoyage, mémoire
   update-desc   réécrit la description d'après la session et les commits
-  review        relit la PR d'un autre, évalue sa criticité (relecture humaine requise ?),
+  review        relit la PR (la sienne comprise), évalue sa criticité (relecture humaine requise ?),
                 publie les commentaires (statut « commenté »)
   comments      traite les commentaires non résolus, corrige, pousse, répond aux fils
   help          cette aide
@@ -241,7 +241,8 @@ L'invocation vaut demande de squasher et de merger : c'est le merge qui impose l
 
 ### `review`
 
-L'invocation vaut demande de relire et de publier. PR dont on est l'auteur → refuser (`push`, `recette`).
+L'invocation vaut demande de relire et de publier. PR dont on est l'auteur → relire quand même, en regard critique
+sur son propre code : chercher ce qu'on a raté, pas justifier ce qu'on a écrit.
 
 1. Diff de la PR contre sa base (`git diff origin/<baseRefName>...HEAD` dans l'arbre de la PR), restreint au
    périmètre de la consigne s'il y en a un, et les fichiers qu'il touche. Contexte : description, spec ou issue liée.
