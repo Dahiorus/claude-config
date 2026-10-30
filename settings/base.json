@@ -2,7 +2,7 @@
   "permissions": {
     "defaultMode": "auto"
   },
-  "model": "opus",
+  "model": "opusplan",
   "env": {
     "CLAUDE_CODE_SUBAGENT_MODEL": "sonnet"
   },
@@ -103,7 +103,10 @@
   "language": "French",
   "modelSettings": {
     "claude-opus-5-5": {
-      "autoCompactWindow": 275000
+      "autoCompactWindow": 250000
+    },
+    "claude-sonnet-5-5": {
+      "autoCompactWindow": 250000
     }
   },
   "theme": "dark",

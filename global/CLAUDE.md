@@ -14,6 +14,5 @@ lecture en Bash est un tour de plus sur tout le contexte.
 
 # Humanizer
 
-Before showing or publishing prose you wrote for a review, a validation (recette, test report, verdict)
-or a commit message, run it through the `humanizer:humanizer` skill, then use the rewritten text. This
-covers PR descriptions and review comments too. Leave code, commands, identifiers and quoted output as is.
+Before publishing a commit message, a PR description or a review comment you wrote, run it through the
+`humanizer:humanizer` skill, then use the rewritten text. Leave code, commands, identifiers and quoted output as is.
