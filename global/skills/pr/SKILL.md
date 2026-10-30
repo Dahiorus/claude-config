@@ -135,6 +135,14 @@ porter plusieurs commits ; un historique désordonné se signale au plus dans le
 2. **Reste à faire** — le projet en a un (skill `todo`) : y rayer les points que la PR règle et ajouter ses « hors
    périmètre » et reliquats (spec, plan, rapport de recette, points non retenus de `final-review.md`), puis le
    commiter avec la PR. Rien à changer → passer.
+   **Issues** — dépôt aux issues activées (`gh repo view --json hasIssuesEnabled`) : chaque point ajouté qui est de
+   la dette (§7 de la spec, `shortcut:`, review non retenue) ou un problème hors périmètre découvert pendant le
+   développement devient une issue proposée. Doublon d'abord (`gh issue list --state open --search "<mots-clés>"`) :
+   trouvé → le citer, pas de nouvelle issue. Montrer la liste (titre, label, origine) et attendre l'accord (« crée
+   tout », numéros) : une issue est visible de l'équipe. Puis, avec le compte de la mémoire du projet
+   (`GH_TOKEN=$(gh auth token -u <compte>)`), `gh issue create` par point : titre court, corps en français
+   (constat avec `fichier:ligne`, impact, piste, origine : PR et spec), label `dette-technique` ou `hors-perimetre`
+   (créé s'il manque : `gh label create <label>`). La ligne du reste à faire renvoie à `#n`.
 3. `git push` simple (`-u origin <branche>` la première fois).
 4. Aucune PR ouverte pour la branche : `gh pr create` (titre = sujet du commit ou de la feature, description
    fonctionnelle en français). PR existante : mettre à jour la description si le périmètre a changé (`update-desc`).
