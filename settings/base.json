@@ -4,7 +4,12 @@
     "ENABLE_CLAUDEAI_MCP_SERVERS": "false"
   },
   "permissions": {
-    "defaultMode": "auto"
+    "defaultMode": "auto",
+    "deny": [
+      "ReportFindings",
+      "SendFeedback",
+      "ShareOnboardingGuide"
+    ]
   },
   "hooks": {
     "PreToolUse": [
@@ -56,7 +61,7 @@
     "pr-review-toolkit@claude-plugins-official": false,
     "chrome-devtools-mcp@claude-plugins-official": false,
     "atlassian@claude-plugins-official": true,
-    "sonarqube@claude-plugins-official": true,
+    "sonarqube@claude-plugins-official": false,
     "plannotator@plannotator": true,
     "ponytail@ponytail": true,
     "shortcuts@claude-config": true,
@@ -124,7 +129,10 @@
     "superpowers:requesting-code-review": "off",
     "superpowers:verification-before-completion": "off",
     "ponytail:ponytail-help": "off",
-    "plannotator-last": "off"
+    "plannotator-last": "off",
+    "dataviz": "off",
+    "anthropic-skills:google-workspace": "off",
+    "anthropic-skills:docs": "off"
   },
   "model": "opus"
 }
