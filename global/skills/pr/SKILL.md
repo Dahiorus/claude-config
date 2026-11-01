@@ -1,6 +1,7 @@
 ---
 name: pr
 description: Use when the user invokes /pr, or asks to list the current repo's pull requests or act on one — show, check out, test, push and open, squash, rebase, recette, merge, rewrite its description, review it or address its review comments (« pousse et crée la PR », « squash et merge », « relis la PR 114 », « traite les commentaires de alice »).
+model: sonnet
 argument-hint: "list | <n°|branche> [action…] [consigne]"
 ---
 
@@ -243,6 +244,10 @@ L'invocation vaut demande de squasher et de merger : c'est le merge qui impose l
 
 L'invocation vaut demande de relire et de publier. PR dont on est l'auteur → relire quand même, en regard critique
 sur son propre code : chercher ce qu'on a raté, pas justifier ce qu'on a écrit.
+
+Le skill tourne sur sonnet, la relecture exige Opus : les étapes 1 et 2 vont à un agent `general-purpose` lancé avec
+`model: "opus"`, qui reçoit le n° de PR, le chemin de l'arbre, la base, la consigne et ces deux étapes, et rend les
+remarques vérifiées (fichier, ligne, nature, gravité, problème, suggestion). Les étapes 3 à 5 restent ici.
 
 1. Diff de la PR contre sa base (`git diff origin/<baseRefName>...HEAD` dans l'arbre de la PR), restreint au
    périmètre de la consigne s'il y en a un, et les fichiers qu'il touche. Contexte : description, spec ou issue liée.
