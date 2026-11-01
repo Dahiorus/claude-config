@@ -1,10 +1,10 @@
 {
+  "env": {
+    "CLAUDE_CODE_SUBAGENT_MODEL": "sonnet",
+    "ENABLE_CLAUDEAI_MCP_SERVERS": "false"
+  },
   "permissions": {
     "defaultMode": "auto"
-  },
-  "model": "opusplan",
-  "env": {
-    "CLAUDE_CODE_SUBAGENT_MODEL": "sonnet"
   },
   "hooks": {
     "PreToolUse": [
@@ -113,5 +113,18 @@
   "editorMode": "normal",
   "autoCompactEnabled": true,
   "switchModelsOnFlag": true,
-  "autoContinueAtUsageLimit": false
+  "autoContinueAtUsageLimit": false,
+  "skipWorkflowUsageWarning": true,
+  "skillOverrides": {
+    "anthropic-skills:docx": "off",
+    "anthropic-skills:pptx": "off",
+    "anthropic-skills:xlsx": "off",
+    "superpowers:diagnosing-superpowers": "off",
+    "superpowers:dispatching-parallel-agents": "off",
+    "superpowers:requesting-code-review": "off",
+    "superpowers:verification-before-completion": "off",
+    "ponytail:ponytail-help": "off",
+    "plannotator-last": "off"
+  },
+  "model": "opus"
 }
