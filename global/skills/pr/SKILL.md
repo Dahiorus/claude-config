@@ -1,6 +1,7 @@
 ---
 name: pr
 description: Use when the user invokes /pr, or asks to list the current repo's pull requests or act on one — show, check out, test, push and open, squash, rebase, recette, merge, rewrite its description, review it or address its review comments (« pousse et crée la PR », « squash et merge », « relis la PR 114 », « traite les commentaires de alice »).
+model: sonnet
 argument-hint: "list | <n°|branche> [action…] [consigne]"
 ---
 
@@ -197,10 +198,14 @@ ou dans le message qui suit (liste numérotée écran + élément + observé + a
    local : démarrer l'application dans l'arbre de la PR (commande du CLAUDE.md du projet, dépendances installées si
    le worktree est neuf), en arrière-plan.
    Port déjà pris ou service injoignable : le diagnostiquer, ne pas recetter une autre instance.
-3. **Exécution** — chaque scénario étape par étape, avec observé et attendu. Interface web : un scénario = un seul
+3. **Exécution** — dans un agent `general-purpose` (modèle `sonnet` passé explicitement), pour que snapshots et
+   captures restent hors de la session. Un seul agent pour tous les scénarios, pas un par scénario en parallèle : ils
+   partagent le navigateur et l'application. Brief : URL de l'environnement, scénarios numérotés avec leur attendu,
+   consigne ci-dessous. Chaque scénario étape par étape, avec observé et attendu. Interface web : un scénario = un seul
    appel `browser_run_code_unsafe` de Playwright qui enchaîne ses étapes et renvoie l'observé de chacune ; snapshot
-   et capture seulement sur un écart (chaque appel MCP relit tout le contexte).
-   Rapport : un tableau scénario → conforme / non conforme, capture d'écran à l'appui des écarts.
+   et capture seulement sur un écart. L'agent ne corrige rien et rend un tableau scénario → conforme / non conforme,
+   avec pour chaque écart l'observé, l'attendu et le chemin de la capture. Les rejeux de l'étape 4 passent par le même
+   agent (`SendMessage`).
 4. **Correctifs** — les retours de l'utilisateur valent demande de correction ; les écarts trouvés par un scénario
    déduit se trient comme dans `feature` (« Tri des retours ») : « à corriger » corrigés d'office, « à trancher »
    rapportés. Appliquer la règle générale plutôt que le cas, sur tout le périmètre indiqué. Intention ambiguë ou
@@ -244,14 +249,21 @@ L'invocation vaut demande de squasher et de merger : c'est le merge qui impose l
 L'invocation vaut demande de relire et de publier. PR dont on est l'auteur → relire quand même, en regard critique
 sur son propre code : chercher ce qu'on a raté, pas justifier ce qu'on a écrit.
 
-1. Diff de la PR contre sa base (`git diff origin/<baseRefName>...HEAD` dans l'arbre de la PR), restreint au
-   périmètre de la consigne s'il y en a un, et les fichiers qu'il touche. Contexte : description, spec ou issue liée.
-2. Grille : celle du projet (WORKFLOW.md, AGENTS.md, CONTRIBUTING.md), sinon la grille qualité du skill `feature`.
-   Diff qui touche une API Angular → skill `angular-developer` aussi, comme dans `feature`. Bugs et sécurité
-   d'abord, puis lisibilité ; chaque remarque est vérifiée dans le code, pas supposée. Pas de
-   remarque de goût sans règle du projet derrière.
-3. Criticité : skill `pr-risk` sur la PR, qui publie (ou met à jour) son commentaire de risque : niveau, nombre de
-   relectures humaines, dangers à vérifier.
+Étapes 1 et 2 dans un agent, en même temps que l'étape 3 (un seul message) : la lecture du diff et du code reste
+hors de la session, qui ne reçoit que les remarques.
+
+1. **Agent de relecture** (`general-purpose`, modèle `opus` passé explicitement). Son brief donne le n° de PR, le
+   chemin de l'arbre de la PR, la consigne de périmètre, l'auteur si c'est soi (regard critique) et la consigne
+   ci-dessous. Il lit le diff contre la base (`git diff origin/<baseRefName>...HEAD`), les fichiers touchés et le
+   contexte (description, spec ou issue liée).
+2. Grille, à recopier dans le brief : celle du projet (WORKFLOW.md, AGENTS.md, CONTRIBUTING.md), sinon la section
+   « Grille qualité » de `~/.claude/skills/feature/SKILL.md`. Diff qui touche une API Angular → skill `angular-developer` aussi, comme dans
+   `feature`. Bugs et sécurité d'abord, puis lisibilité ; chaque remarque est vérifiée dans le code, pas supposée.
+   Pas de remarque de goût sans règle du projet derrière. L'agent rend une liste JSON, sans rien publier :
+   `{path, line, inDiff, nature, gravite, texte}` (`nature` : bug, sécurité, performance, test, lisibilité, doc,
+   question ; `gravite` : bloquant, non-bloquant, question).
+3. Criticité : skill `pr-risk` sur la PR (il tourne dans son propre agent), qui publie (ou met à jour) son
+   commentaire de risque : niveau, nombre de relectures humaines, dangers à vérifier.
 4. Publier une seule review `COMMENT`, jamais `APPROVE` ni `REQUEST_CHANGES` :
    `gh api repos/<owner/repo>/pulls/<n°>/reviews --input <fichier>` avec `event: "COMMENT"`, un `body` de synthèse
    (la criticité reste dans le seul commentaire de `pr-risk`, ne pas la répéter), et un `comments` par remarque
@@ -267,7 +279,11 @@ L'invocation vaut demande de corriger, pousser et répondre.
 
 1. Fils non résolus (`gh api graphql`, `reviewThreads` avec `isResolved`, `comments { databaseId path line body
    author { login } }`), filtrés par auteur si la consigne le dit (« de alice »). Aucun → le dire et s'arrêter.
-2. Pour chaque fil : vérifier le commentaire dans le code, puis le trier comme dans `feature` (« Tri des retours ») :
+2. Pour chaque fil : vérifier le commentaire dans le code, puis le trier comme dans `feature` (« Tri des retours »).
+   Plus de 3 fils : la vérification et le tri passent par un agent `Explore`, qui reçoit les fils (id, `path`, `line`,
+   texte), les critères du tri ci-dessous, le chemin de la grille du projet et la description de la PR (spec liée
+   comprise), et rend, pour chacun, son tri, la preuve (`fichier:ligne`) et la correction envisagée ; la session corrige.
+   Tri :
    « à corriger » → corrigé (règle générale plutôt que cas, comme pour `recette`) ; « écarté » (faux ou hors règle
    du projet) → raison ; « à trancher » (ambigu, changement de comportement non prévu par la spec) → options et
    recommandation, rien n'est corrigé avant l'accord.

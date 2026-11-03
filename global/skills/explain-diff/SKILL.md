@@ -29,6 +29,15 @@ or not sharing it is not a reason to fall back to terminal prose.
 Read the code around the diff and trace each changed flow end to end
 before writing. Never explain from the diff alone.
 
+Hand the reading and the writing to one `general-purpose` agent
+(model `sonnet`, passed explicitly), so the code it traces stays out of
+this session. Resolve the scope first: give the agent a diff command it
+can run (`git diff <base>..<head>`, `gh pr diff <n>`, the path), never
+"this session's edits". For this session's edits, also give the files the
+session changed, the intent of each edit and the checks already run, with
+their result: the agent cannot see the conversation. Its brief is this
+skill's path, to read and follow from "Scope" on, this paragraph aside. It returns the terminal answer, which you print as is.
+
 Run no check: no tests, no CI, no analysis. The page explains, the
 reader judges. A test result is evidence only when this session
 already ran it on the revision explained.
