@@ -1,11 +1,12 @@
 ---
 name: pr-risk
 description: Use when deciding how dangerous a pull request is and whether it needs human review — before merging, before opening one, or to triage how much attention a colleague's or agent's PR deserves. Not for code-quality review.
+context: fork
 ---
 
 # PR risk
 
-<!-- Copie de softwarevidal/harnais@f2dc722 (plugins/harnais/skills/pr-risk) : les évolutions se font là-bas. -->
+<!-- Copie de softwarevidal/harnais@f2dc722 (plugins/harnais/skills/pr-risk) : les évolutions se font là-bas. Divergence locale : `context: fork`, à garder à la recopie tant que harnais ne l'a pas. -->
 
 Judge what can go wrong once a PR is merged, how bad it is, and how many
 humans must review it. This is **not** a code review: never comment on style,
