@@ -236,10 +236,8 @@ L'invocation vaut demande de squasher et de merger : c'est le merge qui impose l
    toutes les quelques minutes, sans timeout plus court que celui du `Jenkinsfile`. `FAILURE`/`ERROR`, ou toujours
    absent après ~15 min : ne pas merger, rapporter avec le lien Jenkins (`targetUrl`). Si un push sur main déploie :
    suivre le run (`gh run watch`) jusqu'au succès ou à l'échec, et le rapporter.
-4. **Nettoyage** — branche extraite dans le dépôt principal : `git switch main && git pull --ff-only` ; sinon
-   `git fetch origin main`. Worktree `pr-<n°>` : `git worktree remove <chemin>` après avoir vérifié qu'il est propre
-   (session dedans : `ExitWorktree` avec `action: "keep"` d'abord). Supprimer la branche locale après avoir vérifié
-   que main contient son contenu ; supprimer la branche distante si le dépôt ne le fait pas au merge.
+4. **Nettoyage** — de la branche de la PR et de celles des PR qu'elle a intégrées puis fermées (citées dans la
+   session ou la description) : section « Nettoyage des branches », sans redemander, main contenant leur contenu.
 5. **Mémoire** — mettre à jour la mémoire du projet : PR, SHA de merge, déploiement, ce qui reste à faire.
 6. Rapport : une ligne par étape faite (SHA, lien de PR, état du déploiement) et ce qui n'a pas été fait, avec la
    raison.
@@ -293,6 +291,17 @@ L'invocation vaut demande de corriger, pousser et répondre.
    dans le rapport, publiée après accord.
 5. Rapport : décompte corrigés (SHA) / écartés, puis seuls les « à trancher » détaillés, lien de la PR.
 
-## Nettoyage d'une PR fermée sans merge
+## Nettoyage des branches
 
-`git worktree remove <chemin>` après avoir vérifié qu'il est propre.
+Après un merge, ou une PR fermée sans merge. Branche d'une PR fermée sans merge dont le contenu n'est pas dans main
+(ni intégré dans une autre PR) : demander avant de la supprimer, ses commits seraient perdus.
+
+1. **Worktrees** — chaque worktree où la branche est extraite (`git worktree list --porcelain`), `pr-<n°>` compris.
+   Dépôt principal : `git switch main && git pull --ff-only`. Autre worktree propre : `git worktree remove <chemin>`
+   (session dedans : `ExitWorktree` avec `action: "keep"` d'abord). Pas propre → le laisser et le dire. Puis
+   `git worktree prune`.
+2. **Branche locale** — `git branch -D` une fois vérifié que main contient son contenu (`git diff --quiet origin/main
+   <branche> -- $(git diff --name-only origin/main...<branche>)`) : un merge en rebase change les SHA, `-d` refuse. Écart → le montrer et demander.
+3. **Branche distante** — sauf si le dépôt la supprime au merge (`gh api repos/<owner/repo> --jq
+   .delete_branch_on_merge`) : `git push origin --delete <branche>…`, toutes les branches en un appel. Refusé
+   (permissions) → donner la commande prête à lancer avec `!`.
