@@ -16,7 +16,7 @@ noire », « la partie front », « de amercadal »). La PR est cherchée dans l
 et les `git push` passent par le compte indiqué par la mémoire du projet (jeton ponctuel
 `GH_TOKEN=$(gh auth token -u <compte>)`, sans changer le compte actif). Seul `switch` change la branche de l'arbre
 courant, et seulement s'il est propre : les autres actions travaillent dans l'arbre de la PR, le travail en cours n'est
-pas touché. `push`, `squash` et `merge` reprennent les étapes 8 à 13 du skill `feature`, qui reste la
+pas touché. `push`, `squash` et `merge` reprennent les étapes 8 à 14 du skill `feature`, qui reste la
 référence (règles, signaux d'alarme).
 
 ## Aide
@@ -38,7 +38,7 @@ référence (règles, signaux d'alarme).
   recette       déroule la recette (env. de la PR, sinon local), corrige, pousse ; retours en
                 liste numérotée écran + élément + observé + attendu + périmètre
   merge         reliquats faisables traités dans la PR, squash si besoin, merge en rebase, déploiement,
-                nettoyage, mémoire
+                leçons, nettoyage, mémoire
   update-desc   réécrit la description d'après la session et les commits
   review        relit la PR (la sienne comprise), évalue sa criticité (relecture humaine requise ?),
                 publie les commentaires (statut « commenté »)
@@ -147,6 +147,7 @@ porter plusieurs commits ; un historique désordonné se signale au plus dans le
 3. `git push` simple (`-u origin <branche>` la première fois).
 4. Aucune PR ouverte pour la branche : `gh pr create` (titre = sujet du commit ou de la feature, description
    fonctionnelle en français). PR existante : mettre à jour la description si le périmètre a changé (`update-desc`).
+   PR créée → skill `pr-risk` sur elle (`feature`, étape 8) ; son niveau et ses relectures humaines vont au rapport.
 5. Rapport : commit(s), lien de la PR, ce qui reste (recette, review). Terminer par ce rappel, mot pour mot :
    « Recette : `/clear`, puis `/pr N recette` avec tous les retours en un message — liste numérotée écran + élément +
    observé + attendu + périmètre, règle générale plutôt que cas. »
@@ -235,11 +236,13 @@ L'invocation vaut demande de squasher et de merger : c'est le merge qui impose l
    sur le SHA poussé (`gh pr view --json headRefOid,statusCheckRollup`). Absent ou `PENDING` : attendre et revérifier
    toutes les quelques minutes, sans timeout plus court que celui du `Jenkinsfile`. `FAILURE`/`ERROR`, ou toujours
    absent après ~15 min : ne pas merger, rapporter avec le lien Jenkins (`targetUrl`). Si un push sur main déploie :
-   suivre le run (`gh run watch`) jusqu'au succès ou à l'échec, et le rapporter.
-4. **Nettoyage** — de la branche de la PR et de celles des PR qu'elle a intégrées puis fermées (citées dans la
+   suivre le run (`gh run watch`) jusqu'au succès ou à l'échec, et le rapporter ; succès → rejouer un ou deux
+   scénarios de recette sur l'environnement déployé (`feature`, étape 11).
+4. **Leçons** — étape 12 de `feature`, avant le nettoyage.
+5. **Nettoyage** — de la branche de la PR et de celles des PR qu'elle a intégrées puis fermées (citées dans la
    session ou la description) : section « Nettoyage des branches », sans redemander, main contenant leur contenu.
-5. **Mémoire** — mettre à jour la mémoire du projet : PR, SHA de merge, déploiement, ce qui reste à faire.
-6. Rapport : une ligne par étape faite (SHA, lien de PR, état du déploiement) et ce qui n'a pas été fait, avec la
+6. **Mémoire** — mettre à jour la mémoire du projet : PR, SHA de merge, déploiement, ce qui reste à faire.
+7. Rapport : une ligne par étape faite (SHA, lien de PR, état du déploiement) et ce qui n'a pas été fait, avec la
    raison.
 
 ### `review`
