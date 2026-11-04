@@ -45,6 +45,15 @@ cmd_install() {
   fi
   install_links
   install_settings
+  # Hooks git du dépôt (tests avant push, install après pull sur main) ; absent d'une copie sans .git.
+  if [[ "$DRY_RUN" -eq 0 && "$(git -C "$REPO_ROOT" rev-parse --show-toplevel 2>/dev/null)" == "$REPO_ROOT" ]]; then
+    local hooks
+    hooks="$(git -C "$REPO_ROOT" config core.hooksPath || true)"
+    if [[ "$hooks" != githooks ]]; then
+      git -C "$REPO_ROOT" config core.hooksPath githooks
+      log hooks "core.hooksPath : ${hooks:-défaut} -> githooks"
+    fi
+  fi
   if [[ "$with_deps" -eq 1 && "$DRY_RUN" -eq 0 ]]; then
     # shellcheck source=deps.sh
     source "$REPO_ROOT/deps.sh"

@@ -45,7 +45,7 @@ done < <(declare -F | awk '{print $3}' | grep '^test_' | sort || true)
 
 if [[ -z "$filter" ]]; then
   if command -v shellcheck >/dev/null 2>&1; then
-    mapfile -t files < <(git -C "$REPO_SRC" ls-files --cached --others --exclude-standard '*.sh' 'bin/*')
+    mapfile -t files < <(git -C "$REPO_SRC" ls-files --cached --others --exclude-standard '*.sh' 'bin/*' 'githooks/*')
     if (cd "$REPO_SRC" && shellcheck -x "${files[@]}"); then
       passed=$((passed + 1))
       printf 'PASS  shellcheck\n'

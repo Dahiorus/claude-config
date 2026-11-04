@@ -20,7 +20,7 @@ Prérequis : `jq` et `git`. `install` s'occupe de rtk, build-brief, Plannotator,
 
 | Commande | Effet |
 |---|---|
-| `install [--dry-run] [--no-deps]` | Symlinke `global/*` dans `~/.claude`, génère `settings.json`, installe les dépendances |
+| `install [--dry-run] [--no-deps]` | Symlinke `global/*` dans `~/.claude`, génère `settings.json`, installe les dépendances, règle `core.hooksPath` sur `githooks/` |
 | `status` | Liste les écarts entre le repo et `~/.claude` (code 1 en cas d'écart) |
 | `capture` | Recopie `~/.claude/settings.json` dans `settings/base.json` (à relire avec `git diff`, puis à commiter) |
 | `init-project <dir> [--template <nom>] [--force]` | Copie `templates/<nom>/` (défaut `default`) dans un repo. Templates : `default`, `android` (hook build-brief sur `./gradlew`, convention gitmoji) |
@@ -47,3 +47,7 @@ Credentials, historique, sessions, caches, `skills/synced/` : voir `.gitignore`.
 tests/run.sh           # tous les tests + shellcheck
 tests/run.sh capture   # seulement les tests dont le nom contient « capture »
 ```
+
+Pas de CI : `githooks/pre-push` lance `tests/run.sh` avant chaque push (environ 40 s) et le refuse si l'arbre a des
+modifications non commitées ou n'est pas la branche poussée. `git push --no-verify` passe outre.
+`githooks/post-merge` relance `claude-config install --no-deps` après un pull sur `main` du dépôt principal.
