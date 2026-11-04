@@ -25,7 +25,7 @@ recommencer).
 2. **PR de version** — branche (nom de la procédure, sinon `build/version-<version>`) depuis `origin/main` à jour ;
    branche ou PR déjà là → la reprendre, sans en recréer. Monter la version là où la procédure l'indique (compteurs
    compris, comme le `versionCode` Android), commit au format de la procédure, complété par celui de
-   `CONTRIBUTING.md` et la ligne d'attribution, puis `/pr push`.
+   `CONTRIBUTING.md` et la ligne d'attribution, message passé par `humanizer:humanizer`, puis `/pr push`.
 3. **Merge** — `/pr <n°> merge` (il attend la CI de la PR). CI rouge ou relecture demandée → s'arrêter et rapporter.
 4. **Tag** — `main` à jour, vérifier que `HEAD` porte la nouvelle version (le fichier monté à l'étape 2), tag au
    format de la procédure (`v<version>` par défaut), push du tag, puis `gh run watch` sur le workflow qu'il déclenche.
@@ -34,5 +34,5 @@ recommencer).
    supprimées. Si la procédure a une checklist avant diffusion, la rappeler et proposer de la dérouler (sur l'appareil
    branché pour une app mobile, `adb devices` ; aucun → le dire) : elle se fait avant de diffuser le lien.
 
-Le compte gh vient du profil du projet (`bash ~/.claude/profile.sh account`), en jeton ponctuel `GH_TOKEN=$(gh auth token -u <compte>)` devant `gh` comme devant `git push` ; jamais `gh auth switch`.
+Le compte gh vient du profil du projet (`bash ~/.claude/profile.sh account`), en jeton ponctuel testé, en une commande : `t=$(gh auth token -u <compte>); [ -n "$t" ] && GH_TOKEN=$t gh …` (même forme devant `git push`), jamais le jeton recopié en clair ; jeton vide → s'arrêter (gh prendrait le compte actif) ; jamais `gh auth switch`.
 Projet sans profil et accès refusé → demander quel compte utiliser.

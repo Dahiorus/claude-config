@@ -1,6 +1,6 @@
 ---
 name: feature
-description: Use when the user invokes /feature, asks to build or ship a feature end to end (spec, plan, implementation, review, PR, merge), starts designing one (« commence la spec », « écris le plan »), says « implémente le plan », « corrige 1 et M3 », « pousse la PR » on feature work, or asks for the feature's report (`/feature report`, « fais un bilan de la feature »). Not for fixing a bug (use bugfix).
+description: Use when the user invokes /feature, asks to build a feature end to end (spec, plan, implementation, review, then delivery through /pr), starts designing one (« commence la spec », « écris le plan »), says « implémente le plan », « corrige 1 et M3 » on feature work, or asks for the feature's report (`/feature report`, « fais un bilan de la feature »). Not for fixing a bug (use bugfix).
 argument-hint: "[report] [consigne]"
 ---
 
@@ -24,19 +24,13 @@ Une feature suit toujours le même cycle, dans cet ordre. Chaque étape a son ou
 | 4 | Exécution | `superpowers:subagent-driven-development`. Implémenteur **Sonnet**, dont le brief rappelle la grille qualité (ci-dessous). Contrôle par tâche **Haiku, effort low** : compilation + **tests du contexte borné entier** (`tests/<Contexte>`, pas seulement ceux de la tâche) + présence de chaque test nommé dans le brief et de la preuve du rouge dans le rapport, rien d'autre. Un écart de l'implémenteur au brief, même « pratique », revient au contrôleur, qui amende la spec ou fait corriger : jamais accepté en silence. Agents `sdd-implementer` / `sdd-task-reviewer` / `sdd-final-reviewer` du projet s'ils existent. Toujours passer le modèle explicitement. Lot « parallélisable » du plan : contrairement à la règle de `subagent-driven-development`, ses implémenteurs partent dans un même message, chacun avec `isolation: "worktree"` ; puis leurs commits se reportent sur la branche dans l'ordre du plan (`cherry-pick`) et le contrôle Haiku passe sur le résultat, tâche par tâche. Conflit au report ou fichier touché hors de sa liste → reprendre les tâches restantes du lot une par une |
 | 5 | Vérification | Suite complète de tests + analyse statique, sortie lue. Une erreur d'environnement (base injoignable, port) se diagnostique, elle ne s'ignore pas |
 | 5b | Convergence | Vérification au vert : un agent **Sonnet** neuf (modèle passé explicitement) confronte le code à la spec et au plan, sans la conversation : chaque ligne de la table de traçabilité, chaque critère d'acceptation, chaque fichier de la portée ; en PR multiples, seulement ceux des tâches communes et des stories de cette PR (les suivantes sont ignorées). Il ne touche ni au code ni à la spec : chaque exigence absente ou partielle devient une tâche ajoutée à la fin de la story en cours (en fin de plan pour une PR unique), sous « Convergence N » (N : numéro du tour), avec le § de spec et le test attendu, puis commitée. Tâches ajoutées → retour à l'étape 4 pour elles seules, puis 5 et 5b. Rien à ajouter → « convergé », plan inchangé. Toujours pas convergé après 3 tours → s'arrêter et rapporter les écarts restants |
-| 6 | Recette | Si le plan en prévoit une : la faire soi-même dans le navigateur (Playwright), un appel par scénario comme dans `/pr recette` |
-| 7 | Reviews | **Automatiques**, sans attendre de demande, dès la vérification (et la recette) au vert : `ponytail:ponytail-review` et review complète par **Opus** (`sdd-final-reviewer`, modèle passé explicitement) sur toute la branche, en parallèle. La review Opus vérifie d'abord la fidélité (demande initiale → spec → plan → code, ci-dessous) puis applique la grille qualité. Écrire les deux dans `.superpowers/sdd/<feature>/final-review.md` (`<feature>-p<n>` en PR multiples, un fichier par story), numérotées une fois pour toutes (`P1…` pour ponytail, `C1…`, `I1…`, `M1…` par gravité pour Opus), puis **trier les points** (ci-dessous) : corriger d'office les « à corriger », rapporter les « à trancher », puis corriger ce que l'utilisateur retient (« corrige 1 et M3 », « corrige tout » = suivre les recommandations, y compris après un `/clear` : relire ce fichier) ; chaque point corrigé y reçoit son SHA. Un correctif qui change le comportement amende la spec d'abord. Les correctifs retenus faits, **sans attendre de demande** : le projet a un reste à faire (skill `todo`) → y rayer ce que la feature règle, ajouter les « hors périmètre » de la spec et les points de review non retenus (avec leur origine, §6 de la spec), commiter ; chaque point non retenu de `final-review.md` y reçoit la mention « reste à faire ». Dette et problèmes hors périmètre découverts → issues GitHub proposées comme dans `/pr push` (étape 2, « Issues »), créées après accord |
-| 8 | PR | Pousser la branche et ouvrir la PR avec le compte gh du profil du projet (`bash ~/.claude/profile.sh account` ; projet sans profil : compte actif), en jeton ponctuel `GH_TOKEN=$(gh auth token -u <compte>)` devant `gh` comme devant `git push` ; jamais `gh auth switch`. La PR peut porter plusieurs commits, poussés tels quels. Reste à faire déjà à jour depuis l'étape 7 ; ce qui a changé depuis s'y reporte avant de pousser, comme le fait `/pr push` (étape 2). PR ouverte → skill `pr-risk` sur elle (il publie son commentaire) ; son niveau et le nombre de relectures humaines demandées figurent dans le rapport |
-| 9 | Correctifs | Correctifs après la PR (review, recette) : retours triés comme à l'étape 7, puis nouveaux commits, `push` simple, sans réécriture |
-| 10 | Squash | Avant le merge seulement, reste à faire à jour (étape 7) : un seul commit par PR (spec + plan + code pour la première), message qui résume la feature, `git reset --soft <merge-base>`. En PR multiples, le plan marque d'abord la story « livrée : PR #n » à son titre. PR de plus de ~30-40 fichiers modifiés : un commit par pan fonctionnel métier. Puis `push --force-with-lease=<branche>:<sha attendu>` |
-| 11 | Merge | `gh pr merge --rebase` (ou `--squash`), **jamais** `--merge`. Si un push sur main déploie : suivre le run jusqu'au succès, puis rejouer sur l'environnement déployé un ou deux scénarios de recette de la story livrée, comme `/pr recette` (agent Sonnet, Playwright). Écart → le rapporter, sans revenir en arrière seul. Merge échoué ou PR fermée sans merge → retirer du plan la marque « livrée » de la story avant toute relance |
-| 12 | Leçons | Après le merge et avant le nettoyage, **sans attendre de demande** : (a) skill `claude-md-management:revise-claude-md` sur la session ; (b) comparer `final-review.md` à ceux des features précédentes (`.superpowers/sdd/*/final-review.md` du dépôt principal ; feature dans un worktree → y copier d'abord le sien, que le nettoyage supprimerait) : un même type de point vu deux fois (lecteur oublié, test combiné manquant…) devient une règle proposée pour l'`AGENTS.md` ou le `CLAUDE.md` du projet, ou pour la grille qualité de ce skill s'il vaut pour tous les projets. Les deux propositions arrivent ensemble, en diff, et ne s'appliquent qu'après accord |
-| 13 | Nettoyage | Supprimer la branche distante, les branches locales de la feature (`feat/…`, `docs/…`) après avoir vérifié que main contient leur contenu ; repasser sur main à jour |
-| 14 | Mémoire | Mettre à jour la mémoire du projet : PR, SHA de merge, déploiement. Ce qui reste à faire va dans le reste à faire versionné s'il existe, pas dans la mémoire |
+| 6 | Recette | Si le plan en prévoit une : la faire soi-même dans le navigateur (Playwright), un appel par scénario comme dans `/pr recette`, résultat dans `recette.md` du dossier de suivi (skill `pr`, « Dossier de suivi ») |
+| 7 | Reviews | **Automatiques**, sans attendre de demande, dès la vérification (et la recette) au vert : `ponytail:ponytail-review` et review complète par **Opus** (`sdd-final-reviewer`, modèle passé explicitement) sur toute la branche, en parallèle. La review Opus vérifie d'abord la fidélité (demande initiale → spec → plan → code, ci-dessous) puis applique la grille qualité. Écrire les deux dans `final-review.md` du dossier de suivi (skill `pr`, « Dossier de suivi » : `<racine>/.superpowers/sdd/<sujet>/`, `<sujet>` = nom de la branche sans `<type>/`, donc `<sujet>-p<n>` pour les PR suivantes d'une feature en PR multiples, un fichier par story), numérotées une fois pour toutes (`P1…` pour ponytail, `C1…`, `I1…`, `M1…` par gravité pour Opus), puis **trier les points** (ci-dessous) : corriger d'office les « à corriger », rapporter les « à trancher », puis corriger ce que l'utilisateur retient (« corrige 1 et M3 », « corrige tout » = suivre les recommandations, y compris après un `/clear` : relire ce fichier) ; chaque point corrigé y reçoit son SHA. Un correctif qui change le comportement amende la spec d'abord. Les points non retenus restent dans `final-review.md` : `/pr push` les reporte au reste à faire et en issues. Enfin, noter les frictions de la session dans `lecons.md` |
+| 8 | Livraison | Skill `pr`, qui porte toutes les étapes de la PR, sur demande explicite : `/pr push` (reste à faire, issues, PR, `pr-risk`), `/pr <n°> recette` et `/pr <n°> comments` pour les correctifs après la PR (triés comme à l'étape 7, `push` simple), `/pr <n°> merge` (reliquats, squash, CI, merge, déploiement, leçons, nettoyage, mémoire). En PR multiples, `pr` marque la story livrée dans le plan |
 
-Une demande peut couvrir plusieurs étapes (« implémente, squash »). L'exécution enchaîne d'elle-même vérification, convergence,
+Une demande peut couvrir plusieurs étapes (« implémente, puis pousse »). L'exécution enchaîne d'elle-même vérification, convergence,
 recette et reviews (étapes 5 à 7) : ne jamais demander s'il faut lancer les reviews. Pousser, ouvrir la PR et
-merger attendent toujours une demande explicite de l'utilisateur.
+merger attendent toujours une demande explicite de l'utilisateur : ce sont les actions de `/pr`.
 
 ## `report` : bilan de la feature
 
@@ -44,7 +38,7 @@ merger attendent toujours une demande explicite de l'utilisateur.
 sans rien modifier ni commiter. Il tient même après un `/clear`.
 
 **Sources, lues avant d'écrire :** `git log` et `git diff --stat main...HEAD` (commits, fichiers, +/−), état
-poussé/en cours ; la spec et le plan de la branche ; `final-review.md` ; le reste à faire ; la PR (`gh` avec le
+poussé/en cours ; la spec et le plan de la branche ; `final-review.md` et `recette.md` du dossier de suivi ; le reste à faire ; la PR (`gh` avec le
 compte du profil du projet ; projet sans profil : compte actif). Le fonctionnel et les refactorings se confirment dans le diff, pas seulement dans
 la spec : ce qui n'a pas été relu se dit à la fin.
 
@@ -119,7 +113,7 @@ annotations changent le comportement ou la portée.
 communes (caractérisation, refacto, socle partagé). Il estime les fichiers touchés hors tests, spec et plan : plus de
 ~15 → une PR par story, sinon une seule PR. En PR multiples, la première porte spec, plan, tâches communes et P1 ;
 chaque suivante part de `main` après le merge de la précédente, sur `feat/<sujet>-p<n>`, et refait les étapes 3 à
-14 pour sa story (relance : `/feature implémente @<chemin du plan>`, qui reprend la première story non marquée « livrée » ;
+8 pour sa story (relance : `/feature implémente @<chemin du plan>`, qui reprend la première story non marquée « livrée » ;
 `/feature report` liste les stories livrées et restantes). Une story qui ne compile ou ne se
 teste pas sans la suivante est mal découpée : la fusionner avec elle.
 
@@ -193,14 +187,12 @@ enfreint et correctif attendu ; ou « conforme ».
 | Excuse | Réalité |
 |---|---|
 | « Le contexte est frais, pas besoin de /clear » | Le `/clear` est exigé. On s'arrête et on le demande. |
-| « Les commits sont propres, je les merge tels quels » | Au merge, une feature = un commit (un par pan fonctionnel métier au-delà de ~30-40 fichiers). On squash avant de merger. |
 | « Pas le temps, je fais une review courte » | Review complète, ou on dit que ce n'est pas prêt. |
 | « Les tests DB échouent, c'est l'environnement » | Diagnostiquer (port, conteneur) et relancer jusqu'au vert. |
 | « Haiku peut aussi juger la qualité » | Non : compilation et tests seulement. La qualité, c'est Opus à la fin. |
 | « Petit écart pratique au plan, je le signale » | Pas d'écart. On amende la spec. |
 | « Les tests passent, tout le plan est implémenté » | La convergence (5b) compare le code à la spec ; tant qu'elle ajoute des tâches, ce n'est pas fini. |
 | « Une seule grosse PR, c'est plus simple » | Plus de ~15 fichiers hors tests, spec et plan : une PR par story. |
-| « Feature mergée, c'est fini » | L'étape 12 propose les leçons : ce qui a manqué à la session et les points de review qui reviennent. |
 | « J'ai écrit la spec, je sais qu'elle tient fonctionnellement » | `ddd revue` la déroule parcours par parcours avant Plannotator, puis le plan. |
 | « Le plan est clair, je le résume dans le chat » | Le plan passe par Plannotator, approuvé avant le `/clear`. |
 | « Le code est court, je l'écris dans la phrase » | Tout code du plan va dans un bloc délimité, étiqueté avec son langage. |
@@ -215,7 +207,6 @@ enfreint et correctif attendu ; ou « conforme ».
 | « Les tests du plan passent, la tâche est finie » | Le contexte borné entier passe, et le rouge a été vu avant le code. |
 | « Tests et code écrits d'un jet, c'est pareil » | Non : sans rouge constaté, le test ne prouve rien. |
 | « Les retours de review sont dans le chat, ça suffit » | Ils vont dans `final-review.md` : le `/clear` les efface du chat. |
-| « J'attends qu'on me dise de mettre à jour le reste à faire » | Non : il se met à jour seul dès les correctifs de review faits. |
 | « L'utilisateur a dit « corrige tout », j'applique chaque point » | Chaque point est vérifié puis trié ; « tout » = les recommandations, les écartés restent écartés. |
 | « Je rapporte tous les points, l'utilisateur triera » | Je trie ; seuls les « à trancher » demandent sa lecture. |
 | « Je demande si l'utilisateur veut une review » | Non : ponytail-review et Opus se lancent seuls à la fin du développement. |
@@ -225,7 +216,3 @@ enfreint et correctif attendu ; ou « conforme ».
 - Implémenter dans la session qui a écrit le plan.
 - Écrire le plan sans avoir cherché les usages des symboles modifiés.
 - Lancer en parallèle des tâches que le plan n'a pas marquées « parallélisable », ou sans worktree isolé.
-- Merger une PR à plusieurs commits, hors découpage par pan fonctionnel métier d'une PR de plus de ~30-40 fichiers.
-- `gh pr merge --merge`, ou un `push --force` sans `--force-with-lease`.
-- Supprimer ou déplacer un fichier de `src/` quand le déploiement ne supprime pas (rsync sans `--delete`) : le signaler avant le merge.
-- Terminer sans mettre à jour la mémoire ni proposer les leçons (étape 12).

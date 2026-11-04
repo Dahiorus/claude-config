@@ -14,5 +14,5 @@ lecture en Bash est un tour de plus sur tout le contexte.
 
 # Humanizer
 
-Before publishing a commit message, a PR description or a review comment you wrote, run it through the
+Before publishing the final commit(s) of a PR (squashed, or a single commit merged as is), a PR description or a review comment you wrote, run it through the
 `humanizer:humanizer` skill, then use the rewritten text. Leave code, commands, identifiers and quoted output as is.

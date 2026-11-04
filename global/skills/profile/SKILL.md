@@ -24,5 +24,5 @@ quelle. Sinon, demander de relancer la session pour que les plugins changent.
 
 ## À savoir
 
-- Le compte gh suit le propriétaire du dépôt (`bash ~/.claude/profile.sh account`) : les skills le passent en jeton ponctuel `GH_TOKEN=$(gh auth token -u <compte>)` devant `gh` comme devant `git push`. Rien ne l'ajoute tout seul : une commande `gh` sans jeton prend le compte actif. Jamais `gh auth switch`.
+- Le compte gh suit le propriétaire du dépôt (`bash ~/.claude/profile.sh account`) : les skills le passent en jeton ponctuel testé, en une commande : `t=$(gh auth token -u <compte>); [ -n "$t" ] && GH_TOKEN=$t gh …` (même forme devant `git push`), jamais le jeton recopié en clair ; jeton vide → s'arrêter (gh prendrait le compte actif). Rien ne l'ajoute tout seul : une commande `gh` sans jeton prend le compte actif. Jamais `gh auth switch`.
 - Pour modifier un profil, éditer `global/profiles.json` dans claude-config.

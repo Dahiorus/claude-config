@@ -13,11 +13,27 @@ nomme, jamais déduites.
 `view` par défaut. Plusieurs actions à la suite (`/pr 81 squash update-desc`, `/pr push recette`) s'exécutent dans
 l'ordre, arrêt au premier échec. Le texte libre qui suit les actions est une consigne pour elles (« en mode boîte
 noire », « la partie front », « de amercadal »). La PR est cherchée dans le dépôt courant uniquement. Les commandes `gh`
-et les `git push` passent par le compte du profil du projet (`bash ~/.claude/profile.sh account` ; vide sans profil : compte actif), en jeton ponctuel `GH_TOKEN=$(gh auth token -u <compte>)` devant `gh` comme devant `git push`, jamais par `gh auth switch`. En session `EnterWorktree`, Claude Code
-refuse `git -c …` et `VAR=… git …` : `ExitWorktree` avec `action: "keep"`, puis pousser depuis le dépôt principal. Seul `switch` change la branche de l'arbre
+et les `git push` passent par le compte du profil du projet (`bash ~/.claude/profile.sh account` ; vide sans profil : compte actif), en jeton ponctuel testé, en une commande : `t=$(gh auth token -u <compte>); [ -n "$t" ] && GH_TOKEN=$t gh …` (même forme devant `git push`), jamais le jeton recopié en clair ; jeton vide → s'arrêter (gh prendrait le compte actif), jamais par `gh auth switch`. En session `EnterWorktree`, Claude Code
+refuse `git -c …` et `VAR=… git/gh …` (commandes `gh` à jeton comprises) : `ExitWorktree` avec `action: "keep"`, puis pousser depuis le dépôt principal. Seul `switch` change la branche de l'arbre
 courant, et seulement s'il est propre : les autres actions travaillent dans l'arbre de la PR, le travail en cours n'est
-pas touché. `push`, `squash` et `merge` reprennent les étapes 8 à 14 du skill `feature`, qui reste la
-référence (règles, signaux d'alarme).
+pas touché. Ce skill porte toutes les étapes d'une PR, qu'elle vienne de `feature`, de `bugfix` ou de `release` ;
+`feature` reste la référence pour le tri des retours et la grille qualité. Les étapes qui demandent du jugement
+(tri des reliquats, découpage d'une PR volumineuse, conflits de rebase, leçons) passent par un agent `general-purpose`
+(modèle `opus` passé explicitement), qui rend sa décision : la session l'applique.
+
+## Dossier de suivi
+
+La conversation peut être effacée (`/clear`) à tout moment : rien ne s'appuie sur elle d'une invocation à l'autre.
+Ce qui doit durer vit dans `<racine>/.superpowers/sdd/<sujet>/`, où `<racine>` est le dépôt principal (premier chemin
+de `git worktree list`, même depuis un worktree) et `<sujet>` le nom de la branche sans son préfixe `<type>/`
+(`feat/x` → `x`, `feat/x-p2` → `x-p2`). À la première écriture, ajouter `.superpowers/` à
+`$(git rev-parse --git-common-dir)/info/exclude` s'il n'y est pas : sinon `switch` voit l'arbre « pas propre ».
+
+- `final-review.md` : retours de review et commentaires de PR, triés (`feature`, `bugfix`, `comments`) ;
+- `recette.md` : chaque recette, datée : environnement, scénarios et résultat, correctifs (SHA), ce qui reste ;
+- `lecons.md` : une ligne datée par friction (correction de l'utilisateur, commande refusée, piège, consigne
+  oubliée), ajoutée en fin de session de travail sur la branche (`feature` étape 7, `bugfix` étape 8, `push`, `squash`,
+  `recette`, `comments`, `rebase`, `merge` avant son étape 4). Rien à noter → rien.
 
 ## Aide
 
@@ -39,7 +55,7 @@ référence (règles, signaux d'alarme).
                 liste numérotée écran + élément + observé + attendu + périmètre
   merge         reliquats faisables traités dans la PR, squash si besoin, merge en rebase, déploiement,
                 leçons, nettoyage, mémoire
-  update-desc   réécrit la description d'après la session et les commits
+  update-desc   réécrit la description d'après les commits et le suivi
   review        relit la PR (la sienne comprise), évalue sa criticité (relecture humaine requise ?),
                 publie les commentaires (statut « commenté »)
   comments      traite les commentaires non résolus, corrige, pousse, répond aux fils
@@ -76,13 +92,13 @@ branche qui n'a pas encore de PR (`/pr push` sans référence vise la branche co
 
   Rapport : `2/2 approbations (alice, bob) → prête pour la QA`, ou `1/2 (alice) — il en manque 1`. Au-delà de 2,
   toujours prête. Signaler aussi les `CHANGES_REQUESTED` encore actifs.
-- **`update-desc`** — l'invocation vaut demande de réécrire la description. Sources : les retours de Claude dans la
-  session (recette, correctifs, review, rebase), puis les commits de la PR que la description ne reflète pas encore
+- **`update-desc`** — l'invocation vaut demande de réécrire la description. Sources : le dossier de suivi
+  (`recette.md`, `final-review.md`), puis les commits de la PR que la description ne reflète pas encore
   (`gh pr view <n°> --json body,commits,files`). Suivre le format de description du projet (AGENTS.md, CLAUDE.md,
   CONTRIBUTING.md, `.github/pull_request_template.md`), en français, fonctionnelle : elle décrit l'état final de la
   PR, pas l'historique des correctifs. Garder tel quel ce que l'auteur n'a pas écrit (bloc d'un bot de déploiement en
   tête, comme `<span id="carmen">…</span>`), les liens et les sections inchangées ; ne pas toucher au titre. Rien à
-  changer → le dire. Sinon `gh pr edit <n°> --body-file <fichier>`, puis rapport : sections modifiées et pourquoi.
+  changer → le dire. Sinon texte passé par `humanizer:humanizer`, `gh pr edit <n°> --body-file <fichier>`, puis rapport : sections modifiées et pourquoi.
 
 ## `switch`
 
@@ -134,19 +150,20 @@ porter plusieurs commits ; un historique désordonné se signale au plus dans le
    commits vivent désormais sur la branche). Modifications en cours : les lister et demander avant de les commiter.
 1. Vérification au vert dans cette session, sinon la lancer et lire la sortie. Rouge → on ne pousse pas.
 2. **Reste à faire** — le projet en a un (skill `todo`) : y rayer les points que la PR règle et ajouter ses « hors
-   périmètre » et reliquats (spec, plan, rapport de recette, points non retenus de `final-review.md`), puis le
-   commiter avec la PR. Rien à changer → passer.
+   périmètre » et reliquats (spec, plan, `recette.md`, points non retenus de `final-review.md`, avec leur
+   origine), puis le commiter avec la PR ; chaque point non retenu de `final-review.md` y reçoit la mention « reste à
+   faire ». Rien à changer → passer.
    **Issues** — dépôt aux issues activées (`gh repo view --json hasIssuesEnabled`) : chaque point ajouté qui est de
    la dette (§7 de la spec, `shortcut:`, review non retenue) ou un problème hors périmètre découvert pendant le
    développement devient une issue proposée. Doublon d'abord (`gh issue list --state open --search "<mots-clés>"`) :
    trouvé → le citer, pas de nouvelle issue. Montrer la liste (titre, label, origine) et attendre l'accord (« crée
-   tout », numéros) : une issue est visible de l'équipe. Puis `gh issue create` par point : titre court, corps en français
+   tout », numéros) : une issue est visible de l'équipe. Puis `gh issue create --body-file <fichier>` par point : titre court, corps en français
    (constat avec `fichier:ligne`, impact, piste, origine : PR et spec), label `dette-technique` ou `hors-perimetre`
    (créé s'il manque : `gh label create <label>`). La ligne du reste à faire renvoie à `#n`.
 3. `git push` simple (`-u origin <branche>` la première fois).
-4. Aucune PR ouverte pour la branche : `gh pr create` (titre = sujet du commit ou de la feature, description
-   fonctionnelle en français). PR existante : mettre à jour la description si le périmètre a changé (`update-desc`).
-   PR créée → skill `pr-risk` sur elle (`feature`, étape 8) ; son niveau et ses relectures humaines vont au rapport.
+4. Aucune PR ouverte pour la branche : `gh pr create --body-file <fichier>` (titre = sujet du commit ou de la feature, description
+   fonctionnelle en français, passée par `humanizer:humanizer`). PR existante : mettre à jour la description si le périmètre a changé (`update-desc`).
+   PR créée → skill `pr-risk` sur elle ; son niveau et ses relectures humaines vont au rapport.
 5. Rapport : commit(s), lien de la PR, ce qui reste (recette, review). Terminer par ce rappel, mot pour mot :
    « Recette : `/clear`, puis `/pr N recette` avec tous les retours en un message — liste numérotée écran + élément +
    observé + attendu + périmètre, règle générale plutôt que cas. »
@@ -155,13 +172,16 @@ porter plusieurs commits ; un historique désordonné se signale au plus dans le
 
 L'invocation vaut demande de réécrire l'historique et de le pousser.
 
-1. `git fetch origin main`, noter le SHA local et le SHA distant (`git rev-parse origin/<headRefName>`) : retour par
+1. PR multiples d'une feature (plan à stories sur la branche) : marquer d'abord la story « livrée : PR #n » à son
+   titre dans le plan et commiter, avant de noter les SHA. Puis `git fetch origin main`, noter le SHA local et le SHA distant (`git rev-parse origin/<headRefName>`) : retour par
    `git reset --hard <sha>`. Puis repartir de `origin/main` : `git reset --soft $(git merge-base HEAD origin/main)`,
    en rebasant d'abord sur `origin/main` si la branche est en retard. Messages dans la langue et au format de
-   `CONTRIBUTING.md` (attribution du system-reminder).
-   - **PR de taille normale** : un seul commit qui résume la feature.
+   `CONTRIBUTING.md` (attribution du system-reminder), passés par `humanizer:humanizer`.
+   - **PR de taille normale** : un seul commit qui résume la feature (spec + plan + code pour la première d'une
+     feature).
    - **PR volumineuse** (plus de ~30-40 fichiers modifiés hors fichiers générés) : un commit par pan fonctionnel
-     métier, chacun avec son code, ses tests et sa doc. Ordre de dépendance, pas de commit « correctifs de review ».
+     métier, chacun avec son code, ses tests et sa doc, découpage proposé par l'agent Opus (fichiers et message de
+     chaque commit). Ordre de dépendance, pas de commit « correctifs de review ».
      Chaque commit doit compiler : compiler les intermédiaires (`git rebase --exec '<build>' origin/main`).
 2. Arbre final identique à celui du SHA de départ (`git diff <sha>` vide), puis vérification du projet sur le dernier
    commit. Rouge → ne pas pousser, rapporter.
@@ -175,12 +195,12 @@ L'invocation vaut demande de réécrire la branche et de la pousser.
 
 1. Noter le SHA local et le SHA distant (`git rev-parse origin/<headRefName>`) : retour par `git reset --hard <sha>`.
 2. `git fetch origin main`, puis `git rebase origin/main` dans l'arbre de la PR.
-3. Conflits : lire les deux versions et garder l'intention de chacune, fichier par fichier ; jamais `--ours`/`--theirs`
-   en bloc. Intention ambiguë → montrer le conflit et attendre la décision (rebase laissé en cours).
+3. Conflits : l'agent Opus lit les deux versions et propose, fichier par fichier, la résolution qui garde
+   l'intention de chacune ; jamais `--ours`/`--theirs` en bloc. Intention ambiguë → montrer le conflit et attendre la décision (rebase laissé en cours).
 4. Vérification du projet dans l'arbre de la PR. Rouge → ne pas pousser, rapporter, laisser l'arbre en l'état.
 5. Approbations existantes (`approvals`) → prévenir qu'un push forcé peut les invalider, puis pousser :
    `git push --force-with-lease=<headRefName>:<SHA distant noté> origin <headRefName>`, jamais `--force` seul.
-6. Rapport : commits rejoués, fichiers en conflit et résolution choisie, résultat des tests, nouveau SHA.
+6. Frictions dans `lecons.md`. Rapport : commits rejoués, fichiers en conflit et résolution choisie, résultat des tests, nouveau SHA.
 
 ### `recette`
 
@@ -214,7 +234,7 @@ ou dans le message qui suit (liste numérotée écran + élément + observé + a
    après le push, une fois le build du nouveau SHA au vert (redéploiement).
 5. **Push** — nouveaux commits au format de `CONTRIBUTING.md`, `push` simple, sans réécriture ni squash. PR de fork ou
    `state` ≠ `OPEN` → corriger dans l'arbre de la PR sans pousser, et le dire.
-6. **Arrêt** — arrêter l'application lancée en local. Rapport : environnement recetté (lien ou local), scénarios et
+6. **Arrêt** — arrêter l'application lancée en local. Écrire `recette.md` et `lecons.md` (dossier de suivi). Rapport : environnement recetté (lien ou local), scénarios et
    résultat, correctifs (SHA), ce qui reste.
 
 ### `merge`
@@ -223,24 +243,32 @@ L'invocation vaut demande de squasher et de merger : c'est le merge qui impose l
 
 1. **Reliquats** — avant d'envoyer quoi que ce soit au reste à faire, passer en revue les points qu'il recevrait (ceux
    de l'étape 2 de `push`, plus ceux déjà ajoutés par cette PR) et ceux qu'il contient déjà sur le périmètre de la
-   PR. Chacun se trie comme dans `feature` (« Tri des retours ») : faisable ici (petit, dans le périmètre, une seule
+   PR. L'agent Opus les trie comme dans `feature` (« Tri des retours ») : faisable ici (petit, dans le périmètre, une seule
    façon raisonnable, sans effet sur la spec) → le faire dans la PR, un commit par point, vérification du projet au
    vert ; sinon → reste à faire, avec sa raison en une ligne. Rien de faisable → passer.
 2. **Squash** — reste à faire à jour d'abord (étape 2 de `push`), puis étapes de `squash`, sauf si l'historique en
    est déjà le résultat (un commit, ou un par pan fonctionnel, sans commit de correctif depuis) et à jour avec
-   `origin/main`.
-3. **Merge** — CI de la PR au vert s'il y en a une (`gh pr checks --watch`), puis `gh pr merge --rebase`, jamais
+   `origin/main`. Squash sauté : marque « livrée » en PR multiples (étape 1 de `squash`) et message du commit passé
+   par `humanizer:humanizer` quand même, push forcé avec bail comme dans `squash` si le message change.
+3. **Merge** — fichier de `src/` supprimé ou déplacé alors que le déploiement ne supprime pas (rsync sans
+   `--delete`) → le signaler avant de merger. CI de la PR au vert s'il y en a une (`gh pr checks --watch`), puis `gh pr merge --rebase`, jamais
    `--merge`. Dépôt avec un `Jenkinsfile` à la racine : le statut `continuous-integration/jenkins/pr-head` n'apparaît
    qu'une fois le build lancé, et rien côté GitHub n'empêche de merger sans lui. Ne merger que lorsqu'il est `SUCCESS`
    sur le SHA poussé (`gh pr view --json headRefOid,statusCheckRollup`). Absent ou `PENDING` : attendre et revérifier
    toutes les quelques minutes, sans timeout plus court que celui du `Jenkinsfile`. `FAILURE`/`ERROR`, ou toujours
    absent après ~15 min : ne pas merger, rapporter avec le lien Jenkins (`targetUrl`). Si un push sur main déploie :
    suivre le run (`gh run watch`) jusqu'au succès ou à l'échec, et le rapporter ; succès → rejouer un ou deux
-   scénarios de recette sur l'environnement déployé (`feature`, étape 11).
-4. **Leçons** — étape 12 de `feature`, avant le nettoyage.
+   scénarios de recette sur l'environnement déployé (agent Sonnet, comme `recette`). Écart → le rapporter, sans
+   revenir en arrière seul.
+4. **Leçons** — noter d'abord les frictions de ce merge dans `lecons.md`. Puis, sans attendre de demande, l'agent Opus lit le `lecons.md` et le `final-review.md` du dossier de
+   suivi, puis ceux des PR précédentes (`<racine>/.superpowers/sdd/*/`) : une friction qu'une règle écrite aurait
+   évitée, ou un même type de point vu deux fois, devient une règle proposée pour l'`AGENTS.md` ou le
+   `CLAUDE.md` du projet, ou pour la grille qualité de `feature` s'il vaut pour tous les projets. Les propositions
+   arrivent ensemble, en diff, et ne s'appliquent qu'après accord.
 5. **Nettoyage** — de la branche de la PR et de celles des PR qu'elle a intégrées puis fermées (citées dans la
-   session ou la description) : section « Nettoyage des branches », sans redemander, main contenant leur contenu.
-6. **Mémoire** — mettre à jour la mémoire du projet : PR, SHA de merge, déploiement, ce qui reste à faire.
+   description ou les commits) : section « Nettoyage des branches », sans redemander, main contenant leur contenu.
+6. **Mémoire** — mettre à jour la mémoire du projet : PR, SHA de merge, déploiement. Ce qui reste à faire va dans
+   le reste à faire versionné s'il existe, pas dans la mémoire.
 7. Rapport : une ligne par étape faite (SHA, lien de PR, état du déploiement) et ce qui n'a pas été fait, avec la
    raison.
 
@@ -269,7 +297,7 @@ hors de la session, qui ne reçoit que les remarques.
    (la criticité reste dans le seul commentaire de `pr-risk`, ne pas la répéter), et un `comments` par remarque
    (`path`, `line` du nouveau fichier, `side: "RIGHT"`), en français, préfixé du gitmoji de sa nature (🐛 bug,
    🔒️ sécurité, ⚡️ performance, ✅ test, ♻️ lisibilité, 📝 doc, 💬 question) puis de `**[bloquant]**`,
-   `**[non-bloquant]**` ou `**[question]**`, puis problème + suggestion (ou la question). Ligne hors du diff → dans
+   `**[non-bloquant]**` ou `**[question]**`, puis problème + suggestion (ou la question). `body` et commentaires passés par `humanizer:humanizer`. Ligne hors du diff → dans
    le `body`, avec `fichier:ligne` et le même préfixe.
 5. Rapport : verdict de `pr-risk` (niveau, relectures, dangers), lien de la review, remarques par gravité.
 
@@ -288,15 +316,16 @@ L'invocation vaut demande de corriger, pousser et répondre.
    du projet) → raison ; « à trancher » (ambigu, changement de comportement non prévu par la spec) → options et
    recommandation, rien n'est corrigé avant l'accord.
 3. Vérification du projet ; rouge → ne pas pousser. Commits au format de `CONTRIBUTING.md`, `push` simple.
-4. Répondre à chaque fil corrigé (`gh api repos/<owner/repo>/pulls/<n°>/comments/<databaseId>/replies -f body=…`) :
-   ce qui a changé et le SHA. Ne pas résoudre les fils : c'est au relecteur. Fils non corrigés : réponse proposée
-   dans le rapport, publiée après accord.
-5. Rapport : décompte corrigés (SHA) / écartés, puis seuls les « à trancher » détaillés, lien de la PR.
+4. Répondre à chaque fil corrigé (`gh api repos/<owner/repo>/pulls/<n°>/comments/<databaseId>/replies -F body=@<fichier>`, corps écrit dans un fichier d'abord) :
+   ce qui a changé et le SHA, passé par `humanizer:humanizer`. Ne pas résoudre les fils : c'est au relecteur. Fils non corrigés : réponse proposée
+   dans le rapport et dans `final-review.md`, publiée après accord.
+5. Tri et SHA dans `final-review.md`, frictions dans `lecons.md`. Rapport : décompte corrigés (SHA) / écartés, puis seuls les « à trancher » détaillés, lien de la PR.
 
 ## Nettoyage des branches
 
 Après un merge, ou une PR fermée sans merge. Branche d'une PR fermée sans merge dont le contenu n'est pas dans main
-(ni intégré dans une autre PR) : demander avant de la supprimer, ses commits seraient perdus.
+(ni intégré dans une autre PR) : demander avant de la supprimer, ses commits seraient perdus. Branche gardée pour
+une nouvelle PR : retirer la marque « livrée » de la story dans son plan.
 
 1. **Worktrees** — chaque worktree où la branche est extraite (`git worktree list --porcelain`), `pr-<n°>` compris.
    Dépôt principal : `git switch main && git pull --ff-only`. Autre worktree propre : `git worktree remove <chemin>`
