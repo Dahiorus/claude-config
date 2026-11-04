@@ -1,0 +1,26 @@
+{
+  "vidal": {
+    "owners": ["softwarevidal"],
+    "account": "brondon-ung",
+    "enabledPlugins": {
+      "atlassian@claude-plugins-official": true,
+      "jk@harnais": true,
+      "sonarqube@claude-plugins-official": true,
+      "typescript-lsp@claude-plugins-official": true,
+      "php-lsp@claude-plugins-official": false
+    },
+    "skillOverrides": {}
+  },
+  "perso": {
+    "owners": ["Dahiorus", "tuonick"],
+    "account": "Dahiorus",
+    "enabledPlugins": {
+      "atlassian@claude-plugins-official": false,
+      "jk@harnais": false,
+      "sonarqube@claude-plugins-official": false,
+      "typescript-lsp@claude-plugins-official": false,
+      "php-lsp@claude-plugins-official": true
+    },
+    "skillOverrides": { "angular-developer": "off" }
+  }
+}

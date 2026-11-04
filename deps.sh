@@ -73,6 +73,16 @@ ensure_angular_developer() {
   fi
 }
 
+# Plugins à true dans settings.json ou dans un profil du dépôt, sans doublon.
+enabled_plugin_ids() {
+  local profiles="$REPO_ROOT/global/profiles.json"
+  [[ -f "$profiles" ]] || profiles=/dev/null
+  {
+    jq -r '.enabledPlugins // {} | to_entries[] | select(.value == true) | .key' "$1"
+    jq -r '.[].enabledPlugins | to_entries[] | select(.value == true) | .key' "$profiles"
+  } | sort -u
+}
+
 # Ajoute les marketplaces de extraKnownMarketplaces, puis installe les plugins
 # activés (enabledPlugins à true) qui ne le sont pas encore.
 ensure_plugins() {
@@ -104,7 +114,7 @@ ensure_plugins() {
     else
       log warn "échec de l'installation du plugin $id"
     fi
-  done < <(jq -r '.enabledPlugins // {} | to_entries[] | select(.value == true) | .key' "$settings")
+  done < <(enabled_plugin_ids "$settings")
 }
 
 ensure_all() {

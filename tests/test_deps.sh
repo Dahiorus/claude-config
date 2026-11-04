@@ -29,6 +29,7 @@ calls() {
 
 empty_settings() {
   printf '{}\n' > "$REPO/settings/base.json"
+  printf '{}\n' > "$REPO/global/profiles.json"
 }
 
 fake_angular_skill() {
@@ -224,4 +225,16 @@ test_deps_build_brief_without_brew() {
   out="$(run_install 2>&1)"
   assert_contains "$out" "brew absent : build-brief non installé"
   assert_not_contains "$(calls)" "build-brief"
+}
+
+test_deps_installs_profile_plugins() {
+  printf '%s\n' '{"enabledPlugins":{"a@m":true,"s@m":false}}' > "$REPO/settings/base.json"
+  printf '%s\n' '{"vidal":{"owners":[],"account":"x","enabledPlugins":{"s@m":true,"a@m":true},"skillOverrides":{}}}' \
+    > "$REPO/global/profiles.json"
+  make_stub rtk; make_stub plannotator; fake_angular_skill
+  stub_claude '[]' '[]'
+  run_install >/dev/null
+  local c; c="$(calls)"
+  assert_contains "$c" "claude plugin install s@m --scope user"
+  assert_eq "$(grep -c 'plugin install a@m' <<<"$c")" "1" "a@m une seule fois"
 }

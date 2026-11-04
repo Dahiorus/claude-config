@@ -34,9 +34,7 @@ ligne faite, numérotation, sections, date « Mis à jour le ». Sans convention
      (`gh pr list -R <owner/repo> --state merged --search "merged:>=<date du commit>"`, `<owner/repo>` tiré de
      `git remote get-url origin`).
 
-     Compte : celui de la mémoire du projet, jamais `gh auth switch`. Pour `gh`, `GH_TOKEN=$(gh auth token -u <compte>)` ;
-     pour `git`, qui ignore `GH_TOKEN`,
-     `git -c credential.helper= -c "credential.helper=!f(){ echo username=<compte>; echo password=$(gh auth token -u <compte>); }; f" fetch …`.
+     Le compte gh vient du profil du projet (`bash ~/.claude/profile.sh account`), en jeton ponctuel `GH_TOKEN=$(gh auth token -u <compte>)` devant `gh` comme devant `git push` ; projet sans profil : compte actif ; jamais `gh auth switch`.
      Toujours en échec → travailler sur le `main` local et le dire dans le rapport. Fichier déjà modifié sans commit
      (`git status --short <fichier>`) → le signaler, et partir de cette version.
   2. Un point est ouvert tant qu'une partie n'est pas rayée ; le verdict porte sur cette partie. Une ligne qui ne fait

@@ -13,8 +13,7 @@ nomme, jamais déduites.
 `view` par défaut. Plusieurs actions à la suite (`/pr 81 squash update-desc`, `/pr push recette`) s'exécutent dans
 l'ordre, arrêt au premier échec. Le texte libre qui suit les actions est une consigne pour elles (« en mode boîte
 noire », « la partie front », « de amercadal »). La PR est cherchée dans le dépôt courant uniquement. Les commandes `gh`
-et les `git push` passent par le compte indiqué par la mémoire du projet (jeton ponctuel
-`GH_TOKEN=$(gh auth token -u <compte>)`, sans changer le compte actif). En session `EnterWorktree`, Claude Code
+et les `git push` passent par le compte du profil du projet (`bash ~/.claude/profile.sh account` ; vide sans profil : compte actif), en jeton ponctuel `GH_TOKEN=$(gh auth token -u <compte>)` devant `gh` comme devant `git push`, jamais par `gh auth switch`. En session `EnterWorktree`, Claude Code
 refuse `git -c …` et `VAR=… git …` : `ExitWorktree` avec `action: "keep"`, puis pousser depuis le dépôt principal. Seul `switch` change la branche de l'arbre
 courant, et seulement s'il est propre : les autres actions travaillent dans l'arbre de la PR, le travail en cours n'est
 pas touché. `push`, `squash` et `merge` reprennent les étapes 8 à 14 du skill `feature`, qui reste la
@@ -141,8 +140,7 @@ porter plusieurs commits ; un historique désordonné se signale au plus dans le
    la dette (§7 de la spec, `shortcut:`, review non retenue) ou un problème hors périmètre découvert pendant le
    développement devient une issue proposée. Doublon d'abord (`gh issue list --state open --search "<mots-clés>"`) :
    trouvé → le citer, pas de nouvelle issue. Montrer la liste (titre, label, origine) et attendre l'accord (« crée
-   tout », numéros) : une issue est visible de l'équipe. Puis, avec le compte de la mémoire du projet
-   (`GH_TOKEN=$(gh auth token -u <compte>)`), `gh issue create` par point : titre court, corps en français
+   tout », numéros) : une issue est visible de l'équipe. Puis `gh issue create` par point : titre court, corps en français
    (constat avec `fichier:ligne`, impact, piste, origine : PR et spec), label `dette-technique` ou `hors-perimetre`
    (créé s'il manque : `gh label create <label>`). La ligne du reste à faire renvoie à `#n`.
 3. `git push` simple (`-u origin <branche>` la première fois).

@@ -166,3 +166,10 @@ test_capture_prunes_nested_local_only_objects() {
   "$CLI" capture >/dev/null
   assert_json_eq "$REPO/settings/base.json" '{"a":1,"p":{"keep":true}}'
 }
+
+test_base_settings_profile_hook() {
+  local b="$REPO/settings/base.json"
+  assert_contains "$(jq -r '.hooks.SessionStart[].hooks[].command' "$b")" "profile.sh session-start"
+  assert_eq "$(jq -r '.enabledPlugins["github@claude-plugins-official"]' "$b")" "false" "github"
+  assert_eq "$(jq -r '.enabledPlugins["jdtls-lsp@claude-plugins-official"]' "$b")" "true" "jdtls"
+}
