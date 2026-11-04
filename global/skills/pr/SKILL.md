@@ -287,7 +287,24 @@ hors de la session, qui ne reçoit que les remarques.
 2. Grille, à recopier dans le brief : celle du projet (WORKFLOW.md, AGENTS.md, CONTRIBUTING.md), sinon la section
    « Grille qualité » de `~/.claude/skills/feature/SKILL.md`. Diff qui touche une API Angular → skill `angular-developer` aussi, comme dans
    `feature`. Bugs et sécurité d'abord, puis lisibilité ; chaque remarque est vérifiée dans le code, pas supposée.
-   Pas de remarque de goût sans règle du projet derrière. L'agent rend une liste JSON, sans rien publier :
+   Pas de remarque de goût sans règle du projet derrière.
+
+   Quelle que soit la grille, deux règles s'appliquent toujours :
+   - **Erreur avalée** (nature `bug`) : `catch` vide ou trop large, erreur journalisée puis ignorée, repli silencieux
+     qui masque un échec (valeur par défaut, `|| true`, `2>/dev/null` sur une commande dont l'échec compte).
+     Bloquant si l'échec perd ou corrompt des données, non-bloquant sinon.
+   - **Test absent** (nature `test`) : code de production modifié qui porte une règle (branche, boucle, calcul,
+     parseur) sans test qui l'exerce, ni dans la PR ni dans les tests existants. Non-bloquant ; bloquant pour le test
+     de non-régression du défaut corrigé, absent d'un correctif de bug (branche `fix/…`, commit `fix` ou 🐛, issue de
+     bug liée) sans vérification manuelle décrite dans la PR ou le rapport (décrite : question), les autres tests
+     absents du correctif restant non-bloquants ; question dans un projet sans suite de
+     tests (ni fichier de test : dossier de tests, `*.test.*`, `*.spec.*` ; ni commande de test dans le CLAUDE.md,
+     l'AGENTS.md, le README, le `package.json` ou le Makefile), correctif de bug compris.
+
+   Une ligne qui relève des deux règles donne une seule remarque `bug`, qui cite le test manquant, avec la plus
+   forte des deux gravités (bloquant > non-bloquant > question).
+
+   L'agent rend une liste JSON, sans rien publier :
    `{path, line, inDiff, nature, gravite, texte}` (`nature` : bug, sécurité, performance, test, lisibilité, doc,
    question ; `gravite` : bloquant, non-bloquant, question).
 3. Criticité : skill `pr-risk` sur la PR (il tourne dans son propre agent), qui publie (ou met à jour) son
