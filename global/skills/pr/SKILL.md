@@ -96,7 +96,7 @@ branche qui n'a pas encore de PR (`/pr push` sans référence vise la branche co
   (`recette.md`, `final-review.md`), puis les commits de la PR que la description ne reflète pas encore
   (`gh pr view <n°> --json body,commits,files`). Suivre le format de description du projet (AGENTS.md, CLAUDE.md,
   CONTRIBUTING.md, `.github/pull_request_template.md`), en français, fonctionnelle : elle décrit l'état final de la
-  PR, pas l'historique des correctifs. Garder tel quel ce que l'auteur n'a pas écrit (bloc d'un bot de déploiement en
+  PR, pas l'historique des correctifs. Garder les lignes `Closes #n` (et en ajouter une par issue que la PR règle entièrement, comme `push`) et tel quel ce que l'auteur n'a pas écrit (bloc d'un bot de déploiement en
   tête, comme `<span id="carmen">…</span>`), les liens et les sections inchangées ; ne pas toucher au titre. Rien à
   changer → le dire. Sinon texte passé par `humanizer:humanizer`, `gh pr edit <n°> --body-file <fichier>`, puis rapport : sections modifiées et pourquoi.
 
@@ -162,7 +162,8 @@ porter plusieurs commits ; un historique désordonné se signale au plus dans le
    (créé s'il manque : `gh label create <label>`). La ligne du reste à faire renvoie à `#n`.
 3. `git push` simple (`-u origin <branche>` la première fois).
 4. Aucune PR ouverte pour la branche : `gh pr create --body-file <fichier>` (titre = sujet du commit ou de la feature, description
-   fonctionnelle en français, passée par `humanizer:humanizer`). PR existante : mettre à jour la description si le périmètre a changé (`update-desc`).
+   fonctionnelle en français, passée par `humanizer:humanizer`, terminée par une ligne `Closes #n` par issue que la PR
+   règle entièrement, prise dans la spec, les commits ou la branche ; une issue réglée en partie est citée sans `Closes`). PR existante : mettre à jour la description si le périmètre a changé (`update-desc`).
    PR créée → skill `pr-risk` sur elle ; son niveau et ses relectures humaines vont au rapport.
 5. Rapport : commit(s), lien de la PR, ce qui reste (recette, review). Terminer par ce rappel, mot pour mot :
    « Recette : `/clear`, puis `/pr N recette` avec tous les retours en un message — liste numérotée écran + élément +
@@ -257,7 +258,10 @@ L'invocation vaut demande de squasher et de merger : c'est le merge qui impose l
    `origin/main`. Squash sauté : marque « livrée » en PR multiples (étape 1 de `squash`) et message du commit passé
    par `humanizer:humanizer` quand même, push forcé avec bail comme dans `squash` si le message change.
 4. **Merge** — fichier de `src/` supprimé ou déplacé alors que le déploiement ne supprime pas (rsync sans
-   `--delete`) → le signaler avant de merger. CI de la PR au vert s'il y en a une (`gh pr checks --watch`), puis `gh pr merge --rebase`, jamais
+   `--delete`) → le signaler avant de merger. Issues réglées entièrement par la PR (spec, commits, branche) absentes de
+   `gh pr view --json closingIssuesReferences` → ajouter leur `Closes #n` à la description avant de merger ; après le merge,
+   vérifier que chacune est `CLOSED` (`gh issue view <n> --json state`), sinon la fermer avec un commentaire qui cite la
+   PR et le SHA de merge. CI de la PR au vert s'il y en a une (`gh pr checks --watch`), puis `gh pr merge --rebase`, jamais
    `--merge`. Refus « not mergeable », « Head branch is out of date » juste après un push forcé, ou erreur 5xx : la
    mergeabilité est encore `UNKNOWN`, relancer seul jusqu'à 3 fois à 10 s d'écart avant de rapporter l'échec. Dépôt avec un `Jenkinsfile` à la racine : le statut `continuous-integration/jenkins/pr-head` n'apparaît
    qu'une fois le build lancé, et rien côté GitHub n'empêche de merger sans lui. Ne merger que lorsqu'il est `SUCCESS`
