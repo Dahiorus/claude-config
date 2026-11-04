@@ -18,6 +18,10 @@ setup_sandbox() {
   CLI="$REPO/bin/claude-config"
 }
 
+repo_with_origin() {  # <dossier> <url>
+  mkdir -p "$1" && git -C "$1" init -q && git -C "$1" remote add origin "$2"
+}
+
 fail() {
   printf 'ÉCHEC : %s\n' "$*" >&2
   exit 1

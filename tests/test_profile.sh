@@ -3,10 +3,6 @@
 
 profile() { bash "$REPO/global/profile.sh" "$@"; }
 
-repo_with_origin() {  # <dossier> <url>
-  mkdir -p "$1" && git -C "$1" init -q && git -C "$1" remote add origin "$2"
-}
-
 test_profile_detect_https_owner() {
   repo_with_origin "$SANDBOX/p" https://github.com/Dahiorus/x.git
   assert_eq "$(profile detect "$SANDBOX/p")" "perso" "profil"

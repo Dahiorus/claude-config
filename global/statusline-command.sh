@@ -88,7 +88,8 @@ cached() {
     fi
     if ( set -o noclobber; : > "$lock" ) 2>/dev/null; then
       (
-        out=$(cd "${cwd:-.}" 2>/dev/null; "$@")
+        cd "${cwd:-.}" 2>/dev/null || { rm -f "$lock"; exit; }
+        out=$("$@")
         printf '%s\n' "$out" > "$f.tmp.$$" 2>/dev/null && mv -f "$f.tmp.$$" "$f"
         rm -f "$lock"
       ) >/dev/null 2>&1 &
@@ -99,6 +100,7 @@ cached() {
 }
 
 # Etat CI de la PR : pass | fail | pending | (vide)
+# shellcheck disable=SC2329 # appelée par cached, via "$@"
 fetch_ci_state() {
   local out
   out=$(timeout 15 gh pr checks "$1" ${ci_repo_full:+-R "$ci_repo_full"} --json bucket 2>/dev/null)
@@ -111,10 +113,12 @@ fetch_ci_state() {
       else "" end'
 }
 # Nombre de fils de revue non resolus (vide si inconnu).
+# shellcheck disable=SC2329 # appelée par cached, via "$@"
 fetch_threads_count() {
   local nwo="$ci_repo_full" out
   [ -z "$nwo" ] && nwo=$(timeout 10 gh repo view --json nameWithOwner --jq .nameWithOwner 2>/dev/null)
   case "$nwo" in */*) ;; *) return ;; esac
+  # shellcheck disable=SC2016 # variables GraphQL, pas du shell
   out=$(timeout 15 gh api graphql \
     -f query='query($o:String!,$n:String!,$p:Int!){repository(owner:$o,name:$n){pullRequest(number:$p){reviewThreads(first:100){nodes{isResolved}}}}}' \
     -F o="${nwo%%/*}" -F n="${nwo#*/}" -F p="$1" \
@@ -122,6 +126,7 @@ fetch_threads_count() {
   case "$out" in ''|*[!0-9]*) ;; *) printf '%s' "$out" ;; esac
 }
 # Repli si Claude Code ne transmet pas .pr : "numero|review_state" de la PR ouverte de la branche.
+# shellcheck disable=SC2329 # appelée par cached, via "$@"
 fetch_branch_pr() {
   local res
   res=$(timeout 15 gh pr list --head "$1" --state open ${ci_repo_full:+-R "$ci_repo_full"} \
@@ -134,6 +139,7 @@ fetch_branch_pr() {
   case "$res" in [0-9]*'|'*) printf '%s' "$res" ;; esac
 }
 # .pr reste attache a la session apres le merge : son etat sert a masquer une PR mergee ou fermee.
+# shellcheck disable=SC2329 # appelée par cached, via "$@"
 fetch_pr_state() {
   timeout 15 gh pr view "$1" ${ci_repo_full:+-R "$ci_repo_full"} --json state --jq .state 2>/dev/null
 }
@@ -141,20 +147,42 @@ ci_repo_full=""
 ci_owner=$(j '.workspace.repo.owner'); ci_rname=$(j '.workspace.repo.name')
 [ -n "$ci_owner" ] && [ -n "$ci_rname" ] && ci_repo_full="${ci_owner}/${ci_rname}"
 
-# Le compte gh actif peut ne pas voir le depot : retenir (cache 1 jour) le compte qui y a acces.
-if [ -n "$ci_repo_full" ] && command -v gh >/dev/null 2>&1; then
-  gh_user_f="$cache_dir/ghuser-$(printf '%s' "$ci_repo_full" | tr -c 'A-Za-z0-9._-' '_')"
-  if [ $(( $(date +%s) - $(stat -c %Y "$gh_user_f" 2>/dev/null || echo 0) )) -ge 86400 ]; then
-    mkdir -p "${gh_user_f%/*}" 2>/dev/null
-    for u in $(gh auth status 2>/dev/null | sed -n 's/.* account \([^ ]*\) .*/\1/p'); do
-      GH_TOKEN=$(gh auth token --user "$u" 2>/dev/null) timeout 5 gh api "repos/$ci_repo_full" --silent >/dev/null 2>&1 \
-        && { printf '%s\n' "$u" > "$gh_user_f"; break; }
-    done
-    [ -s "$gh_user_f" ] || : > "$gh_user_f"
+# Sonde : ecrit le compte gh qui voit $ci_repo_full (vide si aucun), cache d'un jour dans $cache_dir.
+probe_gh_user() {
+  local cache_file account token
+  cache_file="$cache_dir/ghuser-$(printf '%s' "$ci_repo_full" | tr -c 'A-Za-z0-9._-' '_')"
+  if [ $(( $(date +%s) - $(stat -c %Y "$cache_file" 2>/dev/null || echo 0) )) -lt 86400 ]; then
+    head -n1 "$cache_file"
+    return
   fi
-  gh_user=$(head -n1 "$gh_user_f" 2>/dev/null)
-  [ -n "$gh_user" ] && GH_TOKEN=$(gh auth token --user "$gh_user" 2>/dev/null) && export GH_TOKEN
-fi
+  mkdir -p "${cache_file%/*}" 2>/dev/null
+  for account in $(gh auth status 2>/dev/null | sed -n 's/.* account \([^ ]*\) .*/\1/p'); do
+    token=$(token_for "$account") || continue  # GH_TOKEN vide : gh prendrait le compte actif
+    GH_TOKEN=$token timeout 5 gh api "repos/$ci_repo_full" --silent >/dev/null 2>&1 \
+      && { printf '%s\n' "$account" > "$cache_file"; break; }
+  done
+  [ -s "$cache_file" ] || : > "$cache_file"
+  head -n1 "$cache_file" 2>/dev/null
+}
+token_for() {  # <compte> : écrit son jeton (rien si compte vide ou sans jeton)
+  [ -n "$1" ] && gh auth token --user "$1" 2>/dev/null
+}
+# Compte gh : celui du profil du projet d'abord, sinon sonde des comptes (cache 1 jour) ; jeton exporte pour ce seul processus.
+select_gh_token() {
+  local token="" gh_user=""
+  command -v gh >/dev/null 2>&1 || return 0
+  if [ -n "$cwd" ]; then
+    gh_user=$(bash "$(dirname "$(readlink -f "$0")")/profile.sh" account "$cwd" 2>/dev/null)
+    token=$(token_for "$gh_user")
+  fi
+  if [ -z "$token" ] && [ -n "$ci_repo_full" ]; then
+    gh_user=$(probe_gh_user)
+    token=$(token_for "$gh_user")
+  fi
+  [ -n "$token" ] && export GH_TOKEN="$token"
+  return 0
+}
+select_gh_token
 
 if [ -n "$pr_num" ] && [ "$pr_kind" != "mr" ] && command -v gh >/dev/null 2>&1; then
   case "$(cached state "$pr_num" fetch_pr_state "$pr_num")" in MERGED|CLOSED) pr_num=""; pr_review="" ;; esac
