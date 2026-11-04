@@ -215,9 +215,14 @@ graph LR
 - "Rayon d'impact" only for Medium and High, and only with callers you found.
   Keep it under 10 nodes. Quote every node label.
 
-Post without asking. Edit the existing comment, never add a second one:
+Post without asking. Edit the existing comment, never add a second one: auto mode
+refuses to delete a duplicate. Never skip the lookup, and run the block as one
+command so every `gh` call, `gh api user` included, uses the profile account
+(otherwise `ME` is the active account, nothing matches, and a duplicate is posted).
+Without a profile account, drop the first line:
 
 ```bash
+t=$(gh auth token -u <account>); [ -n "$t" ] || exit 1; export GH_TOKEN=$t
 F="${TMPDIR:-/tmp}/pr-risk-<N>.md"
 ME=$(gh api user --jq .login)
 ID=$(gh api "repos/$R/issues/<N>/comments" --paginate \

@@ -177,6 +177,7 @@ touche. Grille du projet (WORKFLOW.md, AGENTS.md) si elle existe, sinon celle-ci
      imposé ;
   8. ≤ 4 dépendances par constructeur ;
   9. pas d'état mutable exposé : objets immuables, flux en lecture seule, *Tell, don't ask*.
+- **Texte (skills, spec, docs)** : un nombre annoncé (« deux règles », « 3 commandes ») est égal au nombre d'éléments listés.
 
 Ne pas signaler : code généré, tests (longueur libre), écart imposé par le framework ou une API externe, dépassement
 d'une ou deux lignes des seuils du point 7. Sortie : écarts classés par gravité, avec `fichier:ligne`, principe
