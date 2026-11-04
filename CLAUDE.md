@@ -10,3 +10,4 @@
 - Décision qui change une règle : chercher l'ancienne formulation (grep) dans la spec, `docs/domaine.md`, les skills et la description de la PR avant le merge.
 - `bin/claude-config install` lancé dans un worktree relie `~/.claude` à ce worktree (le `claude-config` du PATH pointe vers le dépôt principal) : le relancer depuis le dépôt principal une fois la branche mergée.
 - Un `GH_TOKEN` vide fait choisir à gh le compte actif : tester `[ -n "$token" ]` avant de le passer à gh.
+- Les skills du dépôt sont reliés à `~/.claude` : une autre session peut modifier `global/skills/*` pendant le travail sur une branche. Commiter fichier par fichier, jamais `git add -A`.
