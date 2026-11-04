@@ -6,3 +6,4 @@
 - Session `EnterWorktree` : Claude Code refuse `git -c`, `VAR=$(…) git/gh`, les heredocs qui citent git et les longs `gh api -f body=…`. Écrire un fichier puis `--input` / `--body-file`, ou sortir du worktree (`ExitWorktree` `keep`) pour pousser.
 - Le hook « main-guard » refuse un `git commit` tapé dans un appel Bash quand la branche est main, même dans un dépôt bac à sable (`git -C <bac à sable> commit`) : y passer par la plomberie (`commit-tree`, `update-ref`). Un commit lancé par un script de `tests/` lui échappe.
 - `bin/claude-config install` lancé dans un worktree relie `~/.claude` à ce worktree (le `claude-config` du PATH pointe vers le dépôt principal) : le relancer depuis le dépôt principal une fois la branche mergée.
+- Un `GH_TOKEN` vide fait choisir à gh le compte actif : tester `[ -n "$token" ]` avant de le passer à gh.

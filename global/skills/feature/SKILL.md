@@ -178,7 +178,9 @@ touche. Grille du projet (WORKFLOW.md, AGENTS.md) si elle existe, sinon celle-ci
   5. un seul point par ligne pour traverser des objets (`a.b.c.d`) ; chaînes de transformations permises, une étape
      par ligne ;
   6. pas d'abréviation dans les noms (`qty`, `cfg`, `mgr`) hors vocabulaire du domaine ;
-  7. fonction ≤ 20 lignes (composant d'interface ≤ 40), fichier ≤ 200 lignes ;
+  7. fonction ≤ 20 lignes (composant d'interface ≤ 40), fichier ≤ 200 lignes ; un fichier déjà au-delà avant la
+     branche ne se signale que s'il grossit de plus de deux lignes, et part au reste à faire plutôt qu'en découpage
+     imposé ;
   8. ≤ 4 dépendances par constructeur ;
   9. pas d'état mutable exposé : objets immuables, flux en lecture seule, *Tell, don't ask*.
 
