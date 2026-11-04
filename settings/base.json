@@ -41,6 +41,15 @@
             "command": "jq -n --rawfile m ~/.claude/session-intro.md \"{systemMessage: \\$m}\""
           }
         ]
+      },
+      {
+        "matcher": "startup",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.claude/profile.sh session-start"
+          }
+        ]
       }
     ]
   },
@@ -56,7 +65,7 @@
     "code-review@claude-plugins-official": false,
     "code-simplifier@claude-plugins-official": false,
     "playwright@claude-plugins-official": true,
-    "github@claude-plugins-official": true,
+    "github@claude-plugins-official": false,
     "feature-dev@claude-plugins-official": false,
     "pr-review-toolkit@claude-plugins-official": false,
     "chrome-devtools-mcp@claude-plugins-official": false,
@@ -77,7 +86,8 @@
     "claude-md-management@anthropic-plugin-directory": true,
     "jk@harnais": true,
     "context7@claude-plugins-official": true,
-    "humanizer@harnais": true
+    "humanizer@harnais": true,
+    "jdtls-lsp@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "plannotator": {

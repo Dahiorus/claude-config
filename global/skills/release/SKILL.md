@@ -34,7 +34,5 @@ recommencer).
    supprimées. Si la procédure a une checklist avant diffusion, la rappeler et proposer de la dérouler (sur l'appareil
    branché pour une app mobile, `adb devices` ; aucun → le dire) : elle se fait avant de diffuser le lien.
 
-Compte : celui de la mémoire du projet, comme pour `/pr`, jamais `gh auth switch`. Pour `gh`,
-`GH_TOKEN=$(gh auth token -u <compte>)` ; pour `git fetch` et `git push`, qui ignorent `GH_TOKEN`,
-`git -c credential.helper= -c "credential.helper=!f(){ echo username=<compte>; echo password=$(gh auth token -u <compte>); }; f" …`.
-Aucun compte en mémoire et accès refusé → demander lequel utiliser.
+Le compte gh vient du profil du projet (`bash ~/.claude/profile.sh account`), en jeton ponctuel `GH_TOKEN=$(gh auth token -u <compte>)` devant `gh` comme devant `git push` ; jamais `gh auth switch`.
+Projet sans profil et accès refusé → demander quel compte utiliser.
