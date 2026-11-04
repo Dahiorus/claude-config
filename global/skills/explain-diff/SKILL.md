@@ -21,7 +21,7 @@ or not sharing it is not a reason to fall back to terminal prose.
 
 | Argument | Scope |
 |---|---|
-| none | this session's edits; uncommitted changes the session did not make are listed under their own heading, not explained |
+| none | this session's edits; uncommitted changes the session did not make are listed under their own heading, not explained. No edits in this session (after a `/clear`) → the current branch against its base (`git diff $(git merge-base origin/main HEAD)`: commits and uncommitted tracked changes; untracked files from `git status --short`) |
 | `<sha>..<sha>`, `<sha>` | that range, or that commit (`A..B` excludes A: use `A^..B` to include it) |
 | `#123`, PR URL | the PR's diff (`gh pr diff`) |
 | a path | that module as it is today (no diff: explain how it works) |

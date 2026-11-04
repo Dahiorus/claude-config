@@ -1,6 +1,6 @@
 ---
 name: bugfix
-description: Use when the user invokes /bugfix, reports a bug, crash, regression or unexpected behaviour to fix (« corrige le bug… », « ça plante quand… », « régression sur… », a ticket or an error trace), or says « corrige 1 et P2 », « pousse la PR », « merge » on bug-fix work.
+description: Use when the user invokes /bugfix, reports a bug, crash, regression or unexpected behaviour to fix (« corrige le bug… », « ça plante quand… », « régression sur… », a ticket or an error trace), or says « corrige 1 et P2 » on bug-fix work.
 argument-hint: "[description | ticket | trace]"
 ---
 
@@ -32,9 +32,9 @@ Comportement attendu absent ou ambigu → le demander, ne pas le choisir.
 | 4 | Rouge | Un test qui reproduit le bug au plus près de la cause, lancé et vu échouer pour la bonne raison ; sortie gardée pour le rapport. Bug impossible à tester automatiquement → le dire et décrire la vérification manuelle |
 | 5 | Correctif | À la cause, une seule fois, dans le code partagé ; le même défaut ailleurs se corrige aussi (règle générale plutôt que cas). Rien d'autre : ni refactor ni amélioration en passant. Code front qui touche une API Angular → skill `angular-developer`, comme dans `feature`. Test au vert |
 | 6 | Vérification | Suite complète de tests + analyse statique, sortie lue. Rouge ailleurs → diagnostiquer, pas ignorer |
-| 7 | Recette | Bug visible dans une interface : rejouer le scénario du constat sur l'application locale (Playwright) |
-| 8 | Review | **Automatique** : `ponytail:ponytail-review`. Correctif de plus de ~50 lignes hors tests, ou code sensible (sécurité, argent, données) → aussi Opus (`sdd-final-reviewer`, modèle passé explicitement, grille qualité du skill `feature`), en parallèle. Écrites dans `.superpowers/sdd/<fix>/final-review.md`, numérotées comme dans `feature`, triées comme dans `feature` (« Tri des retours ») : « à corriger » corrigés d'office, « à trancher » rapportés ; corriger ce que l'utilisateur retient, chaque point avec son SHA |
-| 9 | Livraison | Commit `🐛` au format de `CONTRIBUTING.md` : la cause et le correctif. Puis skill `pr` (`push`, `recette`, `merge`) sur demande explicite ; reste à faire, `notify` et mémoire comme dans `feature` |
+| 7 | Recette | Bug visible dans une interface : rejouer le scénario du constat sur l'application locale (Playwright), résultat dans `recette.md` du dossier de suivi |
+| 8 | Review | **Automatique** : `ponytail:ponytail-review`. Correctif de plus de ~50 lignes hors tests, ou code sensible (sécurité, argent, données) → aussi Opus (`sdd-final-reviewer` du projet s'il existe, sinon `general-purpose` ; modèle passé explicitement, grille qualité du skill `feature`), en parallèle. Écrites dans `final-review.md` du dossier de suivi (skill `pr`, « Dossier de suivi »), numérotées comme dans `feature`, triées comme dans `feature` (« Tri des retours ») : « à corriger » corrigés d'office, « à trancher » rapportés ; corriger ce que l'utilisateur retient, chaque point avec son SHA ; frictions de la session dans `lecons.md` |
+| 9 | Livraison | Commit `🐛` au format de `CONTRIBUTING.md`, message passé par `humanizer:humanizer` : la cause et le correctif. Puis skill `pr` sur demande explicite : `push` (reste à faire, PR), `recette`, `merge` (leçons, nettoyage, mémoire). Correctif qui change un contrat partagé → `notify` |
 
 Les étapes 1 à 8 s'enchaînent sans demander. Rapport à la fin de l'étape 8 : cause, correctif (`fichier:ligne`),
 sortie du test rouge puis verte, vérification, reviews (seuls les « à trancher » détaillés), ce qui reste.

@@ -6,7 +6,7 @@ context: fork
 
 # PR risk
 
-<!-- Copie de softwarevidal/harnais@f2dc722 (plugins/harnais/skills/pr-risk) : les évolutions se font là-bas. Divergence locale : `context: fork`, à garder à la recopie tant que harnais ne l'a pas. -->
+<!-- Copie de softwarevidal/harnais@f2dc722 (plugins/harnais/skills/pr-risk) : les évolutions se font là-bas. Divergences locales, à garder à la recopie tant que harnais ne les a pas : `context: fork` ; compte gh du profil (§ 1). -->
 
 Judge what can go wrong once a PR is merged, how bad it is, and how many
 humans must review it. This is **not** a code review: never comment on style,
@@ -17,6 +17,13 @@ per sentence, active voice, common words.
 
 ## 1. Find the target
 
+- gh account: `bash ~/.claude/profile.sh account`. Not empty: run every `gh` command as
+  `t=$(gh auth token -u <account>); [ -n "$t" ] && GH_TOKEN=$t gh …`, in one
+  command; never paste the token. Empty token: the `&&` stops the call; stop and
+  say so (gh would fall back to the active account).
+  No account: use the active account.
+  Claude Code refuses the `GH_TOKEN=` prefix (an `EnterWorktree` session): stop,
+  give no verdict, and say to run it again after `ExitWorktree` with `keep`.
 - Argument is a number, a PR URL or a branch:
   `gh pr view <arg> --json number,title,body,baseRefName,headRefOid,url,state`.
 - No argument: same command without `<arg>`, on the current branch.
