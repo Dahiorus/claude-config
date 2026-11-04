@@ -178,6 +178,8 @@ touche. Grille du projet (WORKFLOW.md, AGENTS.md) si elle existe, sinon celle-ci
   8. ≤ 4 dépendances par constructeur ;
   9. pas d'état mutable exposé : objets immuables, flux en lecture seule, *Tell, don't ask*.
 - **Texte (skills, spec, docs)** : un nombre annoncé (« deux règles », « 3 commandes ») est égal au nombre d'éléments listés.
+  Une règle ou une définition reprise dans plusieurs fichiers (skills, `docs/domaine.md`, spec) dit la même chose
+  partout : chercher sa formulation par grep et signaler chaque copie absente ou divergente.
 
 Ne pas signaler : code généré, tests (longueur libre), écart imposé par le framework ou une API externe, dépassement
 d'une ou deux lignes des seuils du point 7. Sortie : écarts classés par gravité, avec `fichier:ligne`, principe
