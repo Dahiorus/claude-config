@@ -30,6 +30,16 @@
             "command": "bash ~/.claude/main-guard-hook.sh"
           }
         ]
+      },
+      {
+        "matcher": "Read",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "f=~/.claude/hooks/sonar-secrets/build-scripts/pretool-secrets.sh; [ ! -x \"$f\" ] || \"$f\"",
+            "timeout": 60
+          }
+        ]
       }
     ],
     "SessionStart": [
@@ -48,6 +58,18 @@
           {
             "type": "command",
             "command": "bash ~/.claude/profile.sh session-start"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "f=~/.claude/hooks/sonar-secrets/build-scripts/prompt-secrets.sh; [ ! -x \"$f\" ] || \"$f\"",
+            "timeout": 60
           }
         ]
       }
