@@ -25,7 +25,7 @@ account() {  # <dossier>
   name=$(detect "$1")
   [[ -n "$name" ]] || return 0
   account=$(jq -r --arg name "$name" '.[$name].account' "$PROFILES_FILE")
-  # Le compte entre dans une commande shell (bash-rewrite-hook.sh).
+  # Les skills placent le compte dans une commande shell (gh auth token -u <compte>).
   [[ "$account" =~ ^[A-Za-z0-9-]+$ ]] || { echo "compte gh invalide pour le profil $name" >&2; return 1; }
   printf '%s\n' "$account"
 }
