@@ -14,7 +14,8 @@ nomme, jamais déduites.
 l'ordre, arrêt au premier échec. Le texte libre qui suit les actions est une consigne pour elles (« en mode boîte
 noire », « la partie front », « de amercadal »). La PR est cherchée dans le dépôt courant uniquement. Les commandes `gh`
 et les `git push` passent par le compte indiqué par la mémoire du projet (jeton ponctuel
-`GH_TOKEN=$(gh auth token -u <compte>)`, sans changer le compte actif). Seul `switch` change la branche de l'arbre
+`GH_TOKEN=$(gh auth token -u <compte>)`, sans changer le compte actif). En session `EnterWorktree`, Claude Code
+refuse `git -c …` et `VAR=… git …` : `ExitWorktree` avec `action: "keep"`, puis pousser depuis le dépôt principal. Seul `switch` change la branche de l'arbre
 courant, et seulement s'il est propre : les autres actions travaillent dans l'arbre de la PR, le travail en cours n'est
 pas touché. `push`, `squash` et `merge` reprennent les étapes 8 à 14 du skill `feature`, qui reste la
 référence (règles, signaux d'alarme).

@@ -22,7 +22,8 @@ EOF
 }
 
 run_hook() {
-  jq -nc --arg c "$1" '{tool_name:"Bash",tool_input:{command:$c,description:"d"}}' \
+  # cwd hors de tout dépôt : sinon le hook prend $PWD, et un lancement depuis un worktree lié fausse les tests.
+  jq -nc --arg c "$1" --arg d "$SANDBOX" '{tool_name:"Bash",cwd:$d,tool_input:{command:$c,description:"d"}}' \
     | PATH="$STUBS:/usr/bin:/bin" bash "$REPO/global/bash-rewrite-hook.sh"
 }
 
