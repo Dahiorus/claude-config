@@ -5,8 +5,11 @@
 
 # Crée un bac à sable jetable (chemin avec espaces) contenant une copie du repo.
 setup_sandbox() {
+  # Lancés par un hook git (pre-push), les tests héritent de GIT_DIR : leurs dépôts jetables viseraient le vrai.
+  unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_PREFIX GIT_COMMON_DIR
   SANDBOX="$(mktemp -d "${TMPDIR:-/tmp}/claude config test.XXXXXX")"
   SANDBOX="$(cd "$SANDBOX" && pwd -P)"
+  export SANDBOX
   trap 'rm -rf "$SANDBOX"' EXIT
   REPO="$SANDBOX/repo"
   mkdir -p "$REPO" "$SANDBOX/home"

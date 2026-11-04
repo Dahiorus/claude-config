@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# Après un pull sur main du dépôt principal, ~/.claude suit la version mergée et plus un worktree.
+set -euo pipefail
+[[ "$(git rev-parse --git-dir)" == "$(git rev-parse --git-common-dir)" ]] || exit 0
+[[ "$(git branch --show-current)" == main ]] || exit 0
+"$(git rev-parse --show-toplevel)/bin/claude-config" install --no-deps

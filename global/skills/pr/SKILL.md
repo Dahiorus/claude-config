@@ -33,7 +33,7 @@ de `git worktree list`, même depuis un worktree) et `<sujet>` le nom de la bran
 - `recette.md` : chaque recette, datée : environnement, scénarios et résultat, correctifs (SHA), ce qui reste ;
 - `lecons.md` : une ligne datée par friction (correction de l'utilisateur, commande refusée, piège, consigne
   oubliée), ajoutée en fin de session de travail sur la branche (`feature` étape 7, `bugfix` étape 8, `push`, `squash`,
-  `recette`, `comments`, `rebase`, `merge` avant son étape 4). Rien à noter → rien.
+  `recette`, `comments`, `rebase`, `merge` avant son étape 2, puis à la fin pour la PR suivante). Rien à noter → rien.
 
 ## Aide
 
@@ -53,8 +53,8 @@ de `git worktree list`, même depuis un worktree) et `<sujet>` le nom de la bran
   rebase        rebase sur origin/main, résout les conflits, push forcé
   recette       déroule la recette (env. de la PR, sinon local), corrige, pousse ; retours en
                 liste numérotée écran + élément + observé + attendu + périmètre
-  merge         reliquats faisables traités dans la PR, squash si besoin, merge en rebase, déploiement,
-                leçons, nettoyage, mémoire
+  merge         reliquats faisables traités dans la PR, leçons, squash si besoin, merge en rebase,
+                déploiement, nettoyage, mémoire
   update-desc   réécrit la description d'après les commits et le suivi
   review        relit la PR (la sienne comprise), évalue sa criticité (relecture humaine requise ?),
                 publie les commentaires (statut « commenté »)
@@ -246,13 +246,20 @@ L'invocation vaut demande de squasher et de merger : c'est le merge qui impose l
    PR. L'agent Opus les trie comme dans `feature` (« Tri des retours ») : faisable ici (petit, dans le périmètre, une seule
    façon raisonnable, sans effet sur la spec) → le faire dans la PR, un commit par point, vérification du projet au
    vert ; sinon → reste à faire, avec sa raison en une ligne. Rien de faisable → passer.
-2. **Squash** — reste à faire à jour d'abord (étape 2 de `push`), puis étapes de `squash`, sauf si l'historique en
+2. **Leçons** — avant le squash, pour qu'elles partent dans la PR et pas dans une PR à part. Sans attendre de demande, l'agent Opus lit le `lecons.md` et le `final-review.md` du dossier de
+   suivi, puis ceux des PR précédentes (`<racine>/.superpowers/sdd/*/`) : une friction qu'une règle écrite aurait
+   évitée, ou un même type de point vu deux fois, devient une règle proposée pour l'`AGENTS.md` ou le
+   `CLAUDE.md` du projet, ou pour la grille qualité de `feature` s'il vaut pour tous les projets. Les propositions
+   arrivent ensemble, en diff, et ne s'appliquent qu'après accord, en un commit de la PR. Les frictions des étapes
+   suivantes (squash, merge, nettoyage) vont dans `lecons.md` à la fin : la PR suivante les lira.
+3. **Squash** — reste à faire à jour d'abord (étape 2 de `push`), puis étapes de `squash`, sauf si l'historique en
    est déjà le résultat (un commit, ou un par pan fonctionnel, sans commit de correctif depuis) et à jour avec
    `origin/main`. Squash sauté : marque « livrée » en PR multiples (étape 1 de `squash`) et message du commit passé
    par `humanizer:humanizer` quand même, push forcé avec bail comme dans `squash` si le message change.
-3. **Merge** — fichier de `src/` supprimé ou déplacé alors que le déploiement ne supprime pas (rsync sans
+4. **Merge** — fichier de `src/` supprimé ou déplacé alors que le déploiement ne supprime pas (rsync sans
    `--delete`) → le signaler avant de merger. CI de la PR au vert s'il y en a une (`gh pr checks --watch`), puis `gh pr merge --rebase`, jamais
-   `--merge`. Dépôt avec un `Jenkinsfile` à la racine : le statut `continuous-integration/jenkins/pr-head` n'apparaît
+   `--merge`. Refus « not mergeable », « Head branch is out of date » juste après un push forcé, ou erreur 5xx : la
+   mergeabilité est encore `UNKNOWN`, relancer seul jusqu'à 3 fois à 10 s d'écart avant de rapporter l'échec. Dépôt avec un `Jenkinsfile` à la racine : le statut `continuous-integration/jenkins/pr-head` n'apparaît
    qu'une fois le build lancé, et rien côté GitHub n'empêche de merger sans lui. Ne merger que lorsqu'il est `SUCCESS`
    sur le SHA poussé (`gh pr view --json headRefOid,statusCheckRollup`). Absent ou `PENDING` : attendre et revérifier
    toutes les quelques minutes, sans timeout plus court que celui du `Jenkinsfile`. `FAILURE`/`ERROR`, ou toujours
@@ -260,17 +267,12 @@ L'invocation vaut demande de squasher et de merger : c'est le merge qui impose l
    suivre le run (`gh run watch`) jusqu'au succès ou à l'échec, et le rapporter ; succès → rejouer un ou deux
    scénarios de recette sur l'environnement déployé (agent Sonnet, comme `recette`). Écart → le rapporter, sans
    revenir en arrière seul.
-4. **Leçons** — noter d'abord les frictions de ce merge dans `lecons.md`. Puis, sans attendre de demande, l'agent Opus lit le `lecons.md` et le `final-review.md` du dossier de
-   suivi, puis ceux des PR précédentes (`<racine>/.superpowers/sdd/*/`) : une friction qu'une règle écrite aurait
-   évitée, ou un même type de point vu deux fois, devient une règle proposée pour l'`AGENTS.md` ou le
-   `CLAUDE.md` du projet, ou pour la grille qualité de `feature` s'il vaut pour tous les projets. Les propositions
-   arrivent ensemble, en diff, et ne s'appliquent qu'après accord.
 5. **Nettoyage** — de la branche de la PR et de celles des PR qu'elle a intégrées puis fermées (citées dans la
    description ou les commits) : section « Nettoyage des branches », sans redemander, main contenant leur contenu.
 6. **Mémoire** — mettre à jour la mémoire du projet : PR, SHA de merge, déploiement. Ce qui reste à faire va dans
    le reste à faire versionné s'il existe, pas dans la mémoire.
-7. Rapport : une ligne par étape faite (SHA, lien de PR, état du déploiement) et ce qui n'a pas été fait, avec la
-   raison.
+7. Frictions du squash, du merge et du nettoyage dans `lecons.md`, pour les leçons de la PR suivante. Rapport : une
+   ligne par étape faite (SHA, lien de PR, état du déploiement) et ce qui n'a pas été fait, avec la raison.
 
 ### `review`
 

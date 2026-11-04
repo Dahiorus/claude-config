@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# Pas de CI : tests et shellcheck passent avant chaque push (contourner : git push --no-verify).
+set -euo pipefail
+head="$(git rev-parse HEAD)"
+# Suppression de branche seule (SHA local nul partout) : rien à tester.
+pushes=0
+while read -r _ sha _ _; do
+  [[ "$sha" =~ ^0+$ ]] && continue
+  pushes=1
+  # Les tests lisent l'arbre de travail : il doit être ce qu'on pousse.
+  if [[ "$sha" != "$head" ]]; then
+    echo "pre-push : $sha n'est pas la branche extraite, tests impossibles (git push --no-verify pour passer outre)" >&2
+    exit 1
+  fi
+done
+[[ "$pushes" -eq 1 ]] || exit 0
+if [[ -n "$(git status --porcelain)" ]]; then
+  echo "pre-push : modifications non commitées, les tests ne testeraient pas le commit poussé (git push --no-verify pour passer outre)" >&2
+  exit 1
+fi
+cd "$(git rev-parse --show-toplevel)"
+# Depuis un worktree, git exporte GIT_DIR : les dépôts jetables des tests viseraient la vraie branche.
+unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_PREFIX GIT_COMMON_DIR
+if ! out="$(bash tests/run.sh 2>&1 </dev/null)"; then
+  grep -v '^PASS' <<<"$out" >&2
+  echo "pre-push : tests en échec, push annulé" >&2
+  exit 1
+fi

@@ -170,6 +170,7 @@ test_capture_prunes_nested_local_only_objects() {
 test_base_settings_profile_hook() {
   local b="$REPO/settings/base.json"
   assert_contains "$(jq -r '.hooks.SessionStart[].hooks[].command' "$b")" "profile.sh session-start"
+  assert_contains "$(jq -r '.hooks.SessionStart[].hooks[].command' "$b")" "dirty-skills-hook.sh"
   assert_eq "$(jq -r '.enabledPlugins["github@claude-plugins-official"]' "$b")" "false" "github"
   assert_eq "$(jq -r '.enabledPlugins["jdtls-lsp@claude-plugins-official"]' "$b")" "true" "jdtls"
 }
