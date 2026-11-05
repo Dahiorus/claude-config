@@ -10,6 +10,7 @@ printf 'GH_TOKEN=%s gh %s\n' "${GH_TOKEN:-}" "$*" >> "$CALLS_LOG"
 case "$1 $2" in
   "auth status") for a in ${GH_ACCOUNTS:-}; do echo "  ✓ Logged in to github.com account $a (keyring)"; done ;;
   "auth token") [[ " ${GH_MISSING:-} " == *" $4 "* ]] && exit 1; echo "tok-$4" ;;
+  "api graphql") printf '%s' "${GH_GRAPHQL:-}" ;;
   "api repos/"*) [[ "${GH_TOKEN:-tok-${GH_ACTIVE:-}}" == "tok-${GH_SEES:-}" ]] ;;  # sans jeton : compte actif
 esac
 STUB
@@ -36,6 +37,22 @@ wait_for_call() {  # <motif> : vrai dès que le motif paraît dans $CALLS_LOG, 5
 pr_view_call() {  # appel d'arrière-plan qui porte le jeton retenu
   wait_for_call 'gh pr view 5' || fail "gh pr view jamais appelé"
   grep 'gh pr view 5' "$CALLS_LOG"
+}
+
+test_statusline_counts_threads_awaiting_account() {
+  repo_with_origin "$SANDBOX/p" https://github.com/someone/x.git
+  local f="$SANDBOX/cache/claude-statusline/threads-someone_x-5" _
+  # attendus : alice en dernier (1), bob seul sur son fil (1), auteur supprimé (1) ; répondu par bob, résolu et bot : non
+  GH_GRAPHQL='{"data":{"viewer":{"login":"bob"},"repository":{"pullRequest":{"reviewThreads":{"nodes":[
+    {"isResolved":false,"all":{"totalCount":2},"last":{"nodes":[{"author":{"login":"alice"}}]}},
+    {"isResolved":false,"all":{"totalCount":2},"last":{"nodes":[{"author":{"login":"bob"}}]}},
+    {"isResolved":false,"all":{"totalCount":1},"last":{"nodes":[{"author":{"login":"bob"}}]}},
+    {"isResolved":false,"all":{"totalCount":3},"last":{"nodes":[{"author":null}]}},
+    {"isResolved":true,"all":{"totalCount":1},"last":{"nodes":[{"author":{"login":"alice"}}]}},
+    {"isResolved":false,"all":{"totalCount":2},"first":{"nodes":[{"author":{"__typename":"Bot"}}]},"last":{"nodes":[{"author":{"login":"alice"}}]}}]}}}}}' \
+    GH_ACCOUNTS=bob GH_SEES=bob run_statusline "$SANDBOX/p" someone/x >/dev/null
+  for _ in $(seq 50); do [[ -s "$f" ]] && break; sleep 0.1; done
+  assert_eq "$(cat "$f" 2>/dev/null)" "3" "fils en attente"
 }
 
 test_statusline_probe_picks_account_that_sees_repo() {

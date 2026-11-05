@@ -1,6 +1,6 @@
 ---
 name: pr
-description: Use when the user invokes /pr, or asks to list the current repo's pull requests or act on one — show, check out, test, push and open, squash, rebase, recette, merge, rewrite its description, review it or address its review comments (« pousse et crée la PR », « squash et merge », « relis la PR 114 », « traite les commentaires de alice »).
+description: Use when the user invokes /pr, or asks to list the current repo's pull requests (or those awaiting my review) or act on one — show, check out, test, push and open, squash, rebase, recette, merge, rewrite its description, review it or address its review comments (« pousse et crée la PR », « squash et merge », « relis la PR 114 », « quelles PR dois-je relire ? », « traite les commentaires de alice »).
 model: sonnet
 argument-hint: "list | <n°|branche> [action…] [consigne]"
 ---
@@ -18,8 +18,9 @@ refuse `git -c …` et `VAR=… git/gh …` (commandes `gh` à jeton comprises) 
 courant, et seulement s'il est propre : les autres actions travaillent dans l'arbre de la PR, le travail en cours n'est
 pas touché. Ce skill porte toutes les étapes d'une PR, qu'elle vienne de `feature`, de `bugfix` ou de `release` ;
 `feature` reste la référence pour le tri des retours et la grille qualité. Les étapes qui demandent du jugement
-(tri des reliquats, découpage d'une PR volumineuse, conflits de rebase, leçons) passent par un agent `general-purpose`
-(modèle `opus` passé explicitement), qui rend sa décision : la session l'applique.
+(tri des reliquats, découpage d'une PR volumineuse, conflits de rebase, leçons, tri de plus de 3 retours de
+`comments`) passent par un agent `general-purpose` (modèle `opus` passé explicitement), qui rend sa décision :
+la session l'applique.
 
 ## Dossier de suivi
 
@@ -43,7 +44,7 @@ de `git worktree list`, même depuis un worktree) et `<sujet>` le nom de la bran
 ```text
 /pr <n°|branche> [action…] [consigne]   PR du dépôt courant, « view » par défaut
 
-  list          liste les PR du dépôt (sans n°) : open par défaut, closed
+  list          liste les PR du dépôt (sans n°) : open par défaut, closed, à relire
   view          affiche la PR
   approvals     compte les approbations (2 = prête pour la QA)
   switch        extrait la branche ici ; arbre pas propre → propose son worktree
@@ -54,14 +55,14 @@ de `git worktree list`, même depuis un worktree) et `<sujet>` le nom de la bran
   recette       déroule la recette (env. de la PR, sinon local), corrige, pousse ; retours en
                 liste numérotée écran + élément + observé + attendu + périmètre
   merge         reliquats faisables traités dans la PR, leçons, squash si besoin, merge en rebase,
-                déploiement, nettoyage, mémoire
+                déploiement, nettoyage, pièges et décisions en mémoire
   update-desc   réécrit la description d'après les commits et le suivi
   review        relit la PR (la sienne comprise), évalue sa criticité (relecture humaine requise ?),
-                publie les commentaires (statut « commenté »)
-  comments      traite les commentaires non résolus, corrige, pousse, répond aux fils
+                publie les commentaires, ou approuve si rien n'est nouveau et la relecture demandée
+  comments      traite les fils et commentaires en attente, corrige, pousse, répond
   help          cette aide
 
-Exemples : /pr list · /pr list closed · /pr 42 · /pr 42 switch · /pr push recette · /pr 42 squash merge · /pr 42 review la partie front
+Exemples : /pr list · /pr list closed · /pr list à relire · /pr 42 · /pr 42 switch · /pr push recette · /pr 42 squash merge · /pr 42 review la partie front
            /pr 42 comments de alice · /pr main switch
 ```
 
@@ -75,7 +76,8 @@ branche qui n'a pas encore de PR (`/pr push` sans référence vise la branche co
 
 - **`list`** — tableau markdown, rendu tel quel dans la réponse (pas dans un bloc de code) ; la consigne se traduit en
   options `gh` (`open` ou « ouvertes » → défaut, `closed` ou « fermées » → `--state closed`, « toutes » → `--state all`, « de alice » → `--author alice`,
-  « les miennes » → `--author @me`) :
+  « les miennes » → `--author @me`, « à relire » → `--search "review-requested:@me"` (sous jeton ponctuel, `@me` =
+  soi ; demandes à une équipe comprises), dépôt courant seulement ; aucune → « aucune PR ne demande ta relecture ») :
 
   ```bash
   gh pr list --json number,title,headRefName,state,isDraft,author,updatedAt --jq '
@@ -273,8 +275,11 @@ L'invocation vaut demande de squasher et de merger : c'est le merge qui impose l
    revenir en arrière seul.
 5. **Nettoyage** — de la branche de la PR et de celles des PR qu'elle a intégrées puis fermées (citées dans la
    description ou les commits) : section « Nettoyage des branches », sans redemander, main contenant leur contenu.
-6. **Mémoire** — mettre à jour la mémoire du projet : PR, SHA de merge, déploiement. Ce qui reste à faire va dans
-   le reste à faire versionné s'il existe, pas dans la mémoire.
+6. **Mémoire** — n'y écrire qu'un piège (comportement inattendu et son contournement) ou une décision de
+   l'utilisateur (choix à ne pas reproposer, avec sa raison) apparus dans la PR ; jamais n° de PR, SHA, date ou état
+   du déploiement, que git et GitHub gardent. Rien de nouveau → rien. Ce qui reste à faire va dans le reste à faire
+   versionné s'il existe ; sinon un bug ou un point hors périmètre devient une issue, proposée puis créée après accord
+   comme à l'étape **Issues** de `push` (label `hors-perimetre`, ou `bug` pour un bug). Jamais dans la mémoire.
 7. Frictions du squash, du merge et du nettoyage dans `lecons.md`, pour les leçons de la PR suivante. Rapport : une
    ligne par étape faite (SHA, lien de PR, état du déploiement) et ce qui n'a pas été fait, avec la raison.
 
@@ -286,14 +291,27 @@ sur son propre code : chercher ce qu'on a raté, pas justifier ce qu'on a écrit
 Étapes 1 et 2 dans un agent, en même temps que l'étape 3 (un seul message) : la lecture du diff et du code reste
 hors de la session, qui ne reçoit que les remarques.
 
+0. **Déjà fait** — lire les remarques déjà faites (fils de la PR : `path`, `line`, texte, `isResolved` ; `body` des
+   reviews ; commentaires de la conversation, `gh api repos/<o/r>/issues/<n°>/comments --paginate`), hors commentaire
+   contenant `<!-- pr-risk -->` et auteurs de type `Bot` (fil dont le premier commentaire est d'un `Bot`), comme à
+   l'étape 1 de `comments`, et la dernière relecture de soi (`commit_id` de sa review la plus récente au `body` non vide et d'`state` autre que `PENDING`,
+   `gh api repos/<o/r>/pulls/<n°>/reviews --paginate` : les réponses aux fils créent des reviews vides, son brouillon
+   est `PENDING`). Périmètre : `git diff <commit_id>...HEAD` si `git merge-base --is-ancestor <commit_id> HEAD`
+   réussit dans l'arbre de la PR **et** que `git rev-list --merges <commit_id>..HEAD` est vide, sinon (aucune
+   relecture, push forcé, squash, rebase, merge de la base) le diff complet contre la base : le code des PR déjà
+   mergées sur la base n'est pas relu.
 1. **Agent de relecture** (`general-purpose`, modèle `opus` passé explicitement). Son brief donne le n° de PR, le
    chemin de l'arbre de la PR, la consigne de périmètre, l'auteur si c'est soi (regard critique) et la consigne
    ci-dessous. Il lit le diff contre la base (`git diff origin/<baseRefName>...HEAD`), les fichiers touchés et le
-   contexte (description, spec ou issue liée).
+   contexte (description, spec ou issue liée). Il reçoit aussi le périmètre de l'étape 0 et les remarques déjà
+   faites ; les fichiers touchés hors périmètre servent de contexte, sans remarque. Il reçoit enfin les remarques
+   bloquantes de soi encore ouvertes et dit pour chacune, vérifié dans le code, si elle est corrigée ou toujours là.
 2. Grille, à recopier dans le brief : celle du projet (WORKFLOW.md, AGENTS.md, CONTRIBUTING.md), sinon la section
    « Grille qualité » de `~/.claude/skills/feature/SKILL.md`. Diff qui touche une API Angular → skill `angular-developer` aussi, comme dans
    `feature`. Bugs et sécurité d'abord, puis lisibilité ; chaque remarque est vérifiée dans le code, pas supposée.
    Pas de remarque de goût sans règle du projet derrière.
+   Une remarque sur le même point qu'une remarque déjà faite (même fichier, ligne proche ou même symbole, même
+   problème) n'est pas rendue, résolue ou non ; une remarque résolue dont le code a régressé est nouvelle.
 
    Quelle que soit la grille, deux règles s'appliquent toujours :
    - **Erreur avalée** (nature `bug`) : `catch` vide ou trop large, erreur journalisée puis ignorée, repli silencieux
@@ -315,25 +333,50 @@ hors de la session, qui ne reçoit que les remarques.
    question ; `gravite` : bloquant, non-bloquant, question).
 3. Criticité : skill `pr-risk` sur la PR (il tourne dans son propre agent), qui publie (ou met à jour) son
    commentaire de risque : niveau, nombre de relectures humaines, dangers à vérifier.
-4. Publier une seule review `COMMENT`, jamais `APPROVE` ni `REQUEST_CHANGES` :
+4. Publier au plus une review, jamais `REQUEST_CHANGES`. Remarques nouvelles → une review `COMMENT` :
    `gh api repos/<owner/repo>/pulls/<n°>/reviews --input <fichier>` avec `event: "COMMENT"`, un `body` de synthèse
    (la criticité reste dans le seul commentaire de `pr-risk`, ne pas la répéter), et un `comments` par remarque
    (`path`, `line` du nouveau fichier, `side: "RIGHT"`), en français, préfixé du gitmoji de sa nature (🐛 bug,
    🔒️ sécurité, ⚡️ performance, ✅ test, ♻️ lisibilité, 📝 doc, 💬 question) puis de `**[bloquant]**`,
-   `**[non-bloquant]**` ou `**[question]**`, puis problème + suggestion (ou la question). `body` et commentaires passés par `humanizer:humanizer`. Ligne hors du diff → dans
-   le `body`, avec `fichier:ligne` et le même préfixe.
-5. Rapport : verdict de `pr-risk` (niveau, relectures, dangers), lien de la review, remarques par gravité.
+   `**[non-bloquant]**` ou `**[question]**`, puis problème + suggestion (ou la question). `body` et commentaires passés par `humanizer:humanizer`, qui garde
+   tels quels le gitmoji et le préfixe de gravité (l'`APPROVE` en dépend), comme les identifiants. Ligne hors du
+   diff → dans le `body`, avec `fichier:ligne` et le même préfixe.
+   Aucune remarque nouvelle → `APPROVE` seulement si la PR est d'un autre, que soi est relecteur demandé
+   (`gh pr view <n°> --json reviewRequests` : son login, ou une équipe dont il est membre,
+   `gh api orgs/<org>/teams/<slug>/memberships/<soi>` qui répond `active`) et qu'aucune remarque bloquante de soi
+   (préfixe `**[bloquant]**`) n'est ouverte (fil non résolu, point hors fil qu'aucune réponse d'un autre ne cite).
+   Corps court, passé par `humanizer:humanizer`. Commande de demande en échec (portée `read:org` manquante) : rien
+   n'est publié, le rapport cite l'erreur. Sinon rien n'est publié : sa propre PR, pas de demande en cours (GitHub la retire à
+   chaque review de soi, l'auteur la redemande), ou bloquantes ouvertes,
+   listées dans le rapport, chacune marquée « corrigée, fil à résoudre » ou « toujours là ».
+5. Rapport : verdict de `pr-risk` (niveau, relectures, dangers), lien de la review, remarques par gravité ; aussi le
+   périmètre relu (depuis `<sha court>` ou complet), le nombre de remarques écartées comme déjà faites, et ce qui a
+   été publié (review, approbation ou rien, avec la raison).
 
 ### `comments`
 
 L'invocation vaut demande de corriger, pousser et répondre.
 
-1. Fils non résolus (`gh api graphql`, `reviewThreads` avec `isResolved`, `comments { databaseId path line body
-   author { login } }`), filtrés par auteur si la consigne le dit (« de alice »). Aucun → le dire et s'arrêter.
-2. Pour chaque fil : vérifier le commentaire dans le code, puis le trier comme dans `feature` (« Tri des retours »).
-   Plus de 3 fils : la vérification et le tri passent par un agent `Explore`, qui reçoit les fils (id, `path`, `line`,
-   texte), les critères du tri ci-dessous, le chemin de la grille du projet et la description de la PR (spec liée
-   comprise), et rend, pour chacun, son tri, la preuve (`fichier:ligne`) et la correction envisagée ; la session corrige.
+1. Retours en attente de soi (soi : compte du profil), filtrés par auteur si la consigne le dit (« de alice ») :
+   - **Fils** : `gh api graphql`, `reviewThreads` avec `isResolved`, `all: comments { totalCount }`,
+     `first: comments(first: 1) { nodes { author { __typename } } }`,
+     `last: comments(last: 1) { nodes { author { login } } }`,
+     `comments(first: 100) { databaseId path line body author { __typename login } }`. Gardés : non résolus, dont le
+     dernier commentaire (`last`) n'est pas de soi, ou fil de soi seul, sans réponse (`totalCount` 1 : sa propre
+     review est un retour). Exclus : fils dont le premier commentaire (`first`) est d'un auteur de type `Bot`.
+   - **Hors fil** : commentaires de la conversation (`gh api repos/<o/r>/issues/<n°>/comments --paginate`) et `body`
+     non vide des reviews (`gh api repos/<o/r>/pulls/<n°>/reviews --paginate`). Exclus : commentaire contenant
+     `<!-- pr-risk -->`, auteur de type `Bot`, commentaire de conversation de soi (c'est une réponse ; seul le
+     `body` d'une review de soi reste un retour). Chacun est découpé en points (puce, paragraphe, remarque préfixée
+     de `/pr review`) ; un point est traité, donc exclu, quand un commentaire de soi autre que `pr-risk` le cite
+     (`> …`, mot pour mot). Rattachement : un point qui cite `fichier:ligne`, un `fichier`, ou un symbole qu'un grep trouve dans
+     un seul fichier du diff, est rattaché à ce fichier (et cette ligne) ; sinon il vaut pour toute la PR.
+   Aucun retour → « aucun retour en attente » et s'arrêter.
+2. Pour chaque retour : vérifier le commentaire dans le code, puis le trier comme dans `feature` (« Tri des retours »).
+   Plus de 3 retours (fils et points hors fil) : la vérification et le tri passent par un agent `general-purpose`
+   (modèle `opus` passé explicitement), qui reçoit les retours (id, `path`, `line`, texte ; pour un point hors fil, son
+   origine, commentaire ou review et id, et son rattachement), les critères du tri ci-dessous, le chemin de la grille
+   du projet et la description de la PR (spec liée comprise), et rend, pour chacun, son tri, la preuve (`fichier:ligne`) et la correction envisagée ; la session corrige.
    Tri :
    « à corriger » → corrigé (règle générale plutôt que cas, comme pour `recette`) ; « écarté » (faux ou hors règle
    du projet) → raison ; « à trancher » (ambigu, changement de comportement non prévu par la spec) → options et
@@ -342,7 +385,11 @@ L'invocation vaut demande de corriger, pousser et répondre.
 4. Répondre à chaque fil corrigé (`gh api repos/<owner/repo>/pulls/<n°>/comments/<databaseId>/replies -F body=@<fichier>`, corps écrit dans un fichier d'abord) :
    ce qui a changé et le SHA, passé par `humanizer:humanizer`. Ne pas résoudre les fils : c'est au relecteur. Fils non corrigés : réponse proposée
    dans le rapport et dans `final-review.md`, publiée après accord.
-5. Tri et SHA dans `final-review.md`, frictions dans `lecons.md`. Rapport : décompte corrigés (SHA) / écartés, puis seuls les « à trancher » détaillés, lien de la PR.
+   Points hors fil corrigés : un seul commentaire de conversation (`gh pr comment <n°> --body-file <fichier>`) qui
+   cite chaque point (`> …`, mot pour mot) avec ce qui a changé et le SHA, passé par `humanizer:humanizer`, qui garde
+   les citations telles quelles. Points non corrigés :
+   comme les fils, réponse proposée, publiée après accord ; tant qu'aucune réponse ne les cite, ils restent en attente.
+5. Tri, SHA et, pour chaque point hors fil, origine et rattachement dans `final-review.md`, frictions dans `lecons.md`. Rapport : décompte corrigés (SHA) / écartés, puis seuls les « à trancher » détaillés, lien de la PR.
 
 ## Nettoyage des branches
 

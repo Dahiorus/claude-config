@@ -173,4 +173,6 @@ test_base_settings_profile_hook() {
   assert_contains "$(jq -r '.hooks.SessionStart[].hooks[].command' "$b")" "dirty-skills-hook.sh"
   assert_eq "$(jq -r '.enabledPlugins["github@claude-plugins-official"]' "$b")" "false" "github"
   assert_eq "$(jq -r '.enabledPlugins["jdtls-lsp@claude-plugins-official"]' "$b")" "true" "jdtls"
+  assert_contains "$(jq -r '.hooks.PreToolUse[].hooks[].command' "$b")" "pretool-secrets.sh"
+  assert_contains "$(jq -r '.hooks.UserPromptSubmit[].hooks[].command' "$b")" "prompt-secrets.sh"
 }
