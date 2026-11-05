@@ -179,6 +179,8 @@ touche. Grille du projet (WORKFLOW.md, AGENTS.md) si elle existe, sinon celle-ci
   8. ≤ 4 dépendances par constructeur ;
   9. pas d'état mutable exposé : objets immuables, flux en lecture seule, *Tell, don't ask*.
 - **Texte (skills, spec, docs)** : un nombre annoncé (« deux règles », « 3 commandes ») est égal au nombre d'éléments listés.
+  Un chiffre mesuré (lignes d'un fichier, nombre de tests) cité dans la spec ou la PR se remesure après le dernier
+  correctif. Une requête d'API (GraphQL, REST, SQL) écrite dans un skill, le plan ou le code se lance contre l'API dès le plan.
   Une règle ou une définition reprise dans plusieurs fichiers (skills, `docs/domaine.md`, spec) dit la même chose
   partout : chercher sa formulation par grep et signaler chaque copie absente ou divergente. Une règle ajoutée à une
   étape vaut aussi pour les autres étapes qui produisent le même objet (description de PR, commit, worktree) : les trouver par grep.

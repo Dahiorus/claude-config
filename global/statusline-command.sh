@@ -112,7 +112,7 @@ fetch_ci_state() {
       elif ($b | map(select(. == "pass")) | length) > 0 then "pass"
       else "" end'
 }
-# Nombre de fils de revue non resolus (vide si inconnu).
+# Nombre de fils de revue en attente du compte de la statusline (vide si inconnu).
 # shellcheck disable=SC2329 # appelée par cached, via "$@"
 fetch_threads_count() {
   local nwo="$ci_repo_full" out
@@ -120,9 +120,15 @@ fetch_threads_count() {
   case "$nwo" in */*) ;; *) return ;; esac
   # shellcheck disable=SC2016 # variables GraphQL, pas du shell
   out=$(timeout 15 gh api graphql \
-    -f query='query($o:String!,$n:String!,$p:Int!){repository(owner:$o,name:$n){pullRequest(number:$p){reviewThreads(first:100){nodes{isResolved}}}}}' \
+    -f query='query($o:String!,$n:String!,$p:Int!){repository(owner:$o,name:$n){pullRequest(number:$p){reviewThreads(first:100){nodes{isResolved all:comments{totalCount} first:comments(first:1){nodes{author{__typename}}} last:comments(last:1){nodes{author{login}}}}}}}viewer{login}}' \
     -F o="${nwo%%/*}" -F n="${nwo#*/}" -F p="$1" \
-    --jq '[.data.repository.pullRequest.reviewThreads.nodes[]|select(.isResolved|not)]|length' 2>/dev/null)
+    2>/dev/null | jq -r '
+      .data.viewer.login as $me
+      | [.data.repository.pullRequest.reviewThreads.nodes[]
+         | select((.isResolved | not)
+                  and ((.first.nodes[0].author.__typename // "") != "Bot")
+                  and ((.last.nodes[0].author.login // "") != $me or .all.totalCount < 2))]
+      | length' 2>/dev/null)
   case "$out" in ''|*[!0-9]*) ;; *) printf '%s' "$out" ;; esac
 }
 # Repli si Claude Code ne transmet pas .pr : "numero|review_state" de la PR ouverte de la branche.
