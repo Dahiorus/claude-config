@@ -11,7 +11,8 @@ Sans `/pr`, l'action vient de la demande : `squash`, `rebase`, `merge` et `revie
 nomme, jamais déduites.
 
 `view` par défaut. Plusieurs actions à la suite (`/pr 81 squash update-desc`, `/pr push recette`) s'exécutent dans
-l'ordre, arrêt au premier échec. Le texte libre qui suit les actions est une consigne pour elles (« en mode boîte
+l'ordre, arrêt au premier échec ; chaque action attend la fin de la précédente, agents compris (`review comments` :
+`comments` ne lit les fils qu'une fois la review publiée). Le texte libre qui suit les actions est une consigne pour elles (« en mode boîte
 noire », « la partie front », « de amercadal »). La PR est cherchée dans le dépôt courant uniquement. Les commandes `gh`
 et les `git push` passent par le compte du profil du projet (`bash ~/.claude/profile.sh account` ; vide sans profil : compte actif), en jeton ponctuel testé, en une commande : `t=$(gh auth token -u <compte>); [ -n "$t" ] && GH_TOKEN=$t gh …` (même forme devant `git push`), jamais le jeton recopié en clair ; jeton vide → s'arrêter (gh prendrait le compte actif), jamais par `gh auth switch`. En session `EnterWorktree`, Claude Code
 refuse `git -c …` et `VAR=… git/gh …` (commandes `gh` à jeton comprises) : `ExitWorktree` avec `action: "keep"`, puis pousser depuis le dépôt principal. Seul `switch` change la branche de l'arbre
