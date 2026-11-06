@@ -22,7 +22,7 @@ porter plusieurs commits ; un historique désordonné se signale au plus dans le
    (créé s'il manque : `gh label create <label>`). La ligne du reste à faire renvoie à `#n`.
 3. `git push` simple (`-u origin <branche>` la première fois).
 4. Aucune PR ouverte pour la branche : `gh pr create --body-file <fichier>` (titre = sujet du commit ou de la feature, description
-   fonctionnelle en français, passée par `humanizer:humanizer`, terminée par une ligne `Closes #n` par issue que la PR
+   fonctionnelle en français, sans détail d'un autre projet (nom, PR, taille, venus d'une autre session), passée par `humanizer:humanizer`, terminée par une ligne `Closes #n` par issue que la PR
    règle entièrement, prise dans la spec, les commits ou la branche ; une issue réglée en partie est citée sans `Closes`). PR existante : mettre à jour la description si le périmètre a changé (`update-desc`, `SKILL.md`).
    PR créée → skill `pr-risk` sur elle ; son niveau et ses relectures humaines vont au rapport.
 5. Rapport : commit(s), lien de la PR, ce qui reste (recette, review). Terminer par ce rappel, mot pour mot :
