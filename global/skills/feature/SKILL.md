@@ -97,7 +97,8 @@ s'ajoute ni ne se perd en route.
 **Plan** — une table de traçabilité en tête : chaque exigence de la spec (§) → tâche → test qui la prouve ; pour
 chaque fichier touché, les usages trouvés à l'étape 1b et ce qu'ils deviennent. Une
 exigence sans test, ou une tâche sans exigence, est un défaut du plan. Les tests du plan couvrent les cas combinés
-des critères d'acceptation. Un test existant que le plan rend faux est nommé dans la tâche qui le casse. Le plan d'un
+des critères d'acceptation. Un test existant que le plan rend faux est nommé dans la tâche qui le casse. Une tâche dont le test vise un symbole
+encore absent l'écrit : « rouge attendu : échec de compilation ». Le plan d'un
 changement de règle métier, de route, de contrat d'API ou de schéma a sa tâche de mise à jour de la doc du projet
 (AGENTS.md, README…), avec le grep des termes retirés : elle ne s'ajoute pas au moment de la PR. Elle figure dans
 la table avec « — » à la place du §, sans être un défaut du plan, et ferme chaque story concernée (le socle, pour
@@ -127,7 +128,7 @@ teste pas sans la suivante est mal découpée : la fusionner avec elle.
 
 **Exécution** — avant d'écrire le code, l'implémenteur prouve le rouge dans son rapport : la sortie du test qui échoue,
 ou un résumé qui nomme chaque test en échec avec son assertion ou son erreur. Le résumé vaut pour les tests ajoutés
-comme pour les tests existants modifiés, et le contrôle l'accepte. Il lance les tests du contexte borné entier avant de commiter. Ce que le brief ne dit pas ne s'invente pas :
+comme pour les tests existants modifiés, et le contrôle l'accepte. Un échec de compilation (symbole encore absent) prévu par le plan vaut rouge : le brief de l'implémenteur et celui du contrôle le disent, et le contrôle ne le refuse pas. L'implémenteur lance les tests du contexte borné entier avant de commiter. Ce que le brief ne dit pas ne s'invente pas :
 NEEDS_CONTEXT. Un test existant modifié est signalé avec sa raison.
 
 **PHP : outil `LSP` (plugin `php-lsp`, Intelephense)** — dans un projet PHP, l'outil `LSP` sert à chaque étape qui
@@ -173,6 +174,9 @@ touche. Grille du projet (WORKFLOW.md, AGENTS.md) si elle existe, sinon celle-ci
 - **SOLID, KISS, DRY**, en particulier : branchement exhaustif sur un type fermé plutôt qu'une chaîne de tests de
   type ; une règle métier remontée dans le module partagé plutôt que copiée entre features, mais deux lignes
   semblables par hasard ne sont pas un doublon.
+  Un type plus large que les valeurs réellement produites (map, retour, paramètre), qui oblige un `when` à des
+  branches inatteignables, se restreint au sous-type scellé produit. Si la spec impose le type large, on amende la
+  spec plutôt que de garder les branches mortes.
 - **Object calisthenics** :
   1. un niveau d'indentation par fonction, deux au plus ;
   2. pas de `else` après un `return` : retour anticipé ou branchement exhaustif ;
