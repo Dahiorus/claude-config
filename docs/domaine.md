@@ -30,7 +30,7 @@ Invariants : la statusline ne lit pas `profiles.json` elle-même, elle demande l
 
 ## Contexte : Relecture de PR
 
-Responsabilité : relire une PR (la sienne ou celle d'un autre) et publier une seule review : ses remarques, ou une approbation quand rien n'est nouveau sur une PR où sa relecture est demandée ; jamais un refus · Dans le code : `global/skills/pr/SKILL.md` § `review` · Dépend de : Criticité (`pr-risk`, en parallèle, publie son propre commentaire), grille qualité de `feature` (en aval, recopiée dans le brief faute de grille du projet)
+Responsabilité : relire une PR (la sienne ou celle d'un autre) et publier une seule review : ses remarques, ou une approbation quand rien n'est nouveau sur une PR où sa relecture est demandée ; jamais un refus · Dans le code : `global/skills/pr/review.md` · Dépend de : Criticité (`pr-risk`, en parallèle, publie son propre commentaire), grille qualité de `feature` (en aval, recopiée dans le brief faute de grille du projet)
 
 | Terme | Définition métier | Dans le code | À ne pas dire |
 |---|---|---|---|
@@ -56,7 +56,7 @@ Invariants : une relecture publie au plus une review, jamais `REQUEST_CHANGES` ;
 
 ## Contexte : Retours de PR
 
-Responsabilité : traiter ce que les relecteurs ont écrit sur une PR (corriger, écarter, faire trancher) et leur répondre · Dans le code : `global/skills/pr/SKILL.md` § `comments` · Dépend de : Relecture de PR (en amont : ses remarques hors diff arrivent dans le `body` de sa review, préfixées de `fichier:ligne`), tri de `feature` (§ « Tri des retours »), Profils (soi = compte du profil)
+Responsabilité : traiter ce que les relecteurs ont écrit sur une PR (corriger, écarter, faire trancher) et leur répondre · Dans le code : `global/skills/pr/comments.md` · Dépend de : Relecture de PR (en amont : ses remarques hors diff arrivent dans le `body` de sa review, préfixées de `fichier:ligne`), tri de `feature` (§ « Tri des retours »), Profils (soi = compte du profil)
 
 | Terme | Définition métier | Dans le code | À ne pas dire |
 |---|---|---|---|
@@ -69,7 +69,7 @@ Invariants : un fil n'est jamais résolu par soi ; un retour hors fil se rattach
 
 ## Contexte : Livraison
 
-Responsabilité : merger une PR et garder ce qui servira aux sessions suivantes · Dans le code : `global/skills/pr/SKILL.md` § `merge` · Dépend de : Profils (compte du profil pour pousser)
+Responsabilité : merger une PR et garder ce qui servira aux sessions suivantes · Dans le code : `global/skills/pr/merge.md` · Dépend de : Profils (compte du profil pour pousser)
 
 | Terme | Définition métier | Dans le code | À ne pas dire |
 |---|---|---|---|
