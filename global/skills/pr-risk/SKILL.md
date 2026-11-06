@@ -17,7 +17,7 @@ per sentence, active voice, common words.
 
 ## 1. Find the target
 
-- gh account: `bash ~/.claude/profile.sh account`. Not empty: run every `gh` command as
+- gh account: `bash ~/.claude/profile.sh account`. Not empty: run every `gh` command and `git fetch` as
   `t=$(gh auth token -u <account>); [ -n "$t" ] && GH_TOKEN=$t gh …`, in one
   command; never paste the token. Empty token: the `&&` stops the call; stop and
   say so (gh would fall back to the active account).

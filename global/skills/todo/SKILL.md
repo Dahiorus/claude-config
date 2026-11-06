@@ -34,7 +34,7 @@ ligne faite, numérotation, sections, date « Mis à jour le ». Sans convention
      (`gh pr list -R <owner/repo> --state merged --search "merged:>=<date du commit>"`, `<owner/repo>` tiré de
      `git remote get-url origin`).
 
-     Le compte gh vient du profil du projet (`bash ~/.claude/profile.sh account`), en jeton ponctuel testé, en une commande : `t=$(gh auth token -u <compte>); [ -n "$t" ] && GH_TOKEN=$t gh …` (même forme devant `git push`), jamais le jeton recopié en clair ; jeton vide → s'arrêter (gh prendrait le compte actif) ; projet sans profil : compte actif ; jamais `gh auth switch`.
+     Le compte gh vient du profil du projet (`bash ~/.claude/profile.sh account`), en jeton ponctuel testé, en une commande : `t=$(gh auth token -u <compte>); [ -n "$t" ] && GH_TOKEN=$t gh …` (même forme devant `git push`, `git fetch` et `git pull`), jamais le jeton recopié en clair ; jeton vide → s'arrêter (gh prendrait le compte actif) ; projet sans profil : compte actif ; jamais `gh auth switch`.
      Toujours en échec → travailler sur le `main` local et le dire dans le rapport. Fichier déjà modifié sans commit
      (`git status --short <fichier>`) → le signaler, et partir de cette version.
   2. Un point est ouvert tant qu'une partie n'est pas rayée ; le verdict porte sur cette partie. Une ligne qui ne fait
