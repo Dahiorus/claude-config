@@ -19,7 +19,7 @@ Invariants : le compte du profil suit le propriétaire du dépôt, jamais le pro
 
 ## Contexte : Statusline
 
-Responsabilité : afficher l'état du projet (branche, PR, revue, CI, consommation) sans jamais bloquer · Dans le code : `global/statusline-command.sh` · Dépend de : Profils (en aval, via `profile.sh account`), GitHub (via `gh`)
+Responsabilité : afficher l'état du projet (branche, PR, revue, CI, consommation) sans jamais bloquer · Dans le code : `global/statusline-command.sh`, appels `gh` dans `global/statusline-gh.sh` · Dépend de : Profils (en aval, via `profile.sh account`), GitHub (via `gh`)
 
 | Terme | Définition métier | Dans le code | À ne pas dire |
 |---|---|---|---|
