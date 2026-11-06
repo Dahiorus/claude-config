@@ -111,7 +111,10 @@ annotations changent le comportement ou la portée.
 
 **Découpage en PR** — le plan regroupe ses tâches par story, dans l'ordre des priorités, après les tâches
 communes (caractérisation, refacto, socle partagé). Il estime les fichiers touchés hors tests, spec et plan : plus de
-~15 → une PR par story, sinon une seule PR. En PR multiples, la première porte spec, plan, tâches communes et P1 ;
+~15 → une PR par story, sinon une seule PR. Une story seule au-delà de ~15 se découpe aussi, en stories techniques
+sans effet visible : le socle (structure ajoutée, double écriture, lecteurs) avant la story, le retrait de l'ancienne
+structure (DROP de colonnes ou de tables, fin des écritures de transition) après elle ; chacune a sa PR, est
+titrée « Story technique : … » et se marque « livrée » comme une story. En PR multiples, la première porte spec, plan, tâches communes et P1 ;
 chaque suivante part de `main` après le merge de la précédente, sur `feat/<sujet>-p<n>`, et refait les étapes 3 à
 8 pour sa story (relance : `/feature implémente @<chemin du plan>`, qui reprend la première story non marquée « livrée » ;
 `/feature report` liste les stories livrées et restantes). Une story qui ne compile ou ne se
@@ -201,7 +204,7 @@ enfreint et correctif attendu ; ou « conforme ».
 | « Haiku peut aussi juger la qualité » | Non : compilation et tests seulement. La qualité, c'est Opus à la fin. |
 | « Petit écart pratique au plan, je le signale » | Pas d'écart. On amende la spec. |
 | « Les tests passent, tout le plan est implémenté » | La convergence (5b) compare le code à la spec ; tant qu'elle ajoute des tâches, ce n'est pas fini. |
-| « Une seule grosse PR, c'est plus simple » | Plus de ~15 fichiers hors tests, spec et plan : une PR par story. |
+| « Une seule grosse PR, c'est plus simple » | Plus de ~15 fichiers hors tests, spec et plan : une PR par story ; une story seule sépare son socle et le retrait de l'ancienne structure. |
 | « J'ai écrit la spec, je sais qu'elle tient fonctionnellement » | `ddd revue` la déroule parcours par parcours avant Plannotator, puis le plan. |
 | « Le plan est clair, je le résume dans le chat » | Le plan passe par Plannotator, approuvé avant le `/clear`. |
 | « Le code est court, je l'écris dans la phrase » | Tout code du plan va dans un bloc délimité, étiqueté avec son langage. |
