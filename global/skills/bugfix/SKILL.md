@@ -27,7 +27,7 @@ Comportement attendu absent ou ambigu → le demander, ne pas le choisir.
 | # | Étape | Comment |
 |---|---|---|
 | 1 | Constat | Citer la demande telle quelle (ticket, trace, retour de recette) : observé, attendu, périmètre |
-| 2 | Branche | `fix/<sujet>` depuis `origin/main` à jour (`git fetch origin main`), jamais sur `main` ni sur la branche d'une autre PR. Arbre pas propre → le dire et s'arrêter |
+| 2 | Branche | `fix/<sujet>` depuis `origin/main` à jour (`git fetch origin main`, avec le jeton du compte du profil, voir `profile`), jamais sur `main` ni sur la branche d'une autre PR. Arbre pas propre → le dire et s'arrêter |
 | 3 | Cause | `superpowers:systematic-debugging` : reproduire (test, commande, Playwright) avant de corriger, remonter à la cause racine, puis chercher (grep, LSP) tous les appelants du code fautif et les autres occurrences du même défaut. Non reproductible → rapporter ce qui a été essayé, ne rien corriger à l'aveugle |
 | 4 | Rouge | Un test qui reproduit le bug au plus près de la cause, lancé et vu échouer pour la bonne raison ; sortie gardée pour le rapport. Bug impossible à tester automatiquement → le dire et décrire la vérification manuelle |
 | 5 | Correctif | À la cause, une seule fois, dans le code partagé ; le même défaut ailleurs se corrige aussi (règle générale plutôt que cas). Rien d'autre : ni refactor ni amélioration en passant. Code front qui touche une API Angular → skill `angular-developer`, comme dans `feature`. Test au vert |

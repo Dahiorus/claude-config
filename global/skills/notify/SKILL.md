@@ -25,7 +25,7 @@ La session qui reçoit n'a aucun contexte : le message doit se comprendre seul.
    - **Réponse** : si une action est attendue, « confirme par `SendMessage` à `<nom de cette session>` une fois
      fait ».
 
-   Pour lire une PR, le compte gh vient du profil du projet (`bash ~/.claude/profile.sh account`), en jeton ponctuel testé, en une commande : `t=$(gh auth token -u <compte>); [ -n "$t" ] && GH_TOKEN=$t gh …` (même forme devant `git push`), jamais le jeton recopié en clair ; jeton vide → s'arrêter (gh prendrait le compte actif) ; projet sans profil : compte actif ;
+   Pour lire une PR, le compte gh vient du profil du projet (`bash ~/.claude/profile.sh account`), en jeton ponctuel testé, en une commande : `t=$(gh auth token -u <compte>); [ -n "$t" ] && GH_TOKEN=$t gh …` (même forme devant `git push`, `git fetch` et `git pull`), jamais le jeton recopié en clair ; jeton vide → s'arrêter (gh prendrait le compte actif) ; projet sans profil : compte actif ;
    jamais `gh auth switch`.
 3. **Envoyer** avec `SendMessage` (`to` = nom exact de la ligne), puis rapport : la session visée et le message
    envoyé.
