@@ -21,8 +21,9 @@ run_statusline() {  # <cwd> [propriétaire/dépôt]
   local repo=null
   [[ -n "${2:-}" ]] && repo=$(jq -nc --arg o "${2%/*}" --arg n "${2#*/}" '{owner: $o, name: $n}')
   make_gh_stub
+  ln -sf "$REPO/global/statusline-command.sh" "$STUBS/statusline-command.sh"  # appelée comme ~/.claude : par un lien
   jq -nc --arg cwd "$1" --argjson repo "$repo" '{workspace: {current_dir: $cwd, repo: $repo}, pr: {number: 5}}' \
-    | PATH="$STUBS:$PATH" XDG_CACHE_HOME="$SANDBOX/cache" GH_TOKEN="${INHERITED_GH_TOKEN:-}" bash "$REPO/global/statusline-command.sh"
+    | PATH="$STUBS:$PATH" XDG_CACHE_HOME="$SANDBOX/cache" GH_TOKEN="${INHERITED_GH_TOKEN:-}" bash "$STUBS/statusline-command.sh"
 }
 
 wait_for_call() {  # <motif> : vrai dès que le motif paraît dans $CALLS_LOG, 5 s au plus
