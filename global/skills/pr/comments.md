@@ -24,7 +24,8 @@ L'invocation vaut demande de corriger, pousser et répondre.
    du projet et la description de la PR (spec liée comprise), et rend, pour chacun, son tri, la preuve (`fichier:ligne`) et la correction envisagée ; la session corrige.
    Tri :
    « à corriger » → corrigé (règle générale plutôt que cas, comme pour l'action `recette` (`recette.md` du skill `pr`)) ; « écarté » (faux ou hors règle
-   du projet) → raison ; « à trancher » (ambigu, changement de comportement non prévu par la spec) → options et
+   du projet) → raison, qui relit d'abord la source qu'elle invoque (issue, schéma, `origin/main`, avis de `pr-risk` ; `gh issue view <n>`,
+   `git show origin/main:<fichier>`, `gh pr view <n°> --comments` pour le commentaire `<!-- pr-risk -->`) et cite ce qu'elle y a lu ; « à trancher » (ambigu, changement de comportement non prévu par la spec) → options et
    recommandation, rien n'est corrigé avant l'accord.
 3. Contrôle des copies d'une règle changée (étape 1 de `push.md`), puis vérification du projet ; rouge → ne pas pousser. Commits au format de `CONTRIBUTING.md`, `push` simple.
 4. Répondre à chaque fil corrigé (`gh api repos/<owner/repo>/pulls/<n°>/comments/<databaseId>/replies -F body=@<fichier>`, corps écrit dans un fichier d'abord) :
