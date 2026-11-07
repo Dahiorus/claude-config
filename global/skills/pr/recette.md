@@ -25,7 +25,7 @@ ou dans le message qui suit (liste numérotée écran + élément + observé + a
 4. **Correctifs** — les retours de l'utilisateur valent demande de correction ; les écarts trouvés par un scénario
    déduit se trient comme dans `feature` (« Tri des retours ») : « à corriger » corrigés d'office, « à trancher »
    rapportés. Appliquer la règle générale plutôt que le cas, sur tout le périmètre indiqué. Intention ambiguë ou
-   changement de comportement non prévu par la spec → « à trancher ». Puis vérification du projet et nouvelle exécution
+   changement de comportement non prévu par la spec → « à trancher ». Puis contrôle des copies d'une règle changée (étape 1 de `push.md`), vérification du projet et nouvelle exécution
    des scénarios touchés, en local : rouge → ne pas pousser, rapporter. Sur environnement dédié, les rejouer aussi
    après le push, une fois le build du nouveau SHA au vert (redéploiement).
 5. **Push** — nouveaux commits au format de `CONTRIBUTING.md`, `push` simple, sans réécriture ni squash. PR de fork ou
