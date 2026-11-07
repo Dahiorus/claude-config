@@ -136,6 +136,10 @@ teste pas sans la suivante est mal découpée : la fusionner avec elle.
 ou un résumé qui nomme chaque test en échec avec son assertion ou son erreur. Le résumé vaut pour les tests ajoutés
 comme pour les tests existants modifiés, et le contrôle l'accepte. Un échec de compilation (symbole encore absent) prévu par le plan vaut rouge : le brief de l'implémenteur et celui du contrôle le disent, et le contrôle ne le refuse pas. De même, le brief du contrôle recopie toute décision du plan qui ferait croire à un test absent ou non conforme : test volontairement écrit autrement (chaîne plutôt qu'enum), cas portés par un fournisseur de données (nommer la méthode et les clés attendues). L'implémenteur lance les tests du contexte borné entier avant de commiter. Le brief lui fait remplacer `<modèle de l'implémenteur>` par son propre modèle dans chaque commit. Ce que le brief ne dit pas ne s'invente pas :
 NEEDS_CONTEXT. Un test existant modifié est signalé avec sa raison.
+Au retour de chaque sous-agent (implémenteur, contrôle, convergence, review), le contrôleur vérifie que le fichier
+de sortie demandé existe, à un chemin absolu hors de tout worktree qui sera supprimé. S'il manque : l'écrire à
+partir de la réponse, sauf la preuve du rouge d'un implémenteur, qu'on lui redemande avant le contrôle. Chaque
+brief le dit : « fichier de sortie à écrire avant de répondre ».
 
 **PHP : outil `LSP` (plugin `php-lsp`, Intelephense)** — dans un projet PHP, l'outil `LSP` sert à chaque étape qui
 cherche ou modifie un symbole : portée de la spec et usages de l'étape 1b (`findReferences`, `incomingCalls`,
