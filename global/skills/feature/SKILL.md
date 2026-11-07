@@ -210,7 +210,8 @@ adaptée au langage et amendée par les conventions de l'`AGENTS.md` du projet (
   étape vaut aussi pour les autres étapes qui produisent le même objet (description de PR, commit, worktree) : les trouver par grep.
   Une exception à une règle générale se reporte sur chaque copie de cette règle, dans le même fichier compris : grepper
   toutes ses formulations (synonymes compris : traçabilité, « rien que la spec ne demande ») avant le premier push.
-  Ce que la description de PR ou un message de commit annonce se retrouve dans le diff. Après un `sed -i` ou un
+  Ce que la description de PR ou un message de commit annonce se retrouve dans le diff, et chaque commande qu'elle cite
+  (grep de vérification) applique les règles que la PR ajoute. Après un `sed -i` ou un
   remplacement en masse, vérifier le diff (`git diff --stat`) : un motif absent ne remplace rien, sans erreur.
 
 Ne pas signaler : code généré, tests (longueur libre), écart imposé par le framework ou une API externe, dépassement

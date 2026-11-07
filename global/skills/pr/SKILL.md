@@ -104,7 +104,7 @@ branche qui n'a pas encore de PR (`/pr push` sans référence vise la branche co
   CONTRIBUTING.md, `.github/pull_request_template.md`), en français, fonctionnelle : elle décrit l'état final de la
   PR, pas l'historique des correctifs, sans détail d'un autre projet (nom, PR, taille, venus d'une autre session). Garder les lignes `Closes #n` (et en ajouter une par issue que la PR règle entièrement, comme `push.md`) et tel quel ce que l'auteur n'a pas écrit (bloc d'un bot de déploiement en
   tête, comme `<span id="carmen">…</span>`), les liens et les sections inchangées ; ne pas toucher au titre. Rien à
-  changer → le dire. Sinon texte passé par `humanizer:humanizer`, `gh pr edit <n°> --body-file <fichier>`, puis rapport : sections modifiées et pourquoi.
+  changer → le dire. Sinon texte passé par `humanizer:humanizer` puis relu contre le diff (comme `push.md` étape 4), `gh pr edit <n°> --body-file <fichier>`, puis rapport : sections modifiées et pourquoi.
 
 ## `switch`
 
