@@ -36,7 +36,7 @@ Responsabilité : relire une PR (la sienne ou celle d'un autre) et publier une s
 |---|---|---|---|
 | Relecture | Lecture critique du diff d'une PR contre sa base, du code touché et de son contexte (description, spec, issue) | `/pr review` | revue de code (ambigu avec la review finale de `/feature`) |
 | Agent de relecture | Le relecteur unique qui produit les remarques, hors de la session | agent `general-purpose`, `opus` | reviewer Opus (c'est celui de `/feature`) |
-| Grille | Règles contre lesquelles une remarque se justifie : celle du projet, sinon la grille qualité de `feature` | `WORKFLOW.md`, `AGENTS.md`, `CONTRIBUTING.md`, § « Grille qualité » | checklist, bonnes pratiques |
+| Grille | Règles contre lesquelles une remarque se justifie : celle du projet (dont un `AGENTS.md` qui en tient une complète), sinon la grille qualité de `feature` amendée par les conventions de l'`AGENTS.md` du projet | `WORKFLOW.md`, `AGENTS.md`, `CONTRIBUTING.md`, § « Grille qualité » | checklist, bonnes pratiques |
 | Remarque | Écart vérifié dans le code, avec sa nature et sa gravité, publié comme commentaire de ligne ou dans la synthèse | `{path, line, inDiff, nature, gravite, texte}` | finding, suggestion |
 | Nature | Ce que la remarque touche : bug, sécurité, performance, test, lisibilité, doc, question | `nature`, gitmoji | catégorie, aspect |
 | Gravité | Poids de la remarque pour le merge : bloquant, non-bloquant, question | `gravite` | sévérité, criticité |

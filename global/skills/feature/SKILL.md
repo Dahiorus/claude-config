@@ -169,7 +169,9 @@ catégories, « à trancher ».
 ## Grille qualité (plan, implémentation, review Opus)
 
 But : du code qu'un humain relit sans effort. Entrée de la review : `git diff main...HEAD` et les fichiers qu'il
-touche. Grille du projet (WORKFLOW.md, AGENTS.md) si elle existe, sinon celle-ci, adaptée au langage :
+touche. Grille du projet (WORKFLOW.md, ou un AGENTS.md qui en tient une complète) si elle existe, sinon celle-ci,
+adaptée au langage et amendée par les conventions de l'`AGENTS.md` du projet (mapper champ à champ toléré au-delà de
+20 lignes, par exemple) :
 
 - **SOLID, KISS, DRY**, en particulier : branchement exhaustif sur un type fermé plutôt qu'une chaîne de tests de
   type ; une règle métier remontée dans le module partagé plutôt que copiée entre features, mais deux lignes
