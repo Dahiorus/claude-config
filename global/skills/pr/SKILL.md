@@ -33,6 +33,9 @@ de `git worktree list`, même depuis un worktree) et `<sujet>` le nom de la bran
 
 - `final-review.md` : retours de review et commentaires de PR, triés (`feature`, `bugfix`, `comments`) ;
 - `recette.md` : chaque recette, datée : environnement, scénarios et résultat, correctifs (SHA), ce qui reste ;
+- `ponytail-review.md`, `opus-review.md` : rapport complet de chaque review (`feature` étape 7, `bugfix` étape 8) ;
+  `convergence-N.md` : sortie du tour N de convergence (`feature` étape 5b). Écrits par l'agent, ou par le contrôleur
+  à partir de sa réponse quand l'agent n'a pas d'outil d'écriture ;
 - `lecons.md` : une ligne datée par friction (correction de l'utilisateur, commande refusée, piège, consigne
   oubliée), ajoutée en fin de session de travail sur la branche (`feature` étape 7, `bugfix` étape 8, `push`, `squash`,
   `recette`, `comments`, `rebase`, `merge` avant son étape 2, puis à la fin pour la PR suivante). Rien à noter → rien.
