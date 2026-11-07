@@ -19,11 +19,12 @@ L'invocation vaut demande de squasher et de merger : c'est le merge qui impose l
    par `humanizer:humanizer` quand même, push forcé avec bail comme dans `squash.md` si le message change.
 4. **Merge** — fichier de `src/` supprimé ou déplacé alors que le déploiement ne supprime pas (rsync sans
    `--delete`) → le signaler avant de merger. Issues réglées entièrement par la PR (spec, commits, branche) absentes de
-   `gh pr view --json closingIssuesReferences` → ajouter leur `Closes #n` à la description avant de merger ; après le merge,
+   `gh pr view --json closingIssuesReferences` → ajouter leur `Closes #n` à la description avant de merger, relue contre le diff comme à l'étape 4 de `push.md` ; après le merge,
    vérifier que chacune est `CLOSED` (`gh issue view <n> --json state`), sinon la fermer avec un commentaire qui cite la
    PR et le SHA de merge. CI de la PR au vert s'il y en a une (`gh pr checks --watch`), puis `gh pr merge --rebase`, jamais
    `--merge`. Refus « not mergeable », « Head branch is out of date » juste après un push forcé, ou erreur 5xx : la
-   mergeabilité est encore `UNKNOWN`, relancer seul jusqu'à 3 fois à 10 s d'écart avant de rapporter l'échec. Dépôt avec un `Jenkinsfile` à la racine : le statut `continuous-integration/jenkins/pr-head` n'apparaît
+   mergeabilité est encore `UNKNOWN`, relancer seul jusqu'à 3 fois à 10 s d'écart avant de rapporter l'échec. Refus
+   « Base branch was modified » (main a bougé pendant le merge) : même relance. Dépôt avec un `Jenkinsfile` à la racine : le statut `continuous-integration/jenkins/pr-head` n'apparaît
    qu'une fois le build lancé, et rien côté GitHub n'empêche de merger sans lui. Ne merger que lorsqu'il est `SUCCESS`
    sur le SHA poussé (`gh pr view --json headRefOid,statusCheckRollup`). Absent ou `PENDING` : attendre et revérifier
    toutes les quelques minutes, sans timeout plus court que celui du `Jenkinsfile`. `FAILURE`/`ERROR`, ou toujours

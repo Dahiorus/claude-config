@@ -27,6 +27,8 @@ porter plusieurs commits ; un historique désordonné se signale au plus dans le
 4. Aucune PR ouverte pour la branche : `gh pr create --body-file <fichier>` (titre = sujet du commit ou de la feature, description
    fonctionnelle en français, sans détail d'un autre projet (nom, PR, taille, venus d'une autre session), passée par `humanizer:humanizer`, terminée par une ligne `Closes #n` par issue que la PR
    règle entièrement, prise dans la spec, les commits ou la branche ; une issue réglée en partie est citée sans `Closes`). PR existante : mettre à jour la description si le périmètre a changé (`update-desc`, `SKILL.md`).
+   Avant `gh pr create`, relire la description contre le diff : chaque affirmation s'y retrouve, et
+   chaque commande citée (le grep de l'étape 1 compris) applique les règles que la PR ajoute.
    PR créée → skill `pr-risk` sur elle ; son niveau et ses relectures humaines vont au rapport.
 5. Rapport : commit(s), lien de la PR, grep de l'étape 1, ce qui reste (recette, review). Terminer par ce rappel, mot pour mot :
    « Recette : `/clear`, puis `/pr N recette` avec tous les retours en un message — liste numérotée écran + élément +
