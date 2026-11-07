@@ -21,9 +21,10 @@ hors de la session, qui ne reçoit que les remarques.
    contexte (description, spec ou issue liée). Il reçoit aussi le périmètre de l'étape 0 et les remarques déjà
    faites ; les fichiers touchés hors périmètre servent de contexte, sans remarque. Il reçoit enfin les remarques
    bloquantes de soi encore ouvertes et dit pour chacune, vérifié dans le code, si elle est corrigée ou toujours là.
-2. Grille, à recopier dans le brief : celle du projet (WORKFLOW.md, AGENTS.md, CONTRIBUTING.md), sinon la section
-   « Grille qualité » de `~/.claude/skills/feature/SKILL.md`. Diff qui touche une API Angular → skill `angular-developer` aussi, comme dans
-   `feature`. Bugs et sécurité d'abord, puis lisibilité ; chaque remarque est vérifiée dans le code, pas supposée.
+2. Grille, à recopier dans le brief : celle du projet (WORKFLOW.md, CONTRIBUTING.md, ou un AGENTS.md qui en tient
+   une complète), sinon la section « Grille qualité » de `~/.claude/skills/feature/SKILL.md`, amendée par les
+   conventions de l'`AGENTS.md` du projet. Diff qui touche une API Angular → skill `angular-developer` aussi, comme
+   dans `feature`. Bugs et sécurité d'abord, puis lisibilité ; chaque remarque est vérifiée dans le code, pas supposée.
    Pas de remarque de goût sans règle du projet derrière.
    Une remarque sur le même point qu'une remarque déjà faite (même fichier, ligne proche ou même symbole, même
    problème) n'est pas rendue, résolue ou non ; une remarque résolue dont le code a régressé est nouvelle.
