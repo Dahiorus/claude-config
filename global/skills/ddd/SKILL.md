@@ -70,7 +70,8 @@ Chaque point est vérifié dans le code, puis rendu trié :
 - **À corriger** : une seule correction raisonnable, sans effet sur le comportement ni la portée. Citer l'endroit et le texte corrigé.
 - **À trancher** : touche le comportement, la portée ou le sens d'un terme. Impact, options, recommandation, prêt à
   devenir un bloc `:::question`.
-- **Écarté** : une ligne de raison.
+- **Écarté** : une ligne de raison. Une raison qui s'appuie sur une source (issue, schéma, `origin/main`) la relit
+  d'abord et cite ce qu'elle y a lu.
 
 Rien à signaler : le dire en une ligne. Le document lui-même n'est pas modifié : l'appelant applique.
 

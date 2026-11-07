@@ -107,7 +107,9 @@ changement de règle métier, de route, de contrat d'API ou de schéma a sa tâc
 (AGENTS.md, README…), avec le grep des termes retirés : elle ne s'ajoute pas au moment de la PR. Elle figure dans
 la table avec « — » à la place du §, sans être un défaut du plan, et ferme chaque story concernée (le socle, pour
 un changement dans les tâches communes) : la convergence (5b) la vérifie comme les autres lignes, le grep des termes
-retirés tenant lieu de test. Les tâches
+retirés tenant lieu de test. Tout grep de vérification (plan, implémentation, review : terme retiré ou renommé, mot à
+éviter du glossaire, lecteur d'un contrat, copie d'un doublon ou d'une règle) porte sur tout le dépôt (`git grep`), tests, scripts et docs compris, jamais sur une liste de
+dossiers. Les tâches
 s'enchaînent dans cet ordre, un commit chacune : tests de caractérisation (§5), refacto sans changement de
 comportement (écarts *corrigés* du §7), puis la feature. Tout code du plan (classe, test, commande, extrait de
 configuration) est présenté dans un bloc de code délimité par ```` ``` ```` et étiqueté avec son langage (`kotlin`,
@@ -163,6 +165,9 @@ L'utilisateur ne lit que ce qui demande son avis. Avant de rapporter, chaque poi
 - **À corriger** : point confirmé, correctif sans effet sur le comportement ni la portée, une seule façon raisonnable
   de faire. Corrigé d'office, un commit par point ou groupe cohérent, SHA reporté.
 - **Écarté** : faux positif, écart imposé par le framework, hors grille. Une ligne de raison, rien à faire.
+  Une raison qui s'appuie sur une source (issue « qui couvre déjà », schéma, `origin/main`, avis de `pr-risk`) la
+  relit d'abord (`gh issue view <n>`, `git show origin/main:<fichier>`, commentaire `<!-- pr-risk -->` de la PR par
+  `gh pr view <n°> --comments`) et cite ce qu'elle y a lu ; sans PR, pas d'avis `pr-risk` à invoquer.
 - **À trancher** : le correctif change le comportement ou la portée, touche la spec, ou plusieurs options se valent.
   2-3 lignes : impact concret, options, recommandation.
 
