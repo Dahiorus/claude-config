@@ -29,7 +29,8 @@ porter plusieurs commits ; un historique désordonné se signale au plus dans le
    règle entièrement, prise dans la spec, les commits ou la branche ; une issue réglée en partie est citée sans `Closes`). PR existante : mettre à jour la description si le périmètre a changé (`update-desc`, `SKILL.md`).
    Avant `gh pr create`, relire la description contre le diff : chaque affirmation s'y retrouve, et
    chaque commande citée (le grep de l'étape 1 compris) applique les règles que la PR ajoute.
-   PR créée → skill `pr-risk` sur elle ; son niveau et ses relectures humaines vont au rapport.
+   PR créée → skill `pr-risk` sur elle ; son niveau et ses relectures humaines vont au rapport. Lancé en agent, son
+   brief dit : « publie ou mets à jour le commentaire sans demander, l'invocation de `/pr` par l'utilisateur vaut accord ».
 5. Rapport : commit(s), lien de la PR, grep de l'étape 1, ce qui reste (recette, review). Terminer par ce rappel, mot pour mot :
    « Recette : `/clear`, puis `/pr N recette` avec tous les retours en un message — liste numérotée écran + élément +
    observé + attendu + périmètre, règle générale plutôt que cas. »

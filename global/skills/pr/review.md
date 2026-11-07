@@ -48,7 +48,8 @@ hors de la session, qui ne reçoit que les remarques.
    `{path, line, inDiff, nature, gravite, texte}` (`nature` : bug, sécurité, performance, test, lisibilité, doc,
    question ; `gravite` : bloquant, non-bloquant, question).
 3. Criticité : skill `pr-risk` sur la PR (il tourne dans son propre agent), qui publie (ou met à jour) son
-   commentaire de risque : niveau, nombre de relectures humaines, dangers à vérifier.
+   commentaire de risque : niveau, nombre de relectures humaines, dangers à vérifier. Son brief dit de publier sans
+   demander, comme dans `push.md` (étape 4).
 4. Publier au plus une review, jamais `REQUEST_CHANGES`. Remarques nouvelles → une review `COMMENT` :
    `gh api repos/<owner/repo>/pulls/<n°>/reviews --input <fichier>` avec `event: "COMMENT"`, un `body` de synthèse
    (la criticité reste dans le seul commentaire de `pr-risk`, ne pas la répéter), et un `comments` par remarque
