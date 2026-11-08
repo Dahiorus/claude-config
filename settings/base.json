@@ -99,7 +99,6 @@
     "sonarqube@claude-plugins-official": false,
     "plannotator@plannotator": true,
     "ponytail@ponytail": true,
-    "shortcuts@claude-config": true,
     "skill-creator@anthropic-plugin-directory": false,
     "vercel@anthropic-plugin-directory": false,
     "security-guidance@anthropic-plugin-directory": true,
