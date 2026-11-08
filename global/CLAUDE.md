@@ -16,3 +16,9 @@ lecture en Bash est un tour de plus sur tout le contexte.
 
 Before publishing the final commit(s) of a PR (squashed, or a single commit merged as is), a PR description or a review comment you wrote, run it through the
 `humanizer:humanizer` skill, then use the rewritten text. Leave code, commands, identifiers and quoted output as is.
+
+# Skills globaux
+
+Les skills de `~/.claude/skills` viennent du dépôt `claude-config`. Depuis un autre projet, ne pas modifier leurs
+fichiers : envoyer le diff proposé par `/notify claude-config`, la session `claude-config` l'applique dans sa PR.
+Modification déjà faite : `/notify claude-config` au minimum, avec les fichiers et le diff.
