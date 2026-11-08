@@ -107,8 +107,8 @@ changement de règle métier, de route, de contrat d'API ou de schéma a sa tâc
 (AGENTS.md, README…), avec le grep des termes retirés : elle ne s'ajoute pas au moment de la PR. Elle figure dans
 la table avec « — » à la place du §, sans être un défaut du plan, et ferme chaque story concernée (le socle, pour
 un changement dans les tâches communes) : la convergence (5b) la vérifie comme les autres lignes, le grep des termes
-retirés tenant lieu de test. Tout grep de vérification (plan, implémentation, review : terme retiré ou renommé, mot à
-éviter du glossaire, lecteur d'un contrat, copie d'un doublon ou d'une règle) porte sur tout le dépôt (`git grep`), tests, scripts et docs compris, jamais sur une liste de
+retirés tenant lieu de test. Tout grep de vérification (plan, implémentation, review : terme retiré ou renommé, mot de
+la colonne « À ne pas dire » du glossaire, lecteur d'un contrat, copie d'un doublon ou d'une règle) porte sur tout le dépôt (`git grep`), tests, scripts et docs compris, jamais sur une liste de
 dossiers. Les tâches
 s'enchaînent dans cet ordre, un commit chacune : tests de caractérisation (§5), refacto sans changement de
 comportement (écarts *corrigés* du §7), puis la feature. Tout code du plan (classe, test, commande, extrait de
@@ -200,7 +200,9 @@ adaptée au langage et amendée par les conventions de l'`AGENTS.md` du projet (
   4. une collection qui porte une règle devient un type à elle ;
   5. un seul point par ligne pour traverser des objets (`a.b.c.d`) ; chaînes de transformations permises, une étape
      par ligne ;
-  6. pas d'abréviation dans les noms (`qty`, `cfg`, `mgr`) hors vocabulaire du domaine ;
+  6. pas d'abréviation dans les noms (`qty`, `cfg`, `mgr`) hors vocabulaire du domaine ; aucun nom (variable,
+     paramètre, méthode, test, aide de test) ne reprend un mot de la colonne « À ne pas dire » du glossaire du projet, ni le terme du
+     glossaire d'une autre notion (`$value` qui porte une notation) ;
   7. fonction ≤ 20 lignes (composant d'interface ≤ 40), fichier ≤ 200 lignes ; un fichier déjà au-delà avant la
      branche ne se signale que s'il grossit de plus de deux lignes, et part au reste à faire plutôt qu'en découpage
      imposé ;
@@ -215,8 +217,12 @@ adaptée au langage et amendée par les conventions de l'`AGENTS.md` du projet (
   Une exception à une règle générale se reporte sur chaque copie de cette règle, dans le même fichier compris : grepper
   toutes ses formulations (synonymes compris : traçabilité, « rien que la spec ne demande ») avant le premier push.
   Ce que la description de PR ou un message de commit annonce se retrouve dans le diff, et chaque commande qu'elle cite
-  (grep de vérification) applique les règles que la PR ajoute. Après un `sed -i` ou un
-  remplacement en masse, vérifier le diff (`git diff --stat`) : un motif absent ne remplace rien, sans erreur.
+  (grep de vérification) applique les règles que la PR ajoute. Un exemple qu'une règle donne (motif, commande,
+  renommage) se lance sur son propre cas avant le push : il fait ce que la règle annonce. Après un `sed -i` ou un
+  remplacement en masse, vérifier le diff (`git diff --stat`) : un motif absent ne remplace rien, sans erreur ; un
+  motif sans borne de mot touche aussi les noms qui le contiennent (`$value` → `$notation` change aussi `$values` en
+  `$notations`) : `\b` après le nom (`\$value\b`), devant seulement si le motif commence par une lettre (`$` n'est
+  pas un caractère de mot), ou `git grep -w`.
 
 Ne pas signaler : code généré, tests (longueur libre), écart imposé par le framework ou une API externe, dépassement
 d'une ou deux lignes des seuils du point 7. Sortie : écarts classés par gravité, avec `fichier:ligne`, principe
