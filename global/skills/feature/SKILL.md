@@ -199,7 +199,12 @@ adaptée au langage et amendée par les conventions de l'`AGENTS.md` du projet (
   branches inatteignables, se restreint au sous-type scellé produit. Si la spec impose le type large, on amende la
   spec plutôt que de garder les branches mortes.
 - **Object calisthenics** :
-  1. un niveau d'indentation par fonction, deux au plus ;
+  1. un seul niveau de contrôle par fonction (`if`, `when`/`switch`, boucles, `try`, toute lambda passée à une
+     fonction d'ordre supérieur : `map`, `filter`, `forEach`, `let`…) : pas de `if` dans une boucle, on extrait une
+     fonction nommée ; les blocs d'échafaudage d'une bibliothèque ou d'un framework (par exemple coroutine
+     `launch`/`withContext`, mise en page Compose `Column`/`Row`/`Box`) ne comptent pas. Exemple : `for (card in
+     cards) { if (card.isOwned) total += card.price }` devient `cards.sumOf(::ownedValue)`, avec `ownedValue` qui
+     porte le `if` ;
   2. pas de `else` après un `return` : retour anticipé ou branchement exhaustif ;
   3. une primitive qui porte une règle métier devient un type ;
   4. une collection qui porte une règle devient un type à elle ;
@@ -218,6 +223,10 @@ adaptée au langage et amendée par les conventions de l'`AGENTS.md` du projet (
 - **Texte (skills, spec, docs)** : un nombre annoncé (« deux règles », « 3 commandes ») est égal au nombre d'éléments listés.
   Un chiffre mesuré (lignes d'un fichier, nombre de tests) cité dans la spec ou la PR se remesure après le dernier
   correctif. Une requête d'API (GraphQL, REST, SQL) écrite dans un skill, le plan ou le code se lance contre l'API dès le plan.
+  Une liste dans une règle ou une définition dit si elle est fermée ou ne donne que des exemples (« par exemple »,
+  « … ») ; fermée, elle couvre tous les cas de la portée annoncée, et un mot de portée (« du langage », « de Java »)
+  ne restreint pas une règle voulue générale. Un pronom ou une incise (« il », « celle-ci », « qui ») dont deux noms
+  de la phrase précédente peuvent être le référent se remplace par le nom.
   Une règle ou une définition reprise dans plusieurs fichiers (skills, `docs/domaine.md`, spec) dit la même chose
   partout : chercher sa formulation par grep et signaler chaque copie absente ou divergente. Une règle ajoutée à une
   étape vaut aussi pour les autres étapes qui produisent le même objet (description de PR, commit, worktree) : les trouver par grep.
