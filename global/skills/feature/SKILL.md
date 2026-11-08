@@ -95,7 +95,8 @@ s'ajoute ni ne se perd en route.
    modifiées, jamais le fichier entier.
 
 **Plan** — une table de traçabilité en tête : chaque exigence de la spec (§) → tâche → test qui la prouve ; pour
-chaque fichier touché, les usages trouvés à l'étape 1b et ce qu'ils deviennent. Une
+chaque fichier touché, les usages trouvés à l'étape 1b, ce qu'ils deviennent et le test qui fige ce qu'il garde
+inchangé, sinon la caractérisation à ajouter au §5. Une
 exigence sans test, ou une tâche sans exigence, est un défaut du plan. Les tests du plan couvrent les cas combinés
 des critères d'acceptation. Un test affirme le critère tel que la spec l'écrit, sans en garder une partie : un cas
 « sur A et sur B » a un cas pour A et un pour B ; « octet pour octet » compare la sortie entière, après avoir figé
@@ -206,7 +207,9 @@ adaptée au langage et amendée par les conventions de l'`AGENTS.md` du projet (
      par ligne ;
   6. pas d'abréviation dans les noms (`qty`, `cfg`, `mgr`) hors vocabulaire du domaine ; aucun nom (variable,
      paramètre, méthode, test, aide de test) ne reprend un mot de la colonne « À ne pas dire » du glossaire du projet, ni le terme du
-     glossaire d'une autre notion (`$value` qui porte une notation) ;
+     glossaire d'une autre notion (`$value` qui porte une notation) ; vérifié par grep de chaque mot de la colonne
+     sur les lignes ajoutées (`git diff main...HEAD -U0 | grep '^+'`), chaque occurrence jugée à son sens (« série »
+     pour une volée), jamais à la lecture ;
   7. fonction ≤ 20 lignes (composant d'interface ≤ 40), fichier ≤ 200 lignes ; un fichier déjà au-delà avant la
      branche ne se signale que s'il grossit de plus de deux lignes, et part au reste à faire plutôt qu'en découpage
      imposé ;
