@@ -11,7 +11,11 @@ L'invocation vaut demande de squasher et de merger : c'est le merge qui impose l
    suivi, puis ceux des PR précédentes (`<racine>/.superpowers/sdd/*/`) : une friction qu'une règle écrite aurait
    évitée, ou un même type de point vu deux fois, devient une règle proposée pour l'`AGENTS.md` ou le
    `CLAUDE.md` du projet, ou pour la grille qualité de `feature` s'il vaut pour tous les projets. Les propositions
-   arrivent ensemble, en diff, et ne s'appliquent qu'après accord, en un commit de la PR. Les frictions des étapes
+   arrivent ensemble, en diff, et ne s'appliquent qu'après accord, en un commit de la PR. Une règle pour un skill
+   global (grille de `feature`, skills `pr`…) hors du projet `claude-config` ne s'écrit pas dans ses fichiers depuis
+   cette session : après accord, `/notify claude-config` avec le diff proposé (skill `notify`), et la session
+   `claude-config` l'applique dans sa propre PR. Si elle a quand même été écrite directement dans ses fichiers,
+   `/notify claude-config` au minimum : fichiers modifiés et diff, pour qu'elle passe dans une PR. Les frictions des étapes
    suivantes (squash, merge, nettoyage) vont dans `lecons.md` à la fin : la PR suivante les lira.
 3. **Squash** — reste à faire à jour d'abord (étape 2 de `push.md`), puis étapes de `squash.md`, sauf si l'historique en
    est déjà le résultat (un commit, ou un par pan fonctionnel, sans commit de correctif depuis) et à jour avec
@@ -21,8 +25,11 @@ L'invocation vaut demande de squasher et de merger : c'est le merge qui impose l
    `--delete`) → le signaler avant de merger. Issues réglées entièrement par la PR (spec, commits, branche) absentes de
    `gh pr view --json closingIssuesReferences` → ajouter leur `Closes #n` à la description avant de merger, relue contre le diff comme à l'étape 4 de `push.md` ; après le merge,
    vérifier que chacune est `CLOSED` (`gh issue view <n> --json state`), sinon la fermer avec un commentaire qui cite la
-   PR et le SHA de merge. CI de la PR au vert s'il y en a une (`gh pr checks --watch`), puis `gh pr merge --rebase`, jamais
-   `--merge`. Refus « not mergeable », « Head branch is out of date » juste après un push forcé, ou erreur 5xx : la
+   PR et le SHA de merge. CI de la PR au vert si le dépôt en a une (`.github/workflows/` non vide) : revérifier toutes
+   les 10 s `gh pr view --json headRefOid,statusCheckRollup` jusqu'à ce que `headRefOid` soit égal à `git rev-parse HEAD`
+   et qu'au moins un check apparaisse, puis lancer `gh pr checks --watch`. Lancé juste après un push, `gh pr checks
+   --watch` répond « no checks reported » ou suit le run annulé de l'ancien SHA. Toujours aucun check après ~2 min (filtre
+   `on:` du workflow ?) : ne pas merger, rapporter. Puis `gh pr merge --rebase`, jamais `--merge`. Refus « not mergeable », « Head branch is out of date » juste après un push forcé, ou erreur 5xx : la
    mergeabilité est encore `UNKNOWN`, relancer seul jusqu'à 3 fois à 10 s d'écart avant de rapporter l'échec. Refus
    « Base branch was modified » (main a bougé pendant le merge) : même relance. Dépôt avec un `Jenkinsfile` à la racine : le statut `continuous-integration/jenkins/pr-head` n'apparaît
    qu'une fois le build lancé, et rien côté GitHub n'empêche de merger sans lui. Ne merger que lorsqu'il est `SUCCESS`

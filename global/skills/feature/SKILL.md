@@ -129,7 +129,11 @@ structure (DROP de colonnes ou de tables, fin des écritures de transition) apr�
 titrée « Story technique : … » et se marque « livrée » comme une story. En PR multiples, la première porte spec, plan, tâches communes et P1 ;
 chaque suivante part de `main` après le merge de la précédente, sur `feat/<sujet>-p<n>`, et refait les étapes 3 à
 8 pour sa story (relance : `/feature implémente @<chemin du plan>`, qui reprend la première story non marquée « livrée » ;
-`/feature report` liste les stories livrées et restantes). Une story qui ne compile ou ne se
+`/feature report` liste les stories livrées et restantes). Ses briefs et paquets de review vont dans son dossier de
+suivi : `mkdir -p <racine>/.superpowers/sdd/<sujet>-p<n>`, puis dernier argument `<ce dossier>/task-<N>-brief.md` pour
+`task-brief` et `<ce dossier>/review-<base7>..<head7>.diff` pour `review-package` (un fichier par plage : une re-review
+n'écrase pas la précédente). Sans lui, ils écrivent dans le dossier nommé d'après le plan, où le ledger `progress.md`
+reste partagé entre les stories. Une story qui ne compile ou ne se
 teste pas sans la suivante est mal découpée : la fusionner avec elle.
 
 **Exécution** — avant d'écrire le code, l'implémenteur prouve le rouge dans son rapport : la sortie du test qui échoue,
