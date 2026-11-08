@@ -7,12 +7,12 @@ L'invocation vaut demande de corriger, pousser et répondre.
      `first: comments(first: 1) { nodes { author { __typename } } }`,
      `last: comments(last: 1) { nodes { author { login } } }`,
      `comments(first: 100) { databaseId path line body author { __typename login } }`. Gardés : non résolus, dont le
-     dernier commentaire (`last`) n'est pas de soi, ou fil de soi seul, sans réponse (`totalCount` 1 : sa propre
-     review est un retour). Exclus : fils dont le premier commentaire (`first`) est d'un auteur de type `Bot`.
+     dernier commentaire (`last`) n'est pas de soi, ou, sur sa propre PR, fil de soi seul, sans réponse
+     (`totalCount` 1 : sa propre review est un retour ; sur la PR d'un autre, c'est l'auteur qui la traite). Exclus : fils dont le premier commentaire (`first`) est d'un auteur de type `Bot`.
    - **Hors fil** : commentaires de la conversation (`gh api repos/<o/r>/issues/<n°>/comments --paginate`) et `body`
      non vide des reviews (`gh api repos/<o/r>/pulls/<n°>/reviews --paginate`). Exclus : commentaire contenant
      `<!-- pr-risk -->`, auteur de type `Bot`, commentaire de conversation de soi (c'est une réponse ; seul le
-     `body` d'une review de soi reste un retour). Chacun est découpé en points (puce, paragraphe, remarque préfixée
+     `body` d'une review de soi reste un retour, sur sa propre PR seulement). Chacun est découpé en points (puce, paragraphe, remarque préfixée
      de `/pr review`) ; un point est traité, donc exclu, quand un commentaire de soi autre que `pr-risk` le cite
      (`> …`, mot pour mot). Rattachement : un point qui cite `fichier:ligne`, un `fichier`, ou un symbole qu'un grep trouve dans
      un seul fichier du diff, est rattaché à ce fichier (et cette ligne) ; sinon il vaut pour toute la PR.
@@ -36,3 +36,11 @@ L'invocation vaut demande de corriger, pousser et répondre.
    les citations telles quelles. Points non corrigés :
    comme les fils, réponse proposée, publiée après accord ; tant qu'aucune réponse ne les cite, ils restent en attente.
 5. Tri, SHA et, pour chaque point hors fil, origine et rattachement dans `final-review.md`, frictions dans `lecons.md`. Rapport : décompte corrigés (SHA) / écartés, puis seuls les « à trancher » détaillés, lien de la PR.
+6. **Boucle**, sur sa propre PR seulement (sur celle d'un autre, c'est l'auteur qui corrige : une seule paire). Un
+   tour est une paire `review` puis `comments` ; le premier est celui de l'invocation. Un tour en lance un autre si
+   sa review a publié au moins une remarque `**[bloquant]**` nouvelle et que son `comments` a poussé un correctif.
+   La review relancée ne relit que les correctifs (périmètre de l'étape 0 de `review.md`) ; le `comments` relancé ne
+   traite que les remarques qu'elle vient de publier, les retours non corrigés des tours précédents gardent leur tri.
+   Arrêt : review qui ne publie aucune bloquante (ou rien), aucun correctif poussé, « à trancher » en attente
+   d'accord, vérification rouge, ou 3 tours, le premier compris. Le rapport dit le nombre de tours et ce qui reste
+   ouvert : « à trancher », réponses en attente d'accord, bloquantes que la review dit « toujours là ».
