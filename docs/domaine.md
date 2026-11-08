@@ -61,11 +61,11 @@ Responsabilité : traiter ce que les relecteurs ont écrit sur une PR (corriger,
 | Terme | Définition métier | Dans le code | À ne pas dire |
 |---|---|---|---|
 | Fil | Discussion attachée à une ligne du diff, que seul le relecteur résout | `reviewThreads`, `isResolved` | commentaire (seul) |
-| Fil en attente de soi | Fil non résolu, pas ouvert par un bot, dont le dernier commentaire n'est pas de soi, ou fil de soi seul, sans aucune réponse | `comments(first: 1)`, `comments(last: 1)`, `totalCount` | fil non résolu (plus large) |
+| Fil en attente de soi | Fil non résolu, pas ouvert par un bot, dont le dernier commentaire n'est pas de soi, ou, sur sa propre PR, fil de soi seul, sans aucune réponse | `comments(first: 1)`, `comments(last: 1)`, `totalCount` | fil non résolu (plus large) |
 | Retour hors fil | Remarque écrite ailleurs que dans un fil : commentaire de la conversation de la PR ou `body` d'une review, dont les remarques hors diff de `/pr review` ; un commentaire de conversation de soi est une réponse, pas un retour | `issues/<n°>/comments`, `reviews[].body` | commentaire général |
 | Retour | Fil en attente de soi ou retour hors fil, à trier | — | feedback |
 
-Invariants : un fil n'est jamais résolu par soi ; un retour hors fil se rattache à `fichier:ligne` quand son texte le permet, sinon il vaut pour toute la PR ; le commentaire de criticité (`<!-- pr-risk -->`) et ceux des bots ne sont pas des retours.
+Invariants : un fil n'est jamais résolu par soi ; un retour hors fil se rattache à `fichier:ligne` quand son texte le permet, sinon il vaut pour toute la PR ; le commentaire de criticité (`<!-- pr-risk -->`) et ceux des bots ne sont pas des retours ; sur sa propre PR, `review comments` reprend la paire tant que la review du tour publie une remarque bloquante nouvelle et que `comments` pousse un correctif, au plus 3 tours, le premier compris (étape 6 de `comments.md`).
 
 ## Contexte : Livraison
 
