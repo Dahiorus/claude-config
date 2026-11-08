@@ -64,7 +64,7 @@ Dérouler chaque parcours du besoin dans le document et relever :
 |---|---|
 | Spec | Besoin de la demande sans règle ; parcours qui bloque ou finit dans un état incohérent ; libellé, message ou statut visible mais non écrit ; deux règles contradictoires ; invariant sans critère d'acceptation ; user story qui n'est pas un parcours démontrable seul |
 | Spec et plan | Terme absent du glossaire, employé dans un autre sens, ou remplacé par un synonyme ; règle placée dans un contexte qui n'en est pas responsable ; modèle d'un contexte qui fuit dans un autre |
-| Plan | Critère d'acceptation sans test qui l'exerce par le comportement visible (route, écran, commande) ; scénario visible sans recette ; nom de classe, champ ou méthode qui ne reprend pas le terme du glossaire ; tâche qui change ce que voit l'utilisateur sans que la spec le dise |
+| Plan | Critère d'acceptation sans test qui l'exerce par le comportement visible (route, écran, commande) ; scénario visible sans recette ; nom (classe, champ, méthode, variable, paramètre, test) qui ne reprend pas le terme du glossaire, reprend un mot de sa colonne « À ne pas dire » ou le terme d'une autre notion ; tâche qui change ce que voit l'utilisateur sans que la spec le dise |
 
 Chaque point est vérifié dans le code, puis rendu trié :
 - **À corriger** : une seule correction raisonnable, sans effet sur le comportement ni la portée. Citer l'endroit et le texte corrigé.
