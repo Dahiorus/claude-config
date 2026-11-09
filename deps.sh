@@ -8,6 +8,7 @@
 RTK_INSTALL_URL="https://raw.githubusercontent.com/rtk-ai/rtk/refs/heads/master/install.sh"
 BUILD_BRIEF_FORMULA="static-var/tap/build-brief"
 PLANNOTATOR_INSTALL_URL="https://plannotator.ai/install.sh"
+SHFMT_VERSION="v3.14.1"
 # Durée maximale (en secondes) d'un installeur ; au-delà il est abandonné avec un « warn ».
 DEPS_TIMEOUT="${DEPS_TIMEOUT:-600}"
 CURL_OPTS=(--connect-timeout 15 --max-time 300)
@@ -58,6 +59,49 @@ ensure_plannotator() {
     log installed plannotator
   else
     log warn "échec de l'installation de plannotator"
+  fi
+}
+
+# Le shfmt du PATH écrit BinaryCmd.Op en texte, comme main-guard l'attend (3.14 ou plus) ; avant, c'est un entier
+# et main-guard refuse tout push. Le format est testé plutôt que la version.
+shfmt_ok() {
+  shfmt -ln bash --to-json <<<'a && b' 2>/dev/null | jq -e '.Stmts[0].Cmd.Op == "&&"' >/dev/null 2>&1
+}
+
+# main-guard lit les commandes avec shfmt : sans lui, il refuse tout push.
+ensure_shfmt() {
+  local os arch bin="$HOME/.local/bin/shfmt" how dir="$HOME/.local/bin"
+  if shfmt_ok; then
+    log ok shfmt
+    return 0
+  elif command -v brew >/dev/null 2>&1; then
+    if bounded brew install shfmt </dev/null; then
+      how=brew dir="$(brew --prefix 2>/dev/null </dev/null)/bin"
+    else
+      log warn "échec de brew install shfmt"
+      return 0
+    fi
+  else
+    os="$(uname -s | tr '[:upper:]' '[:lower:]')"
+    case "$(uname -m)" in
+      x86_64 | amd64) arch=amd64 ;;
+      arm64 | aarch64) arch=arm64 ;;
+      *) arch="$(uname -m)" ;;
+    esac
+    mkdir -p "${bin%/*}"
+    if curl -fsSL "https://github.com/mvdan/sh/releases/download/$SHFMT_VERSION/shfmt_${SHFMT_VERSION}_${os}_$arch" \
+      "${CURL_OPTS[@]}" -o "$bin" && chmod +x "$bin"; then
+      how="$bin"
+    else
+      rm -f "$bin"
+      log warn "échec du téléchargement de shfmt $SHFMT_VERSION ($os/$arch)"
+      return 0
+    fi
+  fi
+  if shfmt_ok; then
+    log installed "shfmt ($how)"
+  else
+    log warn "shfmt installé ($how), mais le shfmt du PATH ($(command -v shfmt || echo absent)) n'écrit pas l'arbre attendu (shfmt 3.14 ou plus requis) : main-guard refusera tout push ; mettre $dir en tête du PATH"
   fi
 }
 
@@ -121,6 +165,7 @@ ensure_all() {
   ensure_rtk
   ensure_build_brief
   ensure_plannotator
+  ensure_shfmt
   ensure_angular_developer
   ensure_plugins
 }

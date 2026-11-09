@@ -29,10 +29,10 @@ L'invocation vaut demande de corriger, pousser et répondre.
    recommandation, rien n'est corrigé avant l'accord.
 3. Contrôle des copies d'une règle changée (étape 1 de `push.md`), puis vérification du projet ; rouge → ne pas pousser. Commits au format de `CONTRIBUTING.md`, `push` simple.
 4. Répondre à chaque fil corrigé (`gh api repos/<owner/repo>/pulls/<n°>/comments/<databaseId>/replies -F body=@<fichier>`, corps écrit dans un fichier avec Write d'abord, pas `printf`/`echo`) :
-   ce qui a changé et le SHA, passé par `humanizer:humanizer`. Ne pas résoudre les fils : c'est au relecteur. Fils non corrigés : réponse proposée
+   ce qui a changé, le SHA et le sujet du commit (un `squash` qui suit efface le SHA), passé par `humanizer:humanizer`. Ne pas résoudre les fils : c'est au relecteur. Fils non corrigés : réponse proposée
    dans le rapport et dans `final-review.md`, publiée après accord.
    Points hors fil corrigés : un seul commentaire de conversation (`gh pr comment <n°> --body-file <fichier>`) qui
-   cite chaque point (`> …`, mot pour mot) avec ce qui a changé et le SHA, passé par `humanizer:humanizer`, qui garde
+   cite chaque point (`> …`, mot pour mot) avec ce qui a changé, le SHA et le sujet du commit, passé par `humanizer:humanizer`, qui garde
    les citations telles quelles. Points non corrigés :
    comme les fils, réponse proposée, publiée après accord ; tant qu'aucune réponse ne les cite, ils restent en attente.
 5. Tri, SHA et, pour chaque point hors fil, origine et rattachement dans `final-review.md`, frictions dans `lecons.md`. Rapport : décompte corrigés (SHA) / écartés, puis seuls les « à trancher » détaillés, lien de la PR.

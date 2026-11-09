@@ -87,19 +87,25 @@ Invariants : `install` n'écrit que `base.json` (+ `local.json`), donc tout hook
 
 ## Contexte : Garde de main
 
-Responsabilité : refuser, avant qu'il ne parte, un appel Bash qui commite sur main ou pousse vers main, pour faire passer par `/pr push` · Dans le code : `global/main-guard-hook.sh`, `tests/test_main_guard.sh`, `tests/test_main_guard_track.sh` · Dépend de : git (branche réelle d'un dossier), Réglages (hook PreToolUse déclaré dans `base.json`)
+Responsabilité : refuser, avant qu'il ne parte, un appel Bash qui pousse vers main, pour faire passer par `/pr push` · Dans le code : `global/main-guard-hook.sh`, `tests/test_main_guard.sh`, `tests/test_main_guard_track.sh`, `tests/test_main_guard_ast.sh` · Dépend de : shfmt et jq (lecture de l'appel), git (branche réelle d'un dossier), Réglages (hook PreToolUse déclaré dans `base.json`)
 
 | Terme | Définition métier | Dans le code | À ne pas dire |
 |---|---|---|---|
-| Segment | Commande simple de l'appel, entre deux séparateurs `&&` `\|\|` `;` `\|` | `segment`, `words` | ligne, instruction |
-| Jugement | Réponse oui ou non : le segment commite sur main ou pousse vers main | `violates`, `pushes_main` | vérification, contrôle |
-| Suivi | Mise à jour du dossier jugé ou de la branche prise par un `cd`/`pushd` ou un `git switch`/`checkout`, valable pour les segments reliés par `&&` | `track`, `track_cd`, `track_switch` | jugement |
-| Dossier de départ | Dossier où l'appel est lancé, auquel on revient après `;` `\|\|` `\|` ou un saut de ligne | `cwd` | dossier courant |
-| Dossier jugé | Dossier où tourne le segment, après les `cd` reliés par `&&` | `here` | répertoire de travail |
-| Branche prise | Branche qu'un `git switch` relié par `&&` a donnée à un dépôt, à la place de sa branche réelle | `switched_to`, `switched_dir` | branche courante |
-| Préfixe de lancement | Mot qui peut précéder git sans en faire un argument (`rtk`, `sudo`, `env`, `VAR=…`, `if`…) | regex en tête de `parse` | — |
-| Contexte de lecture | Guillemets, `$( )`, `${…}` ou backticks ouverts à l'endroit lu | `stack`, `ctx` | contexte (seul) |
-| Repli | Lecture de secours quand un contexte de lecture reste ouvert : guillemets ignorés, chaque saut de ligne coupe | `flatten_plain` | mode dégradé |
-| Plafond de processus | Nombre maximal de segments `cd`, `pushd` ou git (2000) au-delà duquel l'appel est refusé, faute de pouvoir le juger dans le délai du hook | `forks` | limite de lignes |
+| Arbre de la commande | Lecture de l'appel par `shfmt --to-json` (mvdan/sh) : commandes simples, listes, pipelines, blocs, substitutions, heredocs et redirections, tels que bash les verrait | `compile` | parseur |
+| Commande simple | Mot de commande et ses arguments, après développement de ce qui est connu (guillemets, `$'…'`, `~`) ; un mot calculé est inconnu | `call`, `words` | segment, ligne |
+| Jugement | Réponse oui ou non : la commande simple pousse vers main dans l'un des états possibles | `push_main` | vérification, contrôle |
+| État possible | Dossier jugé et branche prise que le shell peut avoir à un endroit de l'appel ; après `;`, `\|\|` ou un saut de ligne, la suite est jugée dans les états où la commande précédente a réussi et dans ceux où elle a échoué | ensemble d'états de `run` | état courant |
+| Suivi | Mise à jour du dossier jugé ou de la branche prise par un `cd`/`pushd`/`popd` ou un `git switch`/`checkout`, valable pour ce qui suit un `&&` | `cd_state`, `switch_state` | jugement |
+| Sous-shell | Partie de l'appel dont le suivi ne sort pas : pipeline, `( )`, `&`, `$( )`, backtick ; ses commandes sont jugées, ses `cd` ne comptent pas pour la suite | `dup` … `drop2` | — |
+| Dossier de départ | Dossier où l'appel est lancé, premier état possible | `cwd` | dossier courant |
+| Dossier jugé | Dossier où tourne la commande ; inconnu (calculé, `cd -`, absent) il est jugé comme main | `here`, « ? » | répertoire de travail |
+| Branche prise | Branche qu'un `git switch` ou `checkout` suivi a donnée à un dépôt, à la place de sa branche réelle : celle qu'il crée (`-c`, `-b`, `-C`, `-B`, `--create`, `--force-create`, `--orphan`, options courtes collées comme `-qb`), sinon une branche inconnue, jugée comme main. Un état ne retient la branche prise que d'un dépôt connu : un switch dans un dépôt inconnu (`git -C "$X"`, après `cd "$X"`) ou dans un second dépôt rend la branche inconnue dans tous les dépôts | `switch_state` | branche courante |
+| Préfixe de lancement | Mot qui lance la commande suivante (`env` et ses affectations, `sudo`, `command`, `builtin`, `nice`, `nohup`, `rtk`, `time`, `timeout`, `VAR=…`), lu avec ses options ; `command cd` et `builtin cd` changent le dossier du shell, `env cd` non ; le script littéral de `bash -c` est jugé comme un appel en sous-shell | `call_one`, `opts` | — |
+| Refus faute de lecture | Sans shfmt 3.14 ou plus, ou quand shfmt ne lit pas l'appel, refus de tout appel qui cite `git` et `push` | `compile` | mode dégradé |
+| Plafond de processus | Nombre maximal de processus lancés (git, shfmt, jq : 2000) au-delà duquel l'appel est refusé, faute de pouvoir le juger dans le délai du hook | `forks` | limite de lignes |
+| Plafond d'états | Nombre maximal d'états possibles en un point de l'appel (64, un par `cd …;` répété) au-delà duquel un appel qui cite `git` et `push` est refusé : leur dédoublonnage, quadratique, dépasserait le délai du hook | `uniq_set` | limite de lignes |
+| Budget de temps | Durée maximale du jugement (40 s, sous le délai de 60 s du hook qui laisserait tout passer) au-delà de laquelle un appel qui cite `git` et `push` est refusé : le plafond d'états borne les états, pas le nombre de commandes | `SECONDS` remis à 0 en tête du hook, lu dans `uniq_set` (`MAIN_GUARD_BUDGET` le raccourcit, pour les tests) | délai |
+| Push vers main | `git push` qui met à jour la branche main du dépôt distant : refspec de destination `main` (`--delete` de main, `heads/main`, globs et `:` compris), `--all`/`--branches`/`--mirror` depuis n'importe quelle branche, ou sans refspec ou `HEAD`/`@` depuis la branche main selon `push.default` et l'upstream. Seul risque que rien ne rattrape, faute de protection de branche côté GitHub | `push_main`, `default_main` | push sur main (ambigu avec un push lancé depuis main) |
+| Faux refus | Refus d'un appel qui ne pousse pas vers main (`cd <worktree>; git push`, `"$X"` lu comme refspec inconnue, `checkout -- <fichier>` lu comme une branche inconnue) | — | contournement |
 
-Invariants : un `cd` ou un switch ne compte que suivi de `&&` ; un chemin non résolu vaut le dossier de départ ; entrée illisible ou plafond dépassé = refus, jamais passage sans jugement ; push d'un tag, `--delete` et push d'une autre branche restent permis depuis main.
+Invariants : un `cd` ou un switch ne compte que suivi de `&&` ; un dossier, une branche ou une refspec inconnus sont jugés comme main ; un seul état possible qui pousse vers main suffit à refuser ; shfmt absent, appel illisible, plantage du hook ou plafond dépassé = refus, jamais passage sans jugement ; un commit, le push d'un tag, d'une autre branche et `--delete` d'une autre branche restent permis depuis main ; échappent au jugement ce qui dépend de l'exécution (alias et fonctions shell, `"$X"` qui cache une option) et les formes rares listées en `shortcut:` en tête du hook (alias git, `eval`, `xargs`, `exec`, `trap`, `watch`, `export GIT_DIR`, options abrégées, `remote.*.push`…).

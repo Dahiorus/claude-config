@@ -47,7 +47,7 @@ hors de la session, qui ne reçoit que les remarques.
    L'agent rend une liste JSON, sans rien publier :
    `{path, line, inDiff, nature, gravite, texte}` (`nature` : bug, sécurité, performance, test, lisibilité, doc,
    question ; `gravite` : bloquant, non-bloquant, question).
-3. Criticité : skill `pr-risk` sur la PR (il tourne dans son propre agent), qui publie (ou met à jour) son
+3. Criticité : skill `pr-risk` sur la PR, invoqué par la session (il tourne dans son propre agent ; depuis un sous-agent, son fork ne publie rien), qui publie (ou met à jour) son
    commentaire de risque : niveau, nombre de relectures humaines, dangers à vérifier. Son brief dit de publier sans
    demander, comme dans `push.md` (étape 4).
 4. Publier au plus une review, jamais `REQUEST_CHANGES`. Remarques nouvelles → une review `COMMENT` :
@@ -56,8 +56,9 @@ hors de la session, qui ne reçoit que les remarques.
    (`path`, `line` du nouveau fichier, `side: "RIGHT"`), en français, préfixé du gitmoji de sa nature (🐛 bug,
    🔒️ sécurité, ⚡️ performance, ✅ test, ♻️ lisibilité, 📝 doc, 💬 question) puis de `**[bloquant]**`,
    `**[non-bloquant]**` ou `**[question]**`, puis problème + suggestion (ou la question). `body` et commentaires passés par `humanizer:humanizer`, qui garde
-   tels quels le gitmoji et le préfixe de gravité (l'`APPROVE` en dépend), comme les identifiants. Ligne hors du
-   diff → dans le `body`, avec `fichier:ligne` et le même préfixe.
+   tels quels le gitmoji et le préfixe de gravité (l'`APPROVE` en dépend), comme les identifiants. Ligne hors des
+   hunks du diff (`git diff <base>...HEAD | grep ^@@` ; une seule suffit pour que GitHub refuse toute la review, 422)
+   → dans le `body`, avec `fichier:ligne` et le même préfixe.
    Aucune remarque nouvelle → `APPROVE` seulement si la PR est d'un autre, que soi est relecteur demandé
    (`gh pr view <n°> --json reviewRequests` : son login, ou une équipe dont il est membre,
    `gh api orgs/<org>/teams/<slug>/memberships/<soi>` qui répond `active`) et qu'aucune remarque bloquante de soi
