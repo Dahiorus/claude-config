@@ -146,7 +146,7 @@ teste pas sans la suivante est mal découpée : la fusionner avec elle.
 
 **Exécution** — avant d'écrire le code, l'implémenteur prouve le rouge dans son rapport : la sortie du test qui échoue,
 ou un résumé qui nomme chaque test en échec avec son assertion ou son erreur. Le résumé vaut pour les tests ajoutés
-comme pour les tests existants modifiés, et le contrôle l'accepte. Un échec de compilation (symbole encore absent) prévu par le plan vaut rouge : le brief de l'implémenteur et celui du contrôle le disent, et le contrôle ne le refuse pas. De même, le brief du contrôle recopie toute décision du plan qui ferait croire à un test absent ou non conforme : test volontairement écrit autrement (chaîne plutôt qu'enum), cas portés par un fournisseur de données (nommer la méthode et les clés attendues). L'implémenteur lance les tests du contexte borné entier avant de commiter. Le brief lui fait remplacer `<modèle de l'implémenteur>` par son propre modèle dans chaque commit. Ce que le brief ne dit pas ne s'invente pas :
+comme pour les tests existants modifiés, et le contrôle l'accepte. Un échec de compilation (symbole encore absent) prévu par le plan vaut rouge : le brief de l'implémenteur et celui du contrôle le disent, et le contrôle ne le refuse pas. De même, le brief du contrôle recopie toute décision du plan qui ferait croire à un test absent ou non conforme : test volontairement écrit autrement (chaîne plutôt qu'enum), cas portés par un fournisseur de données (nommer la méthode et les clés attendues). L'implémenteur lance les tests du contexte borné entier avant de commiter. Le brief lui fait remplacer `<modèle de l'implémenteur>` par son propre modèle dans chaque commit. `task-brief` n'extrait que la section de la tâche : le contrôleur ajoute en tête de chaque brief les contraintes globales du plan (en-tête, conventions, décisions de relecture déjà prises) qu'elle applique. Ce que le brief ne dit pas ne s'invente pas :
 NEEDS_CONTEXT. Un test existant modifié est signalé avec sa raison.
 Le fichier de sortie de chaque sous-agent est à un chemin absolu, hors de tout worktree qui sera supprimé.
 L'implémenteur l'écrit lui-même, sauf en lot parallélisable (étape 4 : rapport dans sa réponse), et son brief le dit : « fichier de sortie à écrire avant de répondre ». À son
@@ -257,7 +257,7 @@ adaptée au langage et amendée par les conventions de l'`AGENTS.md` du projet (
   `$notations`) : `\b` après le nom (`\$value\b`), devant seulement si le motif commence par une lettre (`$` n'est
   pas un caractère de mot), ou `git grep -w`.
 
-Ne pas signaler : code généré, tests (longueur libre), écart imposé par le framework ou une API externe, dépassement
+Ne pas signaler : code généré, tests (longueur libre), largeur des lignes, écart imposé par le framework ou une API externe, dépassement
 d'une ou deux lignes des seuils du point 7. Sortie : écarts classés par gravité, avec `fichier:ligne`, principe
 enfreint et correctif attendu ; ou « conforme ».
 
