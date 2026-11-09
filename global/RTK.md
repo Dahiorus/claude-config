@@ -14,7 +14,8 @@ rtk grep -rn "pattern" src | head -40
 rtk gh pr diff 12 | head -200
 ```
 
-Inside a git worktree session (after `EnterWorktree`), never write `rtk git …`: Claude Code refuses it.
+Inside a git worktree session (after `EnterWorktree`, or as an agent started with `isolation: "worktree"`),
+never write `rtk git …`: Claude Code refuses it.
 Run plain `git …` there; the hook leaves it unwrapped.
 
 Keep the raw command when the output is consumed by a program or must be exact: counting
