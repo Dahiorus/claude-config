@@ -16,7 +16,7 @@ l'ordre, arrêt au premier échec ; chaque action attend la fin de la précéden
 `comments.md`). Le texte libre qui suit les actions est une consigne pour elles (« en mode boîte
 noire », « la partie front », « de amercadal »). La PR est cherchée dans le dépôt courant uniquement. Les commandes `gh`
 et les `git push`, `git fetch` et `git pull` passent par le compte du profil du projet (`bash ~/.claude/profile.sh account` ; vide sans profil : compte actif), en jeton ponctuel testé, en une commande : `t=$(gh auth token -u <compte>); [ -n "$t" ] && GH_TOKEN=$t gh …` (même forme devant `git push`, `fetch` et `pull` ; sur un dépôt privé, un `fetch` sans jeton répond « Repository not found » et laisse `origin/main` périmée), jamais le jeton recopié en clair ; jeton vide → s'arrêter (gh prendrait le compte actif), jamais par `gh auth switch`. Les étapes écrivent `git fetch`, `git pull` et `git push` sans ce préfixe : il s'ajoute à chacune. En session `EnterWorktree`, Claude Code
-refuse `git -c …` et `VAR=… git/gh …` (commandes `gh` à jeton comprises) : `ExitWorktree` avec `action: "keep"`, puis lancer fetch, pull et push depuis le dépôt principal. Seul `switch` change la branche de l'arbre
+refuse `git -c …` et `VAR=… git/gh …` (commandes `gh` à jeton comprises) : `ExitWorktree` avec `action: "keep"`, puis lancer fetch, pull et push depuis le dépôt principal. Le classifieur du mode auto peut refuser `gh pr merge` et le push forcé de `rebase` et `squash` : donner alors d'emblée la commande à lancer avec `!`. Seul `switch` change la branche de l'arbre
 courant, et seulement s'il est propre : les autres actions travaillent dans l'arbre de la PR, le travail en cours n'est
 pas touché. Ce skill porte toutes les étapes d'une PR, qu'elle vienne de `feature`, de `bugfix` ou de `release` ;
 `feature` reste la référence pour le tri des retours et la grille qualité. Les étapes qui demandent du jugement
@@ -35,8 +35,8 @@ de `git worktree list`, même depuis un worktree) et `<sujet>` le nom de la bran
 - `final-review.md` : retours de review et commentaires de PR, triés (`feature`, `bugfix`, `comments`) ;
 - `recette.md` : chaque recette, datée : environnement, scénarios et résultat, correctifs (SHA), ce qui reste ;
 - `ponytail-review.md`, `opus-review.md` : rapport complet de chaque review (`feature` étape 7, `bugfix` étape 8) ;
-  `convergence-N.md` : sortie du tour N de convergence (`feature` étape 5b). Écrits par l'agent, ou par le contrôleur
-  à partir de sa réponse quand l'agent n'a pas d'outil d'écriture ;
+  `convergence-N.md` : sortie du tour N de convergence (`feature` étape 5b). Écrits par le contrôleur à partir de
+  la réponse de l'agent, dont le brief interdit d'écrire dans le dossier de suivi ;
 - `lecons.md` : une ligne datée par friction (correction de l'utilisateur, commande refusée, piège, consigne
   oubliée), ajoutée en fin de session de travail sur la branche (`feature` étape 7, `bugfix` étape 8, `push`, `squash`,
   `recette`, `comments`, `rebase`, `merge` avant son étape 2, puis à la fin pour la PR suivante). Rien à noter → rien.
