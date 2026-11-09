@@ -23,6 +23,17 @@ run_install() {
   PATH="$STUBS:/usr/bin:/bin" "$CLI" install "$@"
 }
 
+# Faux shfmt en $1 : son arbre de « a && b » porte l'Op $2, "&&" (shfmt 3.14 ou plus) par défaut, 10 pour un ancien.
+write_shfmt() {
+  mkdir -p "${1%/*}"
+  printf '#!/usr/bin/env bash\ncat >/dev/null\necho %q\n' "{\"Stmts\":[{\"Cmd\":{\"Op\":${2:-\"&&\"}}}]}" > "$1"
+  chmod +x "$1"
+}
+
+stub_shfmt() {
+  write_shfmt "$STUBS/shfmt" "$@"
+}
+
 calls() {
   cat "$CALLS_LOG" 2>/dev/null || true
 }
@@ -37,6 +48,7 @@ fake_angular_skill() {
 }
 
 test_deps_nothing_to_install() {
+  stub_shfmt
   empty_settings
   make_stub rtk
   make_stub build-brief
@@ -45,6 +57,7 @@ test_deps_nothing_to_install() {
   stub_claude '[]' '[]'
   local out
   out="$(run_install)"
+  assert_has_line "$out" ok shfmt
   assert_has_line "$out" ok rtk
   assert_has_line "$out" ok build-brief
   assert_has_line "$out" ok plannotator
@@ -88,6 +101,25 @@ test_deps_failure_is_only_a_warning() {
   assert_eq "$rc" 0 "code de sortie"
   assert_contains "$out" "warn"
   assert_contains "$out" "rtk"
+  assert_contains "$out" "échec du téléchargement de shfmt"
+}
+
+test_deps_shfmt_partial_download_is_removed() {
+  empty_settings
+  make_stub rtk
+  make_stub plannotator
+  mkdir -p "$STUBS"
+  # Faux curl : écrit le fichier demandé par -o puis échoue, comme un téléchargement coupé.
+  # shellcheck disable=SC2016 # code du stub, développé à son exécution
+  printf '%s\n' '#!/usr/bin/env bash' 'for a; do [[ "${o:-}" == 1 ]] && : > "$a"; o=; [[ "$a" == -o ]] && o=1; done' \
+    'exit 22' > "$STUBS/curl"
+  chmod +x "$STUBS/curl"
+  fake_angular_skill
+  stub_claude '[]' '[]'
+  local out
+  out="$(run_install 2>&1)"
+  assert_contains "$out" "échec du téléchargement de shfmt"
+  [[ ! -e "$HOME/.local/bin/shfmt" ]] || fail "shfmt à moitié téléchargé laissé dans ~/.local/bin"
 }
 
 test_deps_plannotator_via_script() {
@@ -103,6 +135,7 @@ test_deps_plannotator_via_script() {
 }
 
 test_deps_angular_developer_via_npx() {
+  stub_shfmt
   empty_settings
   make_stub rtk
   make_stub plannotator
@@ -115,6 +148,7 @@ test_deps_angular_developer_via_npx() {
 }
 
 test_deps_installs_missing_plugins() {
+  stub_shfmt
   printf '%s\n' '{"extraKnownMarketplaces":{"plannotator":{"source":{"source":"github","repo":"backnotprop/plannotator"}}},"enabledPlugins":{"a@m":true,"b@m":false,"plannotator@plannotator":true}}' \
     > "$REPO/settings/base.json"
   make_stub rtk
@@ -150,6 +184,7 @@ test_deps_skipped_with_no_deps() {
 
 # Un CLI qui lit stdin ne doit pas consommer la liste des plugins restants.
 test_deps_plugins_survive_stdin_reading_cli() {
+  stub_shfmt
   printf '%s\n' '{"enabledPlugins":{"a@m":true,"b@m":true,"c@m":true}}' > "$REPO/settings/base.json"
   make_stub rtk
   make_stub plannotator
@@ -165,6 +200,7 @@ test_deps_plugins_survive_stdin_reading_cli() {
 }
 
 test_deps_installer_timeout_is_only_a_warning() {
+  stub_shfmt
   empty_settings
   make_stub rtk
   make_stub plannotator
@@ -213,9 +249,11 @@ test_deps_build_brief_untrusted_tap_is_only_a_warning() {
   out="$(run_install 2>&1)" || rc=$?
   assert_eq "$rc" 0 "code de sortie"
   assert_contains "$out" "brew trust --formula static-var/tap/build-brief"
+  assert_contains "$out" "échec de brew install shfmt"
 }
 
 test_deps_build_brief_without_brew() {
+  stub_shfmt
   empty_settings
   make_stub rtk
   make_stub plannotator
@@ -228,6 +266,7 @@ test_deps_build_brief_without_brew() {
 }
 
 test_deps_installs_profile_plugins() {
+  stub_shfmt
   printf '%s\n' '{"enabledPlugins":{"a@m":true,"s@m":false}}' > "$REPO/settings/base.json"
   printf '%s\n' '{"vidal":{"owners":[],"account":"x","enabledPlugins":{"s@m":true,"a@m":true},"skillOverrides":{}}}' \
     > "$REPO/global/profiles.json"
@@ -237,4 +276,85 @@ test_deps_installs_profile_plugins() {
   local c; c="$(calls)"
   assert_contains "$c" "claude plugin install s@m --scope user"
   assert_eq "$(grep -c 'plugin install a@m' <<<"$c")" "1" "a@m une seule fois"
+}
+
+# Faux brew : journalise l'appel ; « brew install shfmt » pose un shfmt récent dans les stubs.
+stub_brew_shfmt() {
+  write_shfmt "$SANDBOX/shfmt-new"
+  # shellcheck disable=SC2016 # code du stub, développé à son exécution
+  printf '%s\n' '#!/usr/bin/env bash' 'printf "%s\n" "brew $*" >> "$CALLS_LOG"' \
+    '[[ "$*" == "install shfmt" ]] || exit 0' \
+    "cp $(printf %q "$SANDBOX/shfmt-new") $(printf %q "$STUBS/shfmt")" > "$STUBS/brew"
+  chmod +x "$STUBS/brew"
+}
+
+test_deps_shfmt_via_brew() {
+  empty_settings
+  make_stub rtk
+  stub_brew_shfmt
+  make_stub plannotator
+  fake_angular_skill
+  stub_claude '[]' '[]'
+  local out
+  out="$(run_install)"
+  assert_contains "$(calls)" "brew install shfmt"
+  assert_has_line "$out" installed "shfmt (brew)"
+}
+
+# Un shfmt d'avant 3.14 (apt d'Ubuntu 24.04 : 3.8) écrit BinaryCmd.Op en entier : il est remplacé.
+test_deps_shfmt_too_old_is_replaced() {
+  empty_settings
+  make_stub rtk
+  stub_shfmt 10
+  stub_brew_shfmt
+  make_stub plannotator
+  fake_angular_skill
+  stub_claude '[]' '[]'
+  local out
+  out="$(run_install)"
+  assert_contains "$(calls)" "brew install shfmt"
+  assert_has_line "$out" installed "shfmt (brew)"
+}
+
+test_deps_shfmt_still_too_old_is_a_warning() {
+  empty_settings
+  make_stub rtk
+  stub_shfmt 10
+  # Faux brew : réussit tout, et donne son préfixe.
+  # shellcheck disable=SC2016 # code du stub, développé à son exécution
+  printf '#!/usr/bin/env bash\n[[ "$1" == --prefix ]] && echo /opt/brew\nexit 0\n' > "$STUBS/brew"
+  chmod +x "$STUBS/brew"
+  make_stub plannotator
+  fake_angular_skill
+  stub_claude '[]' '[]'
+  local out
+  out="$(run_install 2>&1)"
+  assert_contains "$out" "le shfmt du PATH ($STUBS/shfmt) n'écrit pas l'arbre attendu"
+  assert_contains "$out" "mettre /opt/brew/bin en tête du PATH"
+}
+
+test_deps_shfmt_release_without_brew() {
+  empty_settings
+  make_stub rtk
+  make_stub plannotator
+  mkdir -p "$STUBS"
+  # Faux curl : journalise l'appel et copie un shfmt récent dans le fichier demandé par -o.
+  write_shfmt "$SANDBOX/shfmt-new"
+  # shellcheck disable=SC2016 # code du stub, développé à son exécution
+  printf '%s\n' '#!/usr/bin/env bash' 'printf "%s\n" "curl $*" >> "$CALLS_LOG"' \
+    "for a; do [[ \"\${o:-}\" == 1 ]] && cp $(printf %q "$SANDBOX/shfmt-new") \"\$a\"; o=; [[ \"\$a\" == -o ]] && o=1; done" \
+    'exit 0' > "$STUBS/curl"
+  chmod +x "$STUBS/curl"
+  fake_angular_skill
+  stub_claude '[]' '[]'
+  local out
+  out="$(PATH="$STUBS:$HOME/.local/bin:/usr/bin:/bin" "$CLI" install)"
+  assert_contains "$(calls)" "curl -fsSL https://github.com/mvdan/sh/releases/download/v3.14.1/shfmt_v3.14.1_"
+  assert_contains "$(calls)" "-o $HOME/.local/bin/shfmt"
+  assert_has_line "$out" installed "shfmt ($HOME/.local/bin/shfmt)"
+  # ~/.local/bin hors du PATH du hook : warn, pas « installed ».
+  rm "$HOME/.local/bin/shfmt"
+  out="$(run_install 2>&1)"
+  assert_contains "$out" "mettre $HOME/.local/bin en tête du PATH"
+  assert_not_contains "$out" "installed shfmt"
 }

@@ -6,6 +6,8 @@ ou dans le message qui suit (liste numérotée écran + élément + observé + a
 
 1. **Scénarios** — les retours de l'utilisateur, plus la recette prévue par la PR (description, plan commité sur la
    branche). Aucun des deux → déduire les scénarios de la description et du diff, les lister et attendre l'accord.
+   Pour chaque scénario, nommer les données qui le rendent jouable (objet, mode, volume) et les vérifier en base avant
+   de le lancer ; données absentes → les créer ou marquer le scénario « non joué, données absentes », jamais conforme.
 2. **Environnement** — chercher dans la description de la PR un environnement de recette : lien d'un environnement
    déployé pour la PR, par exemple le bloc ajouté par le déploiement d'une PR titrée `[DEPLOY_PR][<env-id>]`
    (convention de renoshield : `:heavy_check_mark: … http://…-<env-id>…`). Lien présent, déploiement réussi →
