@@ -92,7 +92,8 @@ s'ajoute ni ne se perd en route.
 7. **Dette du code touché** : pour chaque méthode que la feature modifie, ses écarts à la grille qualité (longueur,
    dépendances du constructeur, absence de tests…), relevés en même temps que la portée. Chaque écart reçoit une
    décision dans Plannotator : *corrigé dans cette PR* ou *reporté au reste à faire*. Seulement les méthodes
-   modifiées, jamais le fichier entier.
+   modifiées, jamais le fichier entier. Un écart que règle une extraction dans la fonction touchée, sans effet sur la
+   spec, est proposé *corrigé dans cette PR* par défaut.
 
 **Plan** — une table de traçabilité en tête : chaque exigence de la spec (§) → tâche → test qui la prouve ; pour
 chaque fichier touché, les usages trouvés à l'étape 1b, ce qu'ils deviennent et le test qui fige ce qu'il garde
@@ -222,7 +223,9 @@ adaptée au langage et amendée par les conventions de l'`AGENTS.md` du projet (
   9. pas d'état mutable exposé : objets immuables, flux en lecture seule, *Tell, don't ask*.
 - **Texte (skills, spec, docs)** : un nombre annoncé (« deux règles », « 3 commandes ») est égal au nombre d'éléments listés.
   Un chiffre mesuré (lignes d'un fichier, nombre de tests) cité dans la spec ou la PR se remesure après le dernier
-  correctif. Une requête d'API (GraphQL, REST, SQL) écrite dans un skill, le plan ou le code se lance contre l'API dès le plan.
+  correctif. Un extrait que le plan recopie de la spec (ligne d'état, table, liste ordonnée, message) lui est
+  identique, ordre compris : relu contre la spec, pas seulement contre le code ; un code conforme au plan mais pas à
+  la spec est un écart, jamais justifié par « le code suit le plan ». Une requête d'API (GraphQL, REST, SQL) écrite dans un skill, le plan ou le code se lance contre l'API dès le plan.
   Une liste dans une règle ou une définition dit si elle est fermée ou ne donne que des exemples (« par exemple »,
   « … ») ; fermée, elle couvre tous les cas de la portée annoncée, et un mot de portée (« du langage », « de Java »)
   ne restreint pas une règle voulue générale. Un pronom ou une incise (« il », « celle-ci », « qui ») dont deux noms
