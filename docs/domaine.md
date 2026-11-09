@@ -84,3 +84,22 @@ Invariants : la mémoire ne recopie pas ce que git ou GitHub savent déjà (n° 
 Responsabilité : écrire `~/.claude/settings.json` depuis le dépôt · Dans le code : `settings/base.json`, `bin/claude-config install|capture` · Dépend de : rien
 
 Invariants : `install` n'écrit que `base.json` (+ `local.json`), donc tout hook voulu sur la machine y figure, sonar-secrets compris (PreToolUse `Read` et UserPromptSubmit), chacun sans effet quand son script manque.
+
+## Contexte : Garde de main
+
+Responsabilité : refuser, avant qu'il ne parte, un appel Bash qui commite sur main ou pousse vers main, pour faire passer par `/pr push` · Dans le code : `global/main-guard-hook.sh`, `tests/test_main_guard.sh`, `tests/test_main_guard_track.sh` · Dépend de : git (branche réelle d'un dossier), Réglages (hook PreToolUse déclaré dans `base.json`)
+
+| Terme | Définition métier | Dans le code | À ne pas dire |
+|---|---|---|---|
+| Segment | Commande simple de l'appel, entre deux séparateurs `&&` `\|\|` `;` `\|` | `segment`, `words` | ligne, instruction |
+| Jugement | Réponse oui ou non : le segment commite sur main ou pousse vers main | `violates`, `pushes_main` | vérification, contrôle |
+| Suivi | Mise à jour du dossier jugé ou de la branche prise par un `cd`/`pushd` ou un `git switch`/`checkout`, valable pour les segments reliés par `&&` | `track`, `track_cd`, `track_switch` | jugement |
+| Dossier de départ | Dossier où l'appel est lancé, auquel on revient après `;` `\|\|` `\|` ou un saut de ligne | `cwd` | dossier courant |
+| Dossier jugé | Dossier où tourne le segment, après les `cd` reliés par `&&` | `here` | répertoire de travail |
+| Branche prise | Branche qu'un `git switch` relié par `&&` a donnée à un dépôt, à la place de sa branche réelle | `switched_to`, `switched_dir` | branche courante |
+| Préfixe de lancement | Mot qui peut précéder git sans en faire un argument (`rtk`, `sudo`, `env`, `VAR=…`, `if`…) | regex en tête de `parse` | — |
+| Contexte de lecture | Guillemets, `$( )`, `${…}` ou backticks ouverts à l'endroit lu | `stack`, `ctx` | contexte (seul) |
+| Repli | Lecture de secours quand un contexte de lecture reste ouvert : guillemets ignorés, chaque saut de ligne coupe | `flatten_plain` | mode dégradé |
+| Plafond de processus | Nombre maximal de segments `cd`, `pushd` ou git (2000) au-delà duquel l'appel est refusé, faute de pouvoir le juger dans le délai du hook | `forks` | limite de lignes |
+
+Invariants : un `cd` ou un switch ne compte que suivi de `&&` ; un chemin non résolu vaut le dossier de départ ; entrée illisible ou plafond dépassé = refus, jamais passage sans jugement ; push d'un tag, `--delete` et push d'une autre branche restent permis depuis main.

@@ -1,27 +1,32 @@
 #!/usr/bin/env bash
-# Hook PreToolUse (Bash) : refuse un commit sur main et un push qui met à jour main, pour passer par /pr push.
-# Restent permis depuis main : push d'un tag, d'une autre branche, et --delete (release, nettoyage après merge).
-# Les segments se lisent dans l'ordre : « cd/pushd <dir> » et « git switch -c <b> » reliés par && changent le dossier et la branche jugés ensuite.
-# shortcut: un cd non résolu (chemin calculé $VAR, $(…), cd -) est jugé sur le dossier de départ ; résoudre les variables si ça gêne.
-# shortcut: après ; || | ou un saut de ligne, retour au départ : depuis un worktree, « git switch main; git commit » passe ; garder un retour vers main si ça gêne.
-# shortcut: le contenu de $( ) et de ` n'est pas jugé ; un « motif) » de case dans $( ) le ferme trop tôt ; un << arithmétique ($((1<<2))) est pris pour un heredoc ; les lignes d'un heredoc hors $( ) sont jugées comme des commandes ; avec des guillemets déséquilibrés (ou un contexte resté ouvert), repli où chaque saut de ligne coupe, guillemets ignorés ; un vrai parseur shell si ça gêne.
+# Hook PreToolUse (Bash) : refuse commit sur main et push vers main (passer par /pr push) ; tag, autre branche et --delete passent.
+# Segments lus dans l'ordre : cd/pushd <dir> et git switch -c <b> reliés par && changent dossier et branche jugés ensuite.
+# shortcut: cd non résolu ($VAR, $(…), cd -) jugé sur le dossier de départ ; résoudre les variables si ça gêne.
+# shortcut: après ; || | ou saut de ligne, retour au départ (depuis un worktree, « git switch main; git commit » passe) ; garder un retour vers main si ça gêne.
+# shortcut: contenu de $( ) et de ` non jugé ; vrai parseur shell si ça gêne.
+# shortcut: « motif) » de case dans $( ) ferme le $( ) trop tôt ; vrai parseur shell si ça gêne.
+# shortcut: << arithmétique ($((1<<2))) pris pour un heredoc ; vrai parseur shell si ça gêne.
+# shortcut: lignes d'un heredoc hors $( ) jugées comme des commandes ; vrai parseur shell si ça gêne.
+# shortcut: guillemets déséquilibrés ou contexte resté ouvert : repli, chaque saut de ligne coupe, guillemets ignorés ; vrai parseur shell si ça gêne.
 set -uo pipefail
 
 input="$(cat)"
-# jq en échec (JSON invalide, jq absent) : refuser plutôt que laisser passer sans jugement.
 cmd="$(jq -r '.tool_input.command // empty' <<<"$input")" || { echo "main-guard : entrée illisible, appel refusé" >&2; exit 2; }
 [[ -n "$cmd" ]] || exit 0
 cwd="$(jq -r '.cwd // empty' <<<"$input" 2>/dev/null)"
 cwd="${cwd:-$PWD}"
+LC_ALL=C # lecture octet par octet
 
-here="$cwd"                  # dossier courant après les « cd » déjà lus
-switched_dir="" switched_to="" # branche prise par un « git switch » plus tôt dans la commande
+here="$cwd"                    # dossier jugé
+switched_dir="" switched_to="" # branche prise par un git switch plus tôt
+forks=0                        # plafond de processus (cd, pushd, git lus)
+verb="" dir="" sub="" args=()  # segment lu par parse
 
 branch_of() {
   if [[ -n "$switched_to" && "$(git -C "$1" rev-parse --show-toplevel 2>/dev/null)" == "$switched_dir" ]]; then echo "$switched_to"; else git -C "$1" branch --show-current 2>/dev/null; fi
 }
 
-# Chemin absolu d'un argument de cd ou de -C, guillemets et ~ compris ; vide s'il est calculé.
+# Chemin absolu d'un argument de cd ou -C (guillemets, ~) ; vide s'il est calculé.
 resolve() {
   local p="${1//[\"\']/}"
   [[ -z "$p" ]] && p="$HOME"
@@ -31,95 +36,104 @@ resolve() {
   (cd "$p" 2>/dev/null && pwd)
 }
 
-# Vrai si le segment (mots d'une commande simple) commite sur main ou pousse vers main.
-violates() {
+# Lit un segment : verb (cd, git ou vide), dir (-C, sinon dossier jugé), sub, args.
+parse() {
   local -a w=("$@")
-  local i=0 n=${#w[@]} dir="$here"
+  local i=0 n=${#w[@]}
+  verb="" dir="$here" sub="" args=()
   # Seuls les préfixes de lancement précèdent git : « echo git push » n'est pas un push.
   while ((i < n)) && [[ "${w[i]}" =~ ^(rtk|sudo|env|command|time|\{|!|if|then|elif|else|while|until|do|[A-Za-z_][A-Za-z0-9_]*=.*)$ ]]; do ((i++)); done
-  # Chaque cd, pushd ou git coûte un processus (2 à 3 ms) : au-delà de 2000, le délai de 60 s du hook laisserait tout passer.
   case "${w[i]:-}" in
-    cd | pushd | git | */git) ((++forks > 2000)) && deny "Plus de 2000 cd ou git dans la commande, trop long pour que main-guard la juge : découpe-la." ;;
+    cd | pushd) verb=cd args=("${w[@]:i+1}") ;;
+    git | */git) verb=git ;;
   esac
-  if [[ "${w[i]:-}" == cd || "${w[i]:-}" == pushd ]]; then
-    ((i++))
-    while [[ "${w[i]:-}" =~ ^-[LPe@]+$ ]]; do ((i++)); done
-    [[ "${w[i]:-}" == -- ]] && ((i++))
-    local to; to="$(resolve "${w[*]:i}")" # tout le reste : un chemin entre guillemets peut contenir des espaces
-    # Chemin non résolu (cd -, $VAR) : dossier de départ, où « cd - » ramène le plus souvent.
-    pending_here="${to:-$cwd}"
-    return 1
-  fi
-  [[ "${w[i]:-}" == git || "${w[i]:-}" == */git ]] || return 1
+  [[ "$verb" == git ]] || return 0
   ((i++))
-  while ((i < n)) && [[ "${w[i]}" == -* ]]; do
-    case "${w[i]}" in
-      -C) dir="$(resolve "${w[i+1]:-}")"; dir="${dir:-$here}"; ((i += 2)) ;;
-      -c) ((i += 2)) ;;
-      *) ((i++)) ;;
-    esac
-  done
-  local sub="${w[i]:-}" current
-  current="$(branch_of "$dir")"
-  ((i++))
+  while ((i < n)) && [[ "${w[i]}" == -* ]]; do git_option "${w[i]}" "${w[i+1]:-}"; ((i += $?)); done
+  sub="${w[i]:-}" args=("${w[@]:i+1}")
+}
+
+git_option() { # option git avant la sous-commande : code retour = mots lus (-C, -c prennent une valeur) ; -C fixe dir
+  case "$1" in
+    -C) dir="$(resolve "$2")"; dir="${dir:-$here}"; return 2 ;;
+    -c) return 2 ;;
+  esac
+  return 1
+}
+
+# Suivi : cd change le dossier jugé, switch la branche prise.
+track() {
+  [[ "$verb" == cd ]] && track_cd
+  [[ "$sub" == switch || "$sub" == checkout ]] && track_switch
+}
+
+track_cd() {
+  local i=0 to
+  while [[ "${args[i]:-}" =~ ^-[LPe@]+$ ]]; do ((i++)); done
+  [[ "${args[i]:-}" == -- ]] && ((i++))
+  to="$(resolve "${args[*]:i}")" # tout le reste : chemin à espaces entre guillemets
+  here="${to:-$cwd}"             # non résolu (cd -, $VAR) : dossier de départ
+}
+
+track_switch() {
+  local a create="" to pos=()
+  for a in "${args[@]}"; do switch_arg "$a"; done
+  to="${pos[0]:-}" # 1er argument non optionnel : branche visée
+  [[ "$sub" == switch || -n "$create" || "$to" == main || "$to" == - || "$to" == @\{-1\} ]] || return # checkout de fichier
+  local top; top="$(git -C "$dir" rev-parse --show-toplevel 2>/dev/null)"
+  top="${top:-$dir}"
+  [[ "$to" == - || "$to" == @\{-1\} ]] && to="$(previous_branch "$top")"
+  switched_dir="$top" switched_to="$to"
+}
+
+# Range un argument de switch ou checkout dans create ou pos, locaux de track_switch.
+switch_arg() {
+  case "$1" in
+    -[bBcC] | -[!-]*[bBcC]*) create=1 ;; # -b, -c et options courtes collées (-qb)
+    -) pos+=("$1") ;; # branche précédente
+    -*) ;;
+    *) pos+=("$1") ;;
+  esac
+}
+
+# « - » : vide juste après un switch dans ce dépôt (relire la branche réelle), sinon @{-1}.
+previous_branch() {
+  [[ -n "$switched_to" && "$switched_dir" == "$1" ]] && return
+  git -C "$dir" rev-parse --abbrev-ref '@{-1}' 2>/dev/null
+}
+
+# Vrai si le segment commite sur main ou pousse vers main.
+violates() {
   case "$sub" in
-    commit) [[ "$current" == main ]] ;;
-    switch | checkout)
-      # Premier argument non optionnel = branche visée (le second est le point de départ).
-      local -a pos=() create=""
-      for a in "${w[@]:i}"; do
-        case "$a" in
-          -[bBcC] | -[!-]*[bBcC]*) create=1 ;; # -b, -c et options courtes collées (-qb)
-          -) pos+=("$a") ;; # branche précédente
-          -*) ;;
-          *) pos+=("$a") ;;
-        esac
-      done
-      local to="${pos[0]:-}"
-      # checkout sans -b vise une branche ou un fichier : seuls « main », « - » et « @{-1} » changent le jugement.
-      [[ "$sub" == switch || -n "$create" || "$to" == main || "$to" == - || "$to" == @\{-1\} ]] || return 1
-      pending_dir="$(git -C "$dir" rev-parse --show-toplevel 2>/dev/null)"
-      pending_dir="${pending_dir:-$dir}"
-      # « - » : branche précédente, la réelle juste après un switch dans ce dépôt ; vide (pas de cible) : on relit la branche réelle du dossier.
-      if [[ "$to" == - || "$to" == @\{-1\} ]]; then
-        if [[ -n "$switched_to" && "$switched_dir" == "$pending_dir" ]]; then to=""; else to="$(git -C "$dir" rev-parse --abbrev-ref '@{-1}' 2>/dev/null)"; fi
-      fi
-      pending=1 pending_to="$to"
-      return 1
-      ;;
-    push)
-      local -a pos=()
-      for a in "${w[@]:i}"; do
-        case "$a" in
-          --delete | -d | --tags) return 1 ;;
-          -*) ;;
-          *) pos+=("$a") ;;
-        esac
-      done
-      # Sans refspec, git pousse la branche courante.
-      ((${#pos[@]} > 1)) || { [[ "$current" == main ]]; return; }
-      for ref in "${pos[@]:1}"; do
-        ref="${ref#+}"
-        [[ "${ref##*:}" == main || "${ref##*:}" == refs/heads/main ]] && return 0
-        [[ "$ref" == HEAD && "$current" == main ]] && return 0
-      done
-      return 1
-      ;;
+    commit) [[ "$(branch_of "$dir")" == main ]] ;;
+    push) pushes_main ;;
     *) return 1 ;;
   esac
 }
 
-# flatten écrit dans flat une ligne où seuls && || ; | séparent les commandes, que sed découpe ensuite.
-# Pile de contextes (stack, un caractère par niveau) : " ' $ (pour $'…), ( (pour $( )), { (pour ${…}) et `. Vide : niveau commande.
-# Au niveau commande : « \⏎ » recolle, un commentaire tombe, un saut de ligne vaut « ; » sauf après && || |,
-# ( ) & seul et les lignes d'un heredoc valent « ; ». Dans un contexte, saut de ligne et ; & | deviennent des blancs.
-LC_ALL=C # un octet par caractère
-# ${cmd:k:1} relit la chaîne depuis le début (parcours quadratique) : on lit les caractères une fois, dans un tableau parcouru dans l'ordre.
+pushes_main() {
+  local a current pos=() refs dests
+  [[ " ${args[*]} " =~ \ (--delete|-d|--tags)\  ]] && return 1
+  for a in "${args[@]}"; do positional "$a"; done
+  current="$(branch_of "$dir")"
+  ((${#pos[@]} > 1)) || { [[ "$current" == main ]]; return; } # sans refspec : branche courante
+  refs=("${pos[@]:1}") && refs=("${refs[@]#+}") && dests=("${refs[@]##*:}") # mots sans blanc : read -ra les a coupés
+  [[ " ${dests[*]} " =~ \ (main|refs/heads/main)\  || ( " ${refs[*]} " == *" HEAD "* && "$current" == main ) ]]
+}
+positional() { [[ "$1" == -* ]] || pos+=("$1"); } # ajoute à pos (local de l'appelant) un mot qui n'est pas une option
+
+deny() {
+  jq -nc --arg r "$1" '{hookSpecificOutput: {hookEventName: "PreToolUse", permissionDecision: "deny", permissionDecisionReason: $r}}'
+  exit 0
+}
+
+# flatten écrit dans flat une ligne où seuls && || ; | séparent les commandes (sed découpe ensuite). stack : un contexte
+# par niveau, " ' $ ($'…) ( ($( )) { (${…}) ` ; vide : niveau commande, où \⏎ recolle, # commente, ⏎ vaut « ; » sauf
+# après && || |, ( ) & seul et lignes de heredoc valent « ; ». Dans un contexte, ⏎ ; & | deviennent des blancs.
 ch=()
-while IFS= read -r -d '' -n1 c; do ch+=("$c"); done < <(printf '%s' "$cmd")
+while IFS= read -r -d '' -n1 c; do ch+=("$c"); done < <(printf '%s' "$cmd") # tableau lu une fois : ${cmd:k:1} serait quadratique
 n=${#ch[@]}
-# Blancs de bash : espace, tabulation, saut de ligne ([[:space:]] compterait aussi \r \v \f).
-stop=$'[ \t\n;&|<>()]' # fin d'un délimiteur de heredoc
+stop=$'[ \t\n;&|<>()]' # fin d'un délimiteur de heredoc (blancs de bash : pas \r \v \f)
 
 # last : deux derniers caractères non blancs écrits ; prev : dernier caractère écrit ; ws : le prochain caractère commence un mot.
 emit() {
@@ -140,8 +154,7 @@ amp_pipe() {
   fi
 }
 
-# Saut de ligne au niveau commande : la commande continue après && || |, sinon « ; ».
-eol() { if [[ "$last" == '&&' || "$last" == *'|' ]]; then c=" "; else c=";"; fi; }
+eol() { if [[ "$last" == '&&' || "$last" == *'|' ]]; then c=" "; else c=";"; fi; } # ⏎ au niveau commande : continue après && || |
 
 escape() {
   local e="${ch[k + 1]:-}"
@@ -163,8 +176,7 @@ in_string() {
   emit "$c"
 }
 
-# << : lit le délimiteur comme bash le voit après retrait des guillemets ('E"' attend E"), le corps viendra après le
-# prochain saut de ligne. Guillemet non fermé : contexte laissé ouvert, donc repli.
+# << : délimiteur tel que bash le voit sans guillemets ('E"' attend E"), corps au prochain ⏎ ; guillemet non fermé : repli.
 heredoc_op() {
   if [[ "${ch[k + 2]:-}" == '<' ]]; then emit '<<<' && ((k += 2)); return; fi
   local mode=+ word="" q
@@ -192,8 +204,7 @@ heredoc_op() {
   docs+=("$mode$word")
 }
 
-# Corps des heredocs en attente, k sur le saut de ligne qui les précède. Au niveau commande chaque ligne est une commande ;
-# dans $( ) c'est une donnée, comme entre guillemets. k finit juste avant le saut de ligne qui suit le dernier délimiteur.
+# Corps des heredocs, k du ⏎ d'avant à juste avant le ⏎ du dernier délimiteur : commandes au niveau commande, données dans $( ).
 heredoc_bodies() {
   local d line s e
   for d in "${docs[@]}"; do
@@ -240,8 +251,7 @@ in_code() {
   emit "$c"
 }
 
-# Renvoie 1 si un contexte reste ouvert (guillemets déséquilibrés, construction non suivie).
-flatten() {
+flatten() { # 1 si un contexte reste ouvert (guillemets déséquilibrés, construction non suivie)
   flat="" last="" prev="" ws=1 stack="" docs=()
   for ((k = 0; k < n; k++)); do
     c="${ch[k]}" ctx="${stack: -1}"
@@ -263,9 +273,8 @@ plain_char() {
   emit "$c"
 }
 
-# Repli : guillemets ignorés, chaque saut de ligne coupe.
-flatten_plain() {
-  flat="" last="" prev="" ctx=""
+flatten_plain() { # repli : guillemets ignorés, chaque ⏎ coupe
+  flat="" last="" prev=""
   for ((k = 0; k < n; k++)); do
     c="${ch[k]}"
     if [[ "$c" == \\ ]]; then escape; else plain_char; fi
@@ -274,23 +283,14 @@ flatten_plain() {
 
 flatten || flatten_plain
 
-deny() {
-  jq -nc --arg r "$1" '{hookSpecificOutput: {hookEventName: "PreToolUse", permissionDecision: "deny", permissionDecisionReason: $r}}'
-  exit 0
-}
-
-pending="" pending_dir="" pending_to="" pending_here="" forks=0
 while IFS= read -r segment; do
   read -ra words <<<"$segment"
   sep=""
   [[ "${words[0]:-}" =~ ^(\&\&|\|\||;|\|)$ ]] && { sep="${words[0]}"; words=("${words[@]:1}"); }
-  # Un cd ou un switch ne compte que suivi de && : après ; || |, ou un saut de ligne, il a pu échouer ou tourner dans un sous-shell.
-  if [[ "$sep" == "&&" ]]; then
-    [[ -n "$pending_here" ]] && here="$pending_here"
-    [[ -n "$pending" ]] && switched_dir="$pending_dir" switched_to="$pending_to"
-  elif [[ -n "$sep" ]]; then
-    here="$cwd" switched_dir="" switched_to=""
-  fi
-  pending="" pending_here=""
-  violates "${words[@]}" && deny "Pas de commit ni de push sur main : passe par /pr push, qui crée la branche et ouvre la PR."
+  [[ -n "$sep" && "$sep" != "&&" ]] && here="$cwd" switched_dir="" switched_to="" # cd ou switch a pu échouer
+  parse "${words[@]}"
+  # 2 à 3 ms par processus : au-delà de 2000, le délai de 60 s du hook laisserait tout passer.
+  [[ -n "$verb" ]] && ((++forks > 2000)) && deny "Plus de 2000 cd ou git dans la commande, trop long pour que main-guard la juge : découpe-la."
+  track
+  violates && deny "Pas de commit ni de push sur main : passe par /pr push, qui crée la branche et ouvre la PR."
 done < <(sed -E 's/(&&|\|\||;|\|)/\n\1 /g' <<<"$flat")
