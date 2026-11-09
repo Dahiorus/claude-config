@@ -45,6 +45,23 @@ skill `feature` : à l'étape 3, `findReferences`/`incomingCalls` sur le code fa
 symbole et `findReferences` avant d'en changer la signature. Toujours avec le grep, jamais à sa place ; correctif
 dans un worktree → session lancée depuis le worktree.
 
+## Plusieurs bugs en parallèle
+
+Un agent par bug, lancé avec `isolation: "worktree"` (il part de `main`, ce qui convient à `fix/<sujet>`). Claude
+Code refuse dans ce worktree toute commande dont il ne peut pas vérifier qu'elle y reste : son brief l'impose donc.
+L'agent fait les étapes 1 à 7, sans le fetch de l'étape 2. Avant de répondre, il commite sur `fix/<sujet>` (commit
+`WIP`, refait à l'étape 9), sinon le worktree disparaît, et rend la branche, le SHA et son rapport. Le contrôleur
+fait la review (étape 8) sur `git diff origin/main...fix/<sujet>`, puis la livraison (étape 9).
+
+- Avant de lancer les agents, le contrôleur fait le `git fetch origin main` de l'étape 2, avec le jeton du profil.
+  L'agent, sans jeton, crée sa branche par `git switch -c fix/<sujet> origin/main` : les refs d'`origin` sont
+  partagées entre worktrees.
+- Lancer les commandes depuis la racine du worktree, sans `cd` vers un autre dossier, sans `git -C` ni
+  `rtk git`, sans variable calculée (`D=…; cd $D`, `$(…)`) dans une commande git, sed, php ou gh.
+- Modifier les fichiers avec Edit et Write, pas avec un `sed -i` ou un heredoc python.
+- Ne rien écrire dans le dépôt principal : le rapport revient dans sa réponse, et le contrôleur l'écrit dans
+  le dossier de suivi.
+
 ## Excuses et réalité
 
 | Excuse | Réalité |
