@@ -28,6 +28,8 @@ L'invocation vaut demande de corriger, pousser et répondre.
    `git show origin/main:<fichier>`, `gh pr view <n°> --comments` pour le commentaire `<!-- pr-risk -->`) et cite ce qu'elle y a lu ; « à trancher » (ambigu, changement de comportement non prévu par la spec) → options et
    recommandation, rien n'est corrigé avant l'accord.
 3. Contrôle des copies d'une règle changée (étape 1 de `push.md`), puis vérification du projet ; rouge → ne pas pousser. Commits au format de `CONTRIBUTING.md`, `push` simple.
+   Correctif qui change ce que la description annonce (règle, chiffre, option retenue) : la mettre à jour
+   (`update-desc`, `SKILL.md`) et la relire contre le diff comme à l'étape 4 de `push.md`, avant la review du tour suivant.
 4. Répondre à chaque fil corrigé (`gh api repos/<owner/repo>/pulls/<n°>/comments/<databaseId>/replies -F body=@<fichier>`, corps écrit dans un fichier avec Write d'abord, pas `printf`/`echo`) :
    ce qui a changé, le SHA et le sujet du commit (un `squash` qui suit efface le SHA), passé par `humanizer:humanizer`. Ne pas résoudre les fils : c'est au relecteur. Fils non corrigés : réponse proposée
    dans le rapport et dans `final-review.md`, publiée après accord.
