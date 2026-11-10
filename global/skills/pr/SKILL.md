@@ -21,7 +21,8 @@ courant, et seulement s'il est propre : les autres actions travaillent dans l'ar
 pas touché. Ce skill porte toutes les étapes d'une PR, qu'elle vienne de `feature`, de `bugfix` ou de `release` ;
 `feature` reste la référence pour le tri des retours et la grille qualité. Les étapes qui demandent du jugement
 (tri des reliquats, découpage d'une PR volumineuse, conflits de rebase, leçons, tri de plus de 3 retours de
-`comments`) passent par un agent `general-purpose` (modèle `opus` passé explicitement), qui rend sa décision :
+`comments`) passent par un agent `general-purpose` (modèle `sonnet` passé explicitement ; `opus` pour les conflits de
+rebase et le découpage au squash), qui rend sa décision :
 la session l'applique.
 
 ## Dossier de suivi
