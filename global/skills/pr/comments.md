@@ -19,7 +19,7 @@ L'invocation vaut demande de corriger, pousser et répondre.
    Aucun retour → « aucun retour en attente » et s'arrêter.
 2. Pour chaque retour : vérifier le commentaire dans le code, puis le trier comme dans `feature` (« Tri des retours »).
    Plus de 3 retours (fils et points hors fil) : la vérification et le tri passent par un agent `general-purpose`
-   (modèle `opus` passé explicitement), qui reçoit les retours (id, `path`, `line`, texte ; pour un point hors fil, son
+   (modèle `sonnet` passé explicitement), qui reçoit les retours (id, `path`, `line`, texte ; pour un point hors fil, son
    origine, commentaire ou review et id, et son rattachement), les critères du tri ci-dessous, le chemin de la grille
    du projet et la description de la PR (spec liée comprise), et rend, pour chacun, son tri, la preuve (`fichier:ligne`) et la correction envisagée ; la session corrige.
    Tri :

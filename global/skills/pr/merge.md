@@ -4,10 +4,10 @@ L'invocation vaut demande de squasher et de merger : c'est le merge qui impose l
 
 1. **Reliquats** — avant d'envoyer quoi que ce soit au reste à faire, passer en revue les points qu'il recevrait (ceux
    de l'étape 2 de `push.md`, plus ceux déjà ajoutés par cette PR) et ceux qu'il contient déjà sur le périmètre de la
-   PR. L'agent Opus les trie comme dans `feature` (« Tri des retours ») : faisable ici (petit, dans le périmètre, une seule
+   PR. L'agent Sonnet les trie comme dans `feature` (« Tri des retours ») : faisable ici (petit, dans le périmètre, une seule
    façon raisonnable, sans effet sur la spec) → le faire dans la PR, un commit par point, vérification du projet au
    vert ; sinon → reste à faire, avec sa raison en une ligne. Rien de faisable → passer.
-2. **Leçons** — avant le squash, pour qu'elles partent dans la PR et pas dans une PR à part. Sans attendre de demande, l'agent Opus lit le `lecons.md` et le `final-review.md` du dossier de
+2. **Leçons** — avant le squash, pour qu'elles partent dans la PR et pas dans une PR à part. Sans attendre de demande, l'agent Sonnet lit le `lecons.md` et le `final-review.md` du dossier de
    suivi, puis ceux des PR précédentes (`<racine>/.superpowers/sdd/*/`) : une friction qu'une règle écrite aurait
    évitée, ou un même type de point vu deux fois, devient une règle proposée pour l'`AGENTS.md` ou le
    `CLAUDE.md` du projet, ou pour la grille qualité de `feature` s'il vaut pour tous les projets. Les propositions
