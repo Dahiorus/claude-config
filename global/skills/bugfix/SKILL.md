@@ -47,7 +47,8 @@ dans un worktree → session lancée depuis le worktree.
 
 ## Plusieurs bugs en parallèle
 
-Un agent par bug, lancé avec `isolation: "worktree"` (il part de `main`, ce qui convient à `fix/<sujet>`). Claude
+Un agent `bug-worker` par bug (`~/.claude/agents`, sauf agent du projet de même nom, qui prime ; modèle `sonnet`
+passé explicitement), lancé avec `isolation: "worktree"` (il part de `main`, ce qui convient à `fix/<sujet>`). Claude
 Code refuse dans ce worktree toute commande dont il ne peut pas vérifier qu'elle y reste : son brief l'impose donc, avec la règle du refus de hook (`feature`, « Exécution »).
 L'agent fait les étapes 1 à 7, sans le fetch de l'étape 2. Avant de répondre, il commite sur `fix/<sujet>` (commit
 `WIP`, refait à l'étape 9), sinon le worktree disparaît, et rend la branche, le SHA et son rapport. Le contrôleur

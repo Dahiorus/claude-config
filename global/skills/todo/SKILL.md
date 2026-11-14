@@ -44,7 +44,8 @@ ligne faite, numérotation, sections, date « Mis à jour le ». Sans convention
      code ; corrigé dans l'arbre sans commit → « fait, non commité » avec `fichier:ligne`), **faux positif** (le code
      ou le contexte de l'application montre que ce n'est pas un défaut, dire pourquoi), **ouvert**, **non vérifiable
      ici** (prod, base, appareil), **à trancher**.
-     Plus de 5 points ouverts : la vérification passe par des agents `Explore` lancés dans un même message, un par lot
+     Plus de 5 points ouverts : la vérification passe par des agents `todo-verifier` (modèle `haiku` passé explicitement ;
+     `~/.claude/agents`, sauf agent du projet de même nom, qui prime) lancés dans un même message, un par lot
      d'environ 5 points. Chaque brief donne les points (n°, texte), la liste des commits et PR de l'étape 1, la
      référence de l'étape 1 à lire (`git show <ref>:<fichier>`, `git grep <motif> <ref>` ; l'arbre de travail ne sert qu'au
      « fait, non commité ») et la règle de verdict ci-dessus ; l'agent rend une ligne par point : verdict, preuve (`fichier:ligne`, SHA ou PR).
