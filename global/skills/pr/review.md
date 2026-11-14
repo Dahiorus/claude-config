@@ -15,13 +15,13 @@ hors de la session, qui ne reçoit que les remarques.
    réussit dans l'arbre de la PR **et** que `git rev-list --merges <commit_id>..HEAD` est vide, sinon (aucune
    relecture, push forcé, squash, rebase, merge de la base) le diff complet contre la base : le code des PR déjà
    mergées sur la base n'est pas relu.
-1. **Agent de relecture** (`general-purpose`, modèle `opus` passé explicitement). Son brief donne le n° de PR, le
+1. **Agent de relecture** (`pr-reviewer`, modèle `opus` passé explicitement). Son brief donne le n° de PR, le
    chemin de l'arbre de la PR, la consigne de périmètre, l'auteur si c'est soi (regard critique) et la consigne
    ci-dessous. Il lit le diff contre la base (`git diff origin/<baseRefName>...HEAD`), les fichiers touchés et le
    contexte (description, spec ou issue liée). Il reçoit aussi le périmètre de l'étape 0 et les remarques déjà
    faites ; les fichiers touchés hors périmètre servent de contexte, sans remarque. Il reçoit enfin les remarques
    bloquantes de soi encore ouvertes et dit pour chacune, vérifié dans le code, si elle est corrigée ou toujours là.
-2. Grille, à recopier dans le brief : celle du projet (WORKFLOW.md, CONTRIBUTING.md, ou un AGENTS.md qui en tient
+2. Grille, lue par l'agent (le brief cite la grille du projet si elle existe) : celle du projet (WORKFLOW.md, CONTRIBUTING.md, ou un AGENTS.md qui en tient
    une complète), sinon la section « Grille qualité » de `~/.claude/skills/feature/SKILL.md`, amendée par les
    conventions de l'`AGENTS.md` du projet. Diff qui touche une API Angular → skill `angular-developer` aussi, comme
    dans `feature`. Bugs et sécurité d'abord, puis lisibilité ; chaque remarque est vérifiée dans le code, pas supposée.
