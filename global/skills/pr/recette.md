@@ -16,7 +16,7 @@ ou dans le message qui suit (liste numérotée écran + élément + observé + a
    local : démarrer l'application dans l'arbre de la PR (commande du CLAUDE.md du projet, dépendances installées si
    le worktree est neuf), en arrière-plan (`run_in_background` ; noter l'identifiant de la tâche et le port).
    Port déjà pris ou service injoignable : le diagnostiquer, ne pas recetter une autre instance.
-3. **Exécution** — dans un agent `general-purpose` (modèle `sonnet` passé explicitement), pour que snapshots et
+3. **Exécution** — dans l'agent `recette-runner` (modèle `sonnet` passé explicitement), pour que snapshots et
    captures restent hors de la session. Un seul agent pour tous les scénarios, pas un par scénario en parallèle : ils
    partagent le navigateur et l'application. Brief : URL de l'environnement, scénarios numérotés avec leur attendu,
    consigne ci-dessous. Chaque scénario étape par étape, avec observé et attendu. Interface web : un scénario = un seul

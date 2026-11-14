@@ -4,7 +4,7 @@ L'invocation vaut demande de squasher et de merger : c'est le merge qui impose l
 
 1. **Reliquats** — avant d'envoyer quoi que ce soit au reste à faire, passer en revue les points qu'il recevrait (ceux
    de l'étape 2 de `push.md`, plus ceux déjà ajoutés par cette PR) et ceux qu'il contient déjà sur le périmètre de la
-   PR. L'agent Sonnet les trie comme dans `feature` (« Tri des retours ») : faisable ici (petit, dans le périmètre, une seule
+   PR. L'agent `feedback-triager` (mode `reliquats`, modèle `sonnet` passé explicitement) les trie comme dans `feature` (« Tri des retours ») : faisable ici (petit, dans le périmètre, une seule
    façon raisonnable, sans effet sur la spec) → le faire dans la PR, un commit par point, vérification du projet au
    vert ; sinon → reste à faire, avec sa raison en une ligne. Rien de faisable → passer.
 2. **Leçons** — avant le squash, pour qu'elles partent dans la PR et pas dans une PR à part. Sans attendre de demande, l'agent Sonnet lit le `lecons.md` et le `final-review.md` du dossier de
@@ -37,7 +37,7 @@ L'invocation vaut demande de squasher et de merger : c'est le merge qui impose l
    toutes les quelques minutes, sans timeout plus court que celui du `Jenkinsfile`. `FAILURE`/`ERROR`, ou toujours
    absent après ~15 min : ne pas merger, rapporter avec le lien Jenkins (`targetUrl`). Si un push sur main déploie :
    suivre le run (`gh run watch`) jusqu'au succès ou à l'échec, et le rapporter ; succès → rejouer un ou deux
-   scénarios de recette sur l'environnement déployé (agent Sonnet, comme l'action `recette` (`recette.md` du skill `pr`)). Écart → le rapporter, sans
+   scénarios de recette sur l'environnement déployé (agent `recette-runner`, modèle `sonnet` passé explicitement, comme l'action `recette` (`recette.md` du skill `pr`)). Écart → le rapporter, sans
    revenir en arrière seul.
 5. **Nettoyage** — de la branche de la PR et de celles des PR qu'elle a intégrées puis fermées (citées dans la
    description ou les commits) : section « Nettoyage des branches » de `SKILL.md`, sans redemander, main contenant leur contenu.
