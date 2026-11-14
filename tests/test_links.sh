@@ -17,6 +17,23 @@ test_install_links_on_empty_home() {
   [[ ! -e "$CLAUDE_HOME/skills/.gitkeep" ]] || fail ".gitkeep ne doit pas être lié"
 }
 
+test_install_links_agents_one_by_one() {
+  rm -rf "$REPO"/global/agents/*
+  printf -- '---\nname: my-agent\n---\n' > "$REPO/global/agents/my-agent.md"
+  printf 'x' > "$REPO/global/agents/.gitkeep"
+  mkdir -p "$CLAUDE_HOME/agents"
+  printf 'autre\n' > "$CLAUDE_HOME/agents/other.md"
+  local out
+  out="$("$CLI" install --no-deps)"
+  assert_has_line "$out" linked agents/my-agent.md
+  assert_symlink_to "$CLAUDE_HOME/agents/my-agent.md" "$REPO/global/agents/my-agent.md"
+  [[ ! -L "$CLAUDE_HOME/agents" ]] || fail "agents/ ne doit pas être lié en bloc"
+  [[ ! -e "$CLAUDE_HOME/agents/.gitkeep" ]] || fail ".gitkeep ne doit pas être lié"
+  assert_eq "$(cat "$CLAUDE_HOME/agents/other.md")" "autre" "agent étranger"
+  out="$("$CLI" status)" || fail "status signale un écart après install"
+  assert_has_line "$out" ok agents/my-agent.md
+}
+
 test_install_links_idempotent() {
   add_skill_fixture
   "$CLI" install --no-deps >/dev/null
