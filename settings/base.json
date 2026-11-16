@@ -1,7 +1,7 @@
 {
   "env": {
     "CLAUDE_CODE_SUBAGENT_MODEL": "sonnet",
-    "ENABLE_CLAUDEAI_MCP_SERVERS": "false"
+    "ENABLE_CLAUDEAI_MCP_SERVERS": "true"
   },
   "permissions": {
     "defaultMode": "auto",
