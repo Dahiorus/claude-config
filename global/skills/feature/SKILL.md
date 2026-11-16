@@ -76,6 +76,10 @@ s'ajoute ni ne se perd en route.
    serveur, l'interface, les gabarits et les exports, et dans les autres contextes ou modules qui la consomment
    (requêtes qui doivent la sélectionner, présentateurs, feuilles, imports). Un champ ajouté qu'un lecteur ne
    sélectionne pas, ou qu'un autre module ignore, est un oubli classique.
+   Une règle qui réduit ce qu'on lit, charge ou exécute (« lis seulement X », « ne charge que Y », table de renvois)
+   liste aussi ce qui n'est plus lu : chaque section, fichier ou consigne qu'on lisait avant et que la règle laisse
+   de côté, avec « gardé parce que… » ou « n'est plus lu parce que… ». Établi en comparant l'ancien périmètre de
+   lecture au nouveau, pas de mémoire.
 3. **Données existantes** : pour chaque validation ou contrainte ajoutée, ce que deviennent les enregistrements déjà
    en base qui ne la respectent pas (bloqués à l'enregistrement, corrigés par migration, tolérés).
 4. **Critères d'acceptation**, groupés par **user story** priorisée (P1, P2…) : chaque story est un parcours
