@@ -7,11 +7,12 @@ L'invocation vaut demande de squasher et de merger : c'est le merge qui impose l
    PR. L'agent `feedback-triager` (mode `reliquats`, modèle `sonnet` passé explicitement) les trie comme dans `feature` (« Tri des retours ») : faisable ici (petit, dans le périmètre, une seule
    façon raisonnable, sans effet sur la spec) → le faire dans la PR, un commit par point, vérification du projet au
    vert ; sinon → reste à faire, avec sa raison en une ligne. Rien de faisable → passer.
-2. **Leçons** — avant le squash, pour qu'elles partent dans la PR et pas dans une PR à part. Sans attendre de demande, l'agent Sonnet lit le `lecons.md` et le `final-review.md` du dossier de
-   suivi, puis ceux des PR précédentes (`<racine>/.superpowers/sdd/*/`) : une friction qu'une règle écrite aurait
-   évitée, ou un même type de point vu deux fois, devient une règle proposée pour l'`AGENTS.md` ou le
-   `CLAUDE.md` du projet, ou pour la grille qualité de `feature` s'il vaut pour tous les projets. Les propositions
-   arrivent ensemble, en diff, et ne s'appliquent qu'après accord, en un commit de la PR. Une règle pour un skill
+2. **Leçons** — avant le squash, pour qu'elles partent dans la PR et pas dans une PR à part. Sans attendre de demande, l'agent `lessons-extractor` (modèle `sonnet` passé explicitement ; brief :
+   dossier de suivi, racine, arbre de la PR, description de la PR, projet `claude-config` ou non) lit le `lecons.md` et le
+   `final-review.md` du dossier de suivi, puis ceux des PR précédentes (`<racine>/.superpowers/sdd/*/`) : une friction
+   qu'une règle écrite aurait évitée, ou un même type de point vu deux fois, devient une règle proposée pour
+   l'`AGENTS.md` ou le `CLAUDE.md` du projet, pour la grille qualité de `feature` s'il vaut pour tous les projets, ou
+   pour le skill ou l'agent global en cause. Ses propositions arrivent ensemble, en diff, et ne s'appliquent qu'après accord, en un commit de la PR. Une règle pour un skill
    global (grille de `feature`, skills `pr`…) hors du projet `claude-config` ne s'écrit pas dans ses fichiers depuis
    cette session : après accord, `/notify claude-config` avec le diff proposé (skill `notify`), et la session
    `claude-config` l'applique dans sa propre PR. Si elle a quand même été écrite directement dans ses fichiers,
