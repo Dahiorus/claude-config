@@ -28,7 +28,9 @@ recommencer).
    `CONTRIBUTING.md` et la ligne d'attribution, message passé par `humanizer:humanizer`, puis `/pr push`.
 3. **Merge** — `/pr <n°> merge` (il attend la CI de la PR). CI rouge ou relecture demandée → s'arrêter et rapporter.
 4. **Tag** — `main` à jour, vérifier que `HEAD` porte la nouvelle version (le fichier monté à l'étape 2), tag au
-   format de la procédure (`v<version>` par défaut), push du tag, puis `gh run watch` sur le workflow qu'il déclenche.
+   format de la procédure (`v<version>` par défaut), push du tag, puis suivre le run qu'il déclenche :
+   `gh run watch <id> --exit-status`, run trouvé par `gh run list --commit <sha du tag>`, jamais filtré sur un nom de
+   workflow accentué.
    Échec → rapporter avec le lien du run, sans retirer le tag ni recommencer.
 5. **Rapport** — version, lien de la release publiée (une RC doit sortir en pré-version : sinon le signaler), branches
    supprimées. Si la procédure a une checklist avant diffusion, la rappeler et proposer de la dérouler (sur l'appareil

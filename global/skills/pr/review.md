@@ -6,7 +6,7 @@ sur son propre code : chercher ce qu'on a raté, pas justifier ce qu'on a écrit
 Étapes 1 et 2 dans un agent, en même temps que l'étape 3 (un seul message) : la lecture du diff et du code reste
 hors de la session, qui ne reçoit que les remarques.
 
-0. **Déjà fait** — lire les remarques déjà faites (fils de la PR : `path`, `line`, texte, `isResolved` ; `body` des
+0. **Déjà fait** — lire les remarques déjà faites (fils de la PR : `path`, `line` sinon `originalLine`, texte, `isResolved` ; `body` des
    reviews ; commentaires de la conversation, `gh api repos/<o/r>/issues/<n°>/comments --paginate`), hors commentaire
    contenant `<!-- pr-risk -->` et auteurs de type `Bot` (fil dont le premier commentaire est d'un `Bot`), comme à
    l'étape 1 de `comments.md`, et la dernière relecture de soi (`commit_id` de sa review la plus récente au `body` non vide et d'`state` autre que `PENDING`,
@@ -24,7 +24,9 @@ hors de la session, qui ne reçoit que les remarques.
 2. Grille, lue par l'agent (le brief cite la grille du projet si elle existe) : celle du projet (WORKFLOW.md, CONTRIBUTING.md, ou un AGENTS.md qui en tient
    une complète), sinon la section « Grille qualité » de `~/.claude/skills/feature/SKILL.md`, amendée par les
    conventions de l'`AGENTS.md` du projet. Diff qui touche une API Angular → skill `angular-developer` aussi, comme
-   dans `feature`. Bugs et sécurité d'abord, puis lisibilité ; chaque remarque est vérifiée dans le code, pas supposée.
+   dans `feature`. Bugs et sécurité d'abord, puis lisibilité ; chaque remarque est vérifiée dans le code, pas supposée :
+   version de la base (`git show origin/<baseRefName>:<fichier>`), schéma SQL ou migrations, appelants. Un docblock,
+   un nom ou la description ne prouvent rien ; sans preuve, pas de remarque.
    Pas de remarque de goût sans règle du projet derrière.
    Une remarque sur le même point qu'une remarque déjà faite (même fichier, ligne proche ou même symbole, même
    problème) n'est pas rendue, résolue ou non ; une remarque résolue dont le code a régressé est nouvelle.

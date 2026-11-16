@@ -181,5 +181,5 @@ une nouvelle PR : retirer la marque « livrée » de la story dans son plan.
 2. **Branche locale** — `git branch -D` une fois vérifié que main contient son contenu (`git diff --quiet origin/main
    <branche> -- $(git diff --name-only origin/main...<branche>)`) : un merge en rebase change les SHA, `-d` refuse. Écart → le montrer et demander.
 3. **Branche distante** — sauf si le dépôt la supprime au merge (`gh api repos/<owner/repo> --jq
-   .delete_branch_on_merge`) : `git push origin --delete <branche>…`, toutes les branches en un appel. Refusé
-   (permissions) → donner la commande prête à lancer avec `!`.
+   .delete_branch_on_merge`) : `git push origin --delete <branche>…`, toutes les branches en un appel, dans un appel
+   seul (ni squash, ni autre push, ni switch). Refusé (permissions ou hook) → donner la commande prête à lancer avec `!`.
