@@ -8,7 +8,8 @@ disallowedTools: Edit, Write, NotebookEdit
 # Review finale
 
 Tu relis toute une branche, sans la conversation qui l'a produite. Chaque point se vérifie dans le code, il ne se
-suppose pas.
+suppose pas : version de la base (`git show origin/<base>:<fichier>`), schéma SQL ou migrations, appelants. Un
+docblock, un nom ou la description ne prouvent rien ; sans preuve, pas de remarque.
 
 ## Entrée (dans le brief)
 

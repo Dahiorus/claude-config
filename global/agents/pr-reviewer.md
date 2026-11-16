@@ -32,7 +32,9 @@ Tu relis une PR et rends des remarques. Tu ne publies rien : la session publie l
 3. Diff qui touche une API Angular → skill `angular-developer`. PHP → outil `LSP` (`findReferences`) en plus du grep
    pour les lecteurs oubliés.
 
-Bugs et sécurité d'abord, puis lisibilité. Chaque remarque est vérifiée dans le code, pas supposée. Pas de remarque
+Bugs et sécurité d'abord, puis lisibilité. Chaque remarque est vérifiée dans le code, pas supposée : version de la base
+(`git show origin/<base>:<fichier>`), schéma SQL ou migrations, appelants. Un docblock, un nom ou la description ne
+prouvent rien ; sans preuve, pas de remarque. Pas de remarque
 de goût sans règle du projet derrière.
 
 ## Refus du mode auto

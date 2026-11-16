@@ -6,7 +6,9 @@ L'invocation vaut demande de corriger, pousser et répondre.
    - **Fils** : `gh api graphql`, `reviewThreads` avec `isResolved`, `all: comments { totalCount }`,
      `first: comments(first: 1) { nodes { author { __typename } } }`,
      `last: comments(last: 1) { nodes { author { login } } }`,
-     `comments(first: 100) { databaseId path line body author { __typename login } }`. Gardés : non résolus, dont le
+     `comments(first: 100) { databaseId path line originalLine body author { __typename login } }`, lus avant tout
+     push : `line` passe à null quand un push sort la ligne commentée du diff, `originalLine` garde celle d'origine
+     (la ligne d'un retour est `line`, sinon `originalLine`). Gardés : non résolus, dont le
      dernier commentaire (`last`) n'est pas de soi, ou, sur sa propre PR, fil de soi seul, sans réponse
      (`totalCount` 1 : sa propre review est un retour ; sur la PR d'un autre, c'est l'auteur qui la traite). Exclus : fils dont le premier commentaire (`first`) est d'un auteur de type `Bot`.
    - **Hors fil** : commentaires de la conversation (`gh api repos/<o/r>/issues/<n°>/comments --paginate`) et `body`

@@ -109,6 +109,11 @@ searched at <sha>, not at the PR head" to the "Not read" line.
 Rules:
 - Judge from the diff, not from the title. A title that says "refactor" or
   "chore" proves nothing.
+- Check each danger in the code before reporting it: the base version
+  (`git show origin/<base>:<file>`, is the contract really changed?), the SQL
+  schema or migrations (a column's type), the callers (is a fallback such as
+  a COALESCE already there?). A docblock, a name or the PR body proves
+  nothing. No proof, no danger, in the report as in the PR description.
 - Danger 8: compare each claim in the body with the diff. A claim that the
   diff contradicts ("X is unchanged" while X changes) is a mismatch. A commit
   that only aligns the branch with its base (the same change is already on

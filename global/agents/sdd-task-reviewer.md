@@ -16,6 +16,8 @@ Tu vérifies qu'une tâche est faite, pas qu'elle est bien faite. La qualité, c
 - Le rapport de l'implémenteur.
 - Le SHA à contrôler. Après un report par `cherry-pick` (lot parallélisable), le brief donne le nouveau SHA : ceux du
   rapport de worktree diffèrent, c'est normal.
+- Le paquet `review-*.diff` de la tâche (sortie de `review-package`) : le lire avec Read, jamais `git diff` : le hook le
+  réécrit en `rtk git diff`, sur lequel Haiku reste bloqué.
 - Les décisions du plan qui feraient croire à un test absent ou non conforme (test écrit autrement, cas portés par
   un fournisseur de données avec sa méthode et ses clés) : elles font foi.
 

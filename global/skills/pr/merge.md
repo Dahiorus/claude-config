@@ -36,7 +36,8 @@ L'invocation vaut demande de squasher et de merger : c'est le merge qui impose l
    sur le SHA poussé (`gh pr view --json headRefOid,statusCheckRollup`). Absent ou `PENDING` : attendre et revérifier
    toutes les quelques minutes, sans timeout plus court que celui du `Jenkinsfile`. `FAILURE`/`ERROR`, ou toujours
    absent après ~15 min : ne pas merger, rapporter avec le lien Jenkins (`targetUrl`). Si un push sur main déploie :
-   suivre le run (`gh run watch`) jusqu'au succès ou à l'échec, et le rapporter ; succès → rejouer un ou deux
+   suivre le run (`gh run watch`, run trouvé par `gh run list --branch main --commit <sha>`, jamais filtré sur un nom
+   de workflow accentué) jusqu'au succès ou à l'échec, et le rapporter ; succès → rejouer un ou deux
    scénarios de recette sur l'environnement déployé (agent `recette-runner`, modèle `sonnet` passé explicitement, comme l'action `recette` (`recette.md` du skill `pr`)). Écart → le rapporter, sans
    revenir en arrière seul.
 5. **Nettoyage** — de la branche de la PR et de celles des PR qu'elle a intégrées puis fermées (citées dans la
