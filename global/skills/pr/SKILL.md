@@ -24,8 +24,8 @@ pas touché. Ce skill porte toutes les étapes d'une PR, qu'elle vienne de `feat
 `comments`) passent par un agent (modèle `sonnet` passé explicitement ; `opus` pour les conflits de rebase et le
 découpage au squash), qui rend sa décision : la session l'applique. Agents nommés de `~/.claude/agents` (sauf agent du
 projet de même nom, qui prime) : `pr-reviewer` (`review`), `feedback-triager` (`comments`, reliquats de `merge`),
-`recette-runner` (`recette`, scénarios rejoués après `merge`), `rebase-resolver` (`rebase`) ; `general-purpose` pour
-les autres.
+`recette-runner` (`recette`, scénarios rejoués après `merge`), `rebase-resolver` (`rebase`), `lessons-extractor`
+(leçons de `merge`) ; `general-purpose` pour les autres.
 
 ## Dossier de suivi
 
