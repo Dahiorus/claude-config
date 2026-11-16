@@ -46,6 +46,9 @@ signaler.
   second grep sur la spec et le plan de la branche.
 - Mots de la colonne « À ne pas dire » du glossaire (`docs/domaine.md` ou équivalent) : grep sur les lignes ajoutées
   (`git diff main...HEAD -U0 | grep '^+'`), chaque occurrence jugée à son sens.
+- Règle écrite en texte ajoutée ou changée par le diff (skill, spec, doc, `CLAUDE.md`, `AGENTS.md`) : grep de chacune
+  de ses formulations, synonymes compris, dans tout le dépôt et dans la description de la PR. Une copie absente ou
+  divergente est un écart **I**.
 - **PHP** : outil `LSP` (`findReferences`, `incomingCalls`) pour les lecteurs oubliés d'un champ ou d'une signature
   changés, en plus du grep (appels dynamiques, gabarits, JS). **Angular** : skill `angular-developer` dès que le diff
   touche une API Angular.

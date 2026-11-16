@@ -32,8 +32,9 @@ les autres.
 La conversation peut être effacée (`/clear`) à tout moment : rien ne s'appuie sur elle d'une invocation à l'autre.
 Ce qui doit durer vit dans `<racine>/.superpowers/sdd/<sujet>/`, où `<racine>` est le dépôt principal (premier chemin
 de `git worktree list`, même depuis un worktree) et `<sujet>` le nom de la branche sans son préfixe `<type>/`
-(`feat/x` → `x`, `feat/x-p2` → `x-p2`). À la première écriture, ajouter `.superpowers/` à
-`$(git rev-parse --git-common-dir)/info/exclude` s'il n'y est pas : sinon `switch` voit l'arbre « pas propre ».
+(`feat/x` → `x`, `feat/x-p2` → `x-p2`). Avant de créer le dossier, lister `<racine>/.superpowers/sdd/` : un dossier
+existant pour ce sujet, daté (`2026-11-08-x`) ou non, se réutilise ; on n'en crée pas un second. À la première
+écriture, ajouter `.superpowers/` à `$(git rev-parse --git-common-dir)/info/exclude` s'il n'y est pas : sinon `switch` voit l'arbre « pas propre ».
 
 - `final-review.md` : retours de review et commentaires de PR, triés (`feature`, `bugfix`, `comments`) ;
 - `recette.md` : chaque recette, datée : environnement, scénarios et résultat, correctifs (SHA), ce qui reste ;
