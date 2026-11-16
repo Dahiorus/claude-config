@@ -21,7 +21,7 @@ Mis à jour le 2026-11-16.
 
 ## Corrections
 
-1. **Dossier de suivi : `feature` et `pr` à aligner** (PR « Reuse an existing tracking folder ») : l'étape 4 de
-   `feature` crée son dossier par `mkdir -p <racine>/.superpowers/sdd/<sujet>-p<n>` sans lister l'existant, et la
-   définition de `<sujet>` (daté ou non) diffère entre `feature` et `pr`. Reste à faire : dire dans `feature` de
-   réutiliser un dossier existant, et fixer une seule forme de `<sujet>`.
+1. ~~**Dossier de suivi : `feature` et `pr` à aligner** : `feature` réutilise le dossier existant et prend la
+   définition de `<sujet>` du skill `pr`.~~ (PR #134)
+2. ~~**Briefs et paquets de review hors du dossier de suivi** en PR unique ou en P1 : `feature` les met dans le
+   dossier de suivi de `pr` pour toute PR.~~ (PR #134)
