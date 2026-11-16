@@ -25,6 +25,11 @@ in_linked_worktree() {
 rtk_out=""
 if command -v rtk >/dev/null 2>&1 && ! { [[ "$rewritten" =~ (^|[^[:alnum:]_-])git([[:space:]]|$) ]] && in_linked_worktree; }; then
   rtk_out="$(jq -c --arg c "$rewritten" '.tool_input.command = $c' <<<"$input" | rtk hook claude 2>/dev/null)" || rtk_out=""
+  # rtk 0.47 coupe « ;; », « ;& » et « ;;& » d'un case : une réécriture qui casse la syntaxe est écartée.
+  if [[ -n "$rtk_out" ]] && bash -n <<<"$rewritten" 2>/dev/null \
+    && ! bash -n <<<"$(jq -r '.hookSpecificOutput.updatedInput.command // empty' <<<"$rtk_out")" 2>/dev/null; then
+    rtk_out=""
+  fi
 fi
 
 if [[ -n "$rtk_out" ]]; then

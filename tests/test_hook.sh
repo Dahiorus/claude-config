@@ -68,6 +68,18 @@ test_hook_failing_build_brief_is_ignored() {
   assert_eq "$(hook_command 'git status')" "rtk git status" "commande"
 }
 
+# rtk 0.47 coupe le « ;; » d'un case en « ; ; » : sa sortie est écartée, la réécriture de build-brief reste.
+test_hook_rtk_output_with_syntax_error_is_dropped() {
+  stub_rewriters
+  cat > "$STUBS/rtk" <<'EOF'
+#!/usr/bin/env bash
+new="$(jq -r .tool_input.command | sed -E 's/;;/; ;/g; s/(; )git /\1rtk git /g')"
+jq -nc --arg c "$new" '{hookSpecificOutput:{hookEventName:"PreToolUse",updatedInput:{command:$c}}}'
+EOF
+  assert_eq "$(hook_command './gradlew build && case x in a) echo;; esac; git status')" \
+    "build-brief ./gradlew build && case x in a) echo;; esac; git status" "commande"
+}
+
 hook_command_in() {
   jq -nc --arg c "$1" --arg d "$2" '{tool_name:"Bash",cwd:$d,tool_input:{command:$c}}' \
     | PATH="$STUBS:/usr/bin:/bin" bash "$REPO/global/bash-rewrite-hook.sh" | jq -r '.hookSpecificOutput.updatedInput.command'
