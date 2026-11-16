@@ -247,7 +247,9 @@ adaptée au langage et amendée par les conventions de l'`AGENTS.md` du projet (
   Une liste dans une règle ou une définition dit si elle est fermée ou ne donne que des exemples (« par exemple »,
   « … ») ; fermée, elle couvre tous les cas de la portée annoncée, et un mot de portée (« du langage », « de Java »)
   ne restreint pas une règle voulue générale. Un pronom ou une incise (« il », « celle-ci », « qui ») dont deux noms
-  de la phrase précédente peuvent être le référent se remplace par le nom.
+  de la phrase précédente peuvent être le référent se remplace par le nom. Un fichier, un skill ou une étape se cite
+  par son nom ou son chemin complet, jamais par « il » ou « celles » loin de son antécédent ; pas de parenthèses
+  imbriquées ni de deux parenthèses accolées.
   Une règle ou une définition reprise dans plusieurs fichiers (skills, `docs/domaine.md`, spec) dit la même chose
   partout : chercher sa formulation par grep et signaler chaque copie absente ou divergente. Une règle ajoutée à une
   étape vaut aussi pour les autres étapes qui produisent le même objet (description de PR, commit, worktree) : les trouver par grep.

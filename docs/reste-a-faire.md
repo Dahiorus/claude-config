@@ -1,6 +1,6 @@
 # Reste à faire
 
-Mis à jour le 2026-11-10.
+Mis à jour le 2026-11-16.
 
 ## Features
 
@@ -20,3 +20,8 @@ Mis à jour le 2026-11-10.
    prévu). Un mode de `todo` ou un petit skill, lancé à la demande.
 
 ## Corrections
+
+1. **Dossier de suivi : `feature` et `pr` à aligner** (PR « Reuse an existing tracking folder ») : l'étape 4 de
+   `feature` crée son dossier par `mkdir -p <racine>/.superpowers/sdd/<sujet>-p<n>` sans lister l'existant, et la
+   définition de `<sujet>` (daté ou non) diffère entre `feature` et `pr`. Reste à faire : dire dans `feature` de
+   réutiliser un dossier existant, et fixer une seule forme de `<sujet>`.
