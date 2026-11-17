@@ -170,3 +170,78 @@ test_profile_account_rejects_unsafe_name() {
   jq '.perso.account = "a\";touch pwned;\""' "$REPO/global/profiles.json" > "$SANDBOX/profiles.json"
   assert_eq "$(PROFILES_FILE="$SANDBOX/profiles.json" profile account "$SANDBOX/p" 2>/dev/null)" "" "compte refusé"
 }
+
+test_profile_apply_vidal_telemetry_with_token() {
+  mkdir -p "$HOME/.claude" "$SANDBOX/p/.claude" && printf 'Authorization=Bearer t0k\n' > "$HOME/.claude/exploradora.token"
+  printf '%s\n' '{"env":{"A":"1"}}' > "$SANDBOX/p/.claude/settings.local.json"
+  local err; err=$(profile apply vidal "$SANDBOX/p" 2>&1)
+  assert_eq "$err" "" "aucun avertissement"
+  local s; s="$(local_settings "$SANDBOX/p")"
+  assert_eq "$(jq -r '.env.OTEL_EXPORTER_OTLP_METRICS_HEADERS' <<<"$s")" "Authorization=Bearer t0k" "jeton lu"
+  assert_eq "$(jq -r '.env.CLAUDE_CODE_ENABLE_TELEMETRY + .env.OTEL_LOGS_EXPORTER + .env.A' <<<"$s")" "1none1" "env"
+  profile apply perso "$SANDBOX/p"
+  assert_eq "$(jq -cS '.env' "$SANDBOX/p/.claude/settings.local.json")" \
+    '{"A":"1","CLAUDE_CODE_ENABLE_TELEMETRY":"0","CLAUDE_PROFILE":"perso"}' "télémétrie retirée en perso"
+}
+
+test_profile_apply_vidal_without_token_warns() {
+  mkdir -p "$SANDBOX/p"
+  local err; err=$(profile apply vidal "$SANDBOX/p" 2>&1)
+  assert_contains "$err" "OTEL_EXPORTER_OTLP_METRICS_HEADERS omise"
+  local s; s="$(local_settings "$SANDBOX/p")"
+  assert_eq "$(jq -r '.env.OTEL_EXPORTER_OTLP_METRICS_HEADERS // "absent"' <<<"$s")" "absent" "en-tête"
+  assert_eq "$(jq -r '.env.CLAUDE_PROFILE' <<<"$s")" "vidal" "profil appliqué"
+}
+
+test_profile_session_start_reports_missing_token() {
+  repo_with_origin "$SANDBOX/v" https://github.com/softwarevidal/y.git
+  assert_contains "$(session_start_in "$SANDBOX/v")" "exploradora.token absent"
+}
+
+test_profile_telemetry_status() {
+  mkdir -p "$SANDBOX/p"
+  assert_eq "$(profile telemetry "$SANDBOX/p")" "off" "sans réglages"
+  profile apply vidal "$SANDBOX/p" 2>/dev/null
+  assert_eq "$(profile telemetry "$SANDBOX/p")" "sans jeton" "vidal sans jeton"
+  mkdir -p "$HOME/.claude" && printf 'Authorization=Bearer x\n' > "$HOME/.claude/exploradora.token"
+  profile apply vidal "$SANDBOX/p"
+  assert_eq "$(profile telemetry "$SANDBOX/p")" "on" "vidal"
+  profile apply perso "$SANDBOX/p"
+  assert_eq "$(profile telemetry "$SANDBOX/p")" "off" "perso"
+}
+
+test_profile_apply_blank_token_file_is_missing() {
+  mkdir -p "$HOME/.claude" "$SANDBOX/p"
+  local content
+  for content in '' '\n' '  \n'; do
+    printf '%b' "$content" > "$HOME/.claude/exploradora.token"
+    assert_contains "$(profile apply vidal "$SANDBOX/p" 2>&1)" "absent ou vide"
+    assert_eq "$(profile telemetry "$SANDBOX/p")" "sans jeton" "fichier [$content]"
+  done
+}
+
+test_profile_apply_token_drops_trailing_blanks() {
+  mkdir -p "$HOME/.claude" "$SANDBOX/p" && printf 'Authorization=Bearer a b\n\n' > "$HOME/.claude/exploradora.token"
+  profile apply vidal "$SANDBOX/p"
+  assert_eq "$(jq -c '.env.OTEL_EXPORTER_OTLP_METRICS_HEADERS' "$SANDBOX/p/.claude/settings.local.json")" \
+    '"Authorization=Bearer a b"' "blancs finaux retirés"
+}
+
+test_profile_apply_rejects_non_object_secret_env() {
+  mkdir -p "$SANDBOX/p"
+  jq '.vidal.secretEnv = "oops"' "$REPO/global/profiles.json" > "$SANDBOX/profiles.json"
+  local rc=0 err; err=$(PROFILES_FILE="$SANDBOX/profiles.json" profile apply vidal "$SANDBOX/p" 2>&1) || rc=$?
+  assert_eq "$rc" "1" "code"
+  assert_contains "$err" "secretEnv doit être un objet"
+  [[ ! -e "$SANDBOX/p/.claude/settings.local.json" ]] || fail "fichier écrit"
+}
+
+test_profile_apply_drops_secret_without_file() {
+  mkdir -p "$SANDBOX/p/.claude"
+  printf '%s\n' '{"env":{"OTEL_EXPORTER_OTLP_METRICS_HEADERS":"Authorization=Bearer vieux"}}' \
+    > "$SANDBOX/p/.claude/settings.local.json"
+  profile apply vidal "$SANDBOX/p" 2>/dev/null
+  assert_eq "$(jq -r '.env.OTEL_EXPORTER_OTLP_METRICS_HEADERS // "absent"' "$SANDBOX/p/.claude/settings.local.json")" \
+    "absent" "en-tête périmé retiré"
+  assert_eq "$(profile telemetry "$SANDBOX/p")" "sans jeton" "état"
+}

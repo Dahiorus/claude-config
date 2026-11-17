@@ -2,13 +2,14 @@
 
 ## Contexte : Profils
 
-Responsabilité : dire quels réglages (plugins, skills, compte gh) valent pour un projet · Dans le code : `global/profile.sh`, `global/profiles.json`, skill `/profile` · Dépend de : rien (source amont des comptes gh)
+Responsabilité : dire quels réglages (plugins, skills, variables d'environnement, compte gh) valent pour un projet · Dans le code : `global/profile.sh`, `global/profiles.json`, skill `/profile` · Dépend de : rien (source amont des comptes gh)
 
 | Terme | Définition métier | Dans le code | À ne pas dire |
 |---|---|---|---|
-| Profil | Ensemble de réglages propre à une famille de projets (vidal, perso) : plugins, skills, compte gh | clé de `profiles.json`, `env.CLAUDE_PROFILE` | configuration, environnement |
+| Profil | Ensemble de réglages propre à une famille de projets (vidal, perso) : plugins, skills, variables d'environnement, compte gh | clé de `profiles.json`, `env.CLAUDE_PROFILE` | configuration, environnement |
 | Propriétaire du dépôt | Compte ou organisation GitHub qui possède le dépôt `origin` du projet | `origin_owner`, `owners` | organisation (seule), auteur |
 | Profil détecté | Profil que désigne le propriétaire du dépôt | `profile.sh detect` | profil courant |
+| Secret de profil | Valeur d'une variable d'environnement gardée hors du dépôt public, lue dans un fichier local à l'application du profil | `secretEnv` | jeton commité |
 | Profil appliqué | Profil écrit dans les réglages locaux du projet, au démarrage ou à la main | `profile.sh current`, `CLAUDE_PROFILE` | profil actif |
 | Compte du profil | Compte gh avec lequel on agit sur un projet, déduit du profil détecté | `profile.sh account`, `.account` | compte actif, compte courant |
 | Compte actif | Compte gh par défaut de la machine, celui de `gh auth switch` | `gh auth status` (Active account) | compte du projet |
