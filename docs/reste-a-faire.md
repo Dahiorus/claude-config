@@ -26,3 +26,9 @@ Mis à jour le 2026-11-17.
    définition de `<sujet>` du skill `pr`.~~ (PR #134)
 2. ~~**Briefs et paquets de review hors du dossier de suivi** en PR unique ou en P1 : `feature` les met dans le
    dossier de suivi de `pr` pour toute PR.~~ (PR #134)
+3. **Télémétrie des projets déjà en vidal** : le hook de démarrage n'applique un profil qu'aux projets qui n'en ont
+   pas (`profile.sh`, `session_start`) ; un projet passé en vidal avant la PR #136 attend `/profile vidal`. (#137)
+4. **Endpoint Exploradora en `http://`** (`global/profiles.json`) : en-tête Bearer et nom du dépôt en clair ; à
+   vérifier côté Exploradora (réseau interne ou `https://`). (#138)
+5. **Jeton Exploradora recopié dans chaque `settings.local.json`** : piste `otelHeadersHelper` qui lit
+   `~/.claude/exploradora.token`. (#139)

@@ -9,7 +9,18 @@
       "typescript-lsp@claude-plugins-official": true,
       "php-lsp@claude-plugins-official": false
     },
-    "skillOverrides": {}
+    "skillOverrides": {},
+    "env": {
+      "CLAUDE_CODE_ENABLE_TELEMETRY": "1",
+      "OTEL_METRICS_EXPORTER": "otlp",
+      "OTEL_LOGS_EXPORTER": "none",
+      "OTEL_EXPORTER_OTLP_METRICS_PROTOCOL": "http/protobuf",
+      "OTEL_EXPORTER_OTLP_METRICS_ENDPOINT": "http://otel.dockersw.vidal.net/v1/metrics",
+      "OTEL_METRICS_INCLUDE_REPOSITORY": "true"
+    },
+    "secretEnv": {
+      "OTEL_EXPORTER_OTLP_METRICS_HEADERS": "~/.claude/exploradora.token"
+    }
   },
   "perso": {
     "owners": ["Dahiorus", "tuonick"],
@@ -21,6 +32,10 @@
       "typescript-lsp@claude-plugins-official": false,
       "php-lsp@claude-plugins-official": true
     },
-    "skillOverrides": { "angular-developer": "off" }
+    "skillOverrides": { "angular-developer": "off" },
+    "env": {
+      "CLAUDE_CODE_ENABLE_TELEMETRY": "0"
+    },
+    "secretEnv": {}
   }
 }
