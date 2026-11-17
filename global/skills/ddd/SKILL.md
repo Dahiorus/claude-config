@@ -55,10 +55,28 @@ que l'appelant a déjà repérés, s'il y en a.
 
 ## `revue <spec|plan>`
 
-Entrée : le chemin du document, la demande initiale (dans la spec, § « Demande initiale ») et, pour un plan, sa spec.
+Entrée : le chemin du document, la demande initiale (dans la spec, § « Demande initiale », non reprise dans la
+paraphrase) et, pour un plan, sa spec.
 Ne pas recevoir l'avis de celui qui a écrit le document.
 
-Dérouler chaque parcours du besoin dans le document et relever :
+**Spec : d'abord la paraphrase.** Elle s'écrit avant de lire le code (sinon la revue comble les trous de la spec
+sans les voir) et sans reprendre son § « Demande initiale », que l'auteur lui compare ensuite. Sources : le § « But »
+s'il existe, les règles et la Portée de la spec, et le glossaire. Sans § « But », le pourquoi vient des règles ; si
+elles ne le disent pas, c'est un écart « à trancher ». Écrire deux parties de 2 à 5 phrases chacune, avec les mots du
+glossaire :
+- **Ce que la spec propose** : le changement, pour qui, et pourquoi ;
+- **L'existant selon la spec** : comment marche aujourd'hui ce que la spec change, tel que la spec le décrit (le but
+  de la spec, et ce que deviennent les endroits de sa « Portée », regroupés par comportement) ; si elle n'en dit
+  rien, la seule phrase « la spec ne décrit pas l'existant ».
+
+Pas plus de 5 phrases par partie : avant de rendre, compter les phrases (un point final = une phrase) ; au-delà,
+fusionner ou couper.
+
+Un passage que la revue ne parvient pas à enchaîner au reste (deux parties qui ne se relient pas, une étape
+manquante entre deux règles) est un écart, trié comme les autres : « à corriger » si une seule réécriture s'impose,
+« à trancher » sinon. Un plan n'a pas de paraphrase : il est relu contre une spec déjà approuvée.
+
+Puis dérouler chaque parcours du besoin dans le document et relever :
 
 | Où | Écart |
 |---|---|
@@ -66,14 +84,18 @@ Dérouler chaque parcours du besoin dans le document et relever :
 | Spec et plan | Terme absent du glossaire, employé dans un autre sens, ou remplacé par un synonyme ; règle placée dans un contexte qui n'en est pas responsable ; modèle d'un contexte qui fuit dans un autre |
 | Plan | Critère d'acceptation sans test qui l'exerce par le comportement visible (route, écran, commande) ; scénario visible sans recette ; nom (classe, champ, méthode, variable, paramètre, test) qui ne reprend pas le terme du glossaire, reprend un mot de sa colonne « À ne pas dire » ou le terme d'une autre notion ; tâche qui change ce que voit l'utilisateur sans que la spec le dise |
 
-Chaque point est vérifié dans le code, puis rendu trié :
+Chaque point est vérifié dans le code (sur `main` si la branche l'a déjà modifié), la paraphrase de l'existant
+comprise, puis rendu trié. La paraphrase reste telle que la spec la fait comprendre : un existant que le code
+contredit est un écart, trié comme les autres, pas une correction de la paraphrase.
 - **À corriger** : une seule correction raisonnable, sans effet sur le comportement ni la portée. Citer l'endroit et le texte corrigé.
 - **À trancher** : touche le comportement, la portée ou le sens d'un terme. Impact, options, recommandation, prêt à
   devenir un bloc `:::question`.
 - **Écarté** : une ligne de raison. Une raison qui s'appuie sur une source (issue, schéma, `origin/main`) la relit
   d'abord et cite ce qu'elle y a lu.
 
-Rien à signaler : le dire en une ligne. Le document lui-même n'est pas modifié : l'appelant applique.
+Rapport : la paraphrase en tête pour une spec, puis les trois catégories. Rien à signaler : pour une spec, la
+paraphrase puis « rien à signaler » en une ligne ; pour un plan, « rien à signaler » en une ligne. Le document
+lui-même n'est pas modifié : l'appelant applique.
 
 ## Erreurs courantes
 

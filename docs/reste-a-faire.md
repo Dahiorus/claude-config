@@ -1,13 +1,14 @@
 # Reste à faire
 
-Mis à jour le 2026-11-16.
+Mis à jour le 2026-11-17.
 
 ## Features
 
-1. **Paraphrase en tête de `ddd revue spec`** (repris d'EGM, `agents/comprehension.md` de
+1. ~~**Paraphrase en tête de `ddd revue spec`** (repris d'EGM, `agents/comprehension.md` de
    google/elephant-goldfish-model) : le relecteur réécrit d'abord en 2 à 5 phrases « ce que la spec propose » et
    « comment marche l'existant selon elle ». Une paraphrase fausse est un défaut. Elle repère une spec dont chaque
-   terme est défini mais dont les parties ne s'enchaînent pas. L'auteur la compare à son intention avant Plannotator.
+   terme est défini mais dont les parties ne s'enchaînent pas. L'auteur la compare à son intention avant
+   Plannotator.~~ (PR #135)
 2. **Relecteur YAGNI sur la spec** (EGM, `agents/zoom_out.md`) : à l'étape 1 ou 1b de `feature`, en parallèle de
    `ddd revue`, un agent neuf cherche dans le code un utilitaire qui fait déjà le travail, une option spéculative ou
    une optimisation prématurée. Aujourd'hui, ce contrôle n'existe qu'en fin de feature, sur le code
