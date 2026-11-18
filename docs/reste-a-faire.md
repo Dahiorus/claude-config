@@ -30,8 +30,9 @@ Mis à jour le 2026-11-18.
    pas (`profile.sh`, `session_start`) ; un projet passé en vidal avant la PR #136 attend `/profile vidal`.~~ (#137)
    Décision (#144) : pas de réapplication au démarrage ; `/profile <profil>` à la main dans chaque dépôt déjà
    profilé, pour la coupure perso et le retrait du jeton vidal.
-4. **Endpoint Exploradora en `http://`** (`settings/local.json`, réglages utilisateur) : en-tête Bearer et nom du
-   dépôt en clair ; à vérifier côté Exploradora (réseau interne ou `https://`). (#138)
+4. ~~**Endpoint Exploradora en `http://`** (`settings/local.json`, réglages utilisateur) : en-tête Bearer et nom du
+   dépôt en clair ; à vérifier côté Exploradora (réseau interne ou `https://`).~~ (#138) Risque accepté : collecteur
+   docker interne à Vidal (IP privée, absent du DNS public), sans TLS sur le 443.
 5. ~~**Jeton Exploradora recopié dans chaque `settings.local.json`** : piste `otelHeadersHelper` qui lit
    `~/.claude/exploradora.token`.~~ (#139) Caduc : le profil ne pose plus le jeton et `apply` le retire. (#144)
 6. ~~**Préfixe `GH_TOKEN=$(gh auth token -u …)` des skills** (`pr`, `notify`, `release`, `todo`, `pr-risk`,
