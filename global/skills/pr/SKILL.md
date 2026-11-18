@@ -45,6 +45,8 @@ existant pour ce sujet, daté (`2026-11-08-x`) ou non, se réutilise ; on n'en c
 - `final-review.md` : retours de review et commentaires de PR, triés (`feature`, `bugfix`, `comments`) ;
 - `recette.md` : chaque recette, datée : environnement, scénarios et résultat, correctifs (SHA), ce qui reste ;
 - `ponytail-review.md`, `opus-review.md` : rapport complet de chaque review (`feature` étape 7, `bugfix` étape 8) ;
+  `code-review.md`, `security-review.md`, `frontend-review.md` pour les angles ajoutés (`feature`, « Dosage des
+  reviews ») ;
   `convergence-N.md` : sortie du tour N de convergence (`feature` étape 5b). Écrits par le contrôleur à partir de
   la réponse de l'agent, dont le brief interdit d'écrire dans le dossier de suivi ;
 - `lecons.md` : une ligne datée par friction (correction de l'utilisateur, commande refusée, piège, consigne
