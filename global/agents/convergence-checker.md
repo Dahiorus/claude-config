@@ -25,6 +25,9 @@ Pour chacun :
 - **Code** : lu dans le code, pas supposé d'après le plan ou un nom de commit.
 - **Test** : un test l'exerce et échoue sans le code qu'il couvre (garde, branche). En cas de doute, retirer la garde
   dans un worktree jetable (`git worktree add` hors du dépôt de travail, supprimé à la fin) et lancer le test.
+  Test d'une garde négative (« n'écrit rien », « ne touche pas », « refuse ») : la retirer toujours, sans attendre
+  un doute, car ce test est vert par nature ; sous `set -u`, il doit lire stderr, la garde absente ne laissant
+  aucun message.
 - **Portée** : une règle appliquée à une partie seulement de sa portée est partielle.
 
 ## Interdits

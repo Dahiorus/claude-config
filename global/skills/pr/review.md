@@ -34,7 +34,8 @@ hors de la session, qui ne reçoit que les remarques.
    Quelle que soit la grille, deux règles s'appliquent toujours :
    - **Erreur avalée** (nature `bug`) : `catch` vide ou trop large, erreur journalisée puis ignorée, repli silencieux
      qui masque un échec (valeur par défaut, `|| true`, `2>/dev/null` sur une commande dont l'échec compte, en
-     shell `< <(cmd)` ou `cmd | …` sans `pipefail`, dont le code retour de `cmd` est perdu).
+     shell `< <(cmd)` ou `cmd | …` sans `pipefail`, dont le code retour de `cmd` est perdu ; message d'échec qui
+     nomme une cause devinée, « non connecté » ou « illisible », au lieu de relayer l'erreur de la commande).
      Bloquant si l'échec perd ou corrompt des données, non-bloquant sinon.
    - **Test absent** (nature `test`) : code de production modifié qui porte une règle (branche, boucle, calcul,
      parseur) sans test qui l'exerce, ni dans la PR ni dans les tests existants. Non-bloquant ; bloquant pour le test

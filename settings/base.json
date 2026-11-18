@@ -57,10 +57,6 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash ~/.claude/profile.sh session-start"
-          },
-          {
-            "type": "command",
             "command": "bash ~/.claude/dirty-skills-hook.sh"
           }
         ]
@@ -74,6 +70,16 @@
             "type": "command",
             "command": "f=~/.claude/hooks/sonar-secrets/build-scripts/prompt-secrets.sh; [ ! -x \"$f\" ] || \"$f\"",
             "timeout": 60
+          }
+        ]
+      }
+    ],
+    "CwdChanged": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.claude/profile.sh cwd-changed"
           }
         ]
       }
@@ -112,7 +118,8 @@
     "jk@harnais": true,
     "context7@claude-plugins-official": true,
     "humanizer@harnais": true,
-    "jdtls-lsp@claude-plugins-official": true
+    "jdtls-lsp@claude-plugins-official": true,
+    "profile@claude-config": true
   },
   "extraKnownMarketplaces": {
     "plannotator": {
