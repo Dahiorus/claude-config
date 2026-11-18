@@ -13,6 +13,13 @@
 - Plan SDD : titres « Task N », N entier, pas « Tâche N » ni « Task C1 », sinon `task-brief` ne trouve pas la tâche ou la fond dans la précédente.
 - Règle ajoutée, changée ou exception à une règle : avant le premier push, chercher (grep) toutes ses formulations dans `global/skills/*/` (SKILL.md et fichiers d'action), la spec, `docs/domaine.md`, ce CLAUDE.md et la description de la PR. Une règle d'un skill est souvent recopiée dans les autres : celle du jeton gh l'était dans six skills. Règle sur un objet (description de PR, commit, worktree) : grepper aussi les commandes qui le produisent (`gh pr create`, `gh pr edit`, `git commit`, `git worktree add`), pas seulement les mots de la règle. Règle ajoutée à `feature` : `bugfix` a souvent la même étape (agents, review), l'y reporter.
 - `bin/claude-config install` lancé dans un worktree relie `~/.claude` à ce worktree (le `claude-config` du PATH pointe vers le dépôt principal) : le relancer depuis le dépôt principal une fois la branche mergée.
+- Skill, doc ou script qui fait écrire dans `~/.claude/` (jeton, réglage) : `install` génère `settings.json` depuis
+  `settings/base.json` (+ `local.json`) et `capture` remonte toute clé absente de `local.json` dans `base.json`,
+  public. Une valeur posée à la main dans `settings.json` est écrasée, un secret fuit : il va dans
+  `settings/local.json` (ignoré par git).
+- Test shell qui alimente un hook ou `jq` : here-string (`<<<"$json"`), pas `jq … | hook`. Un hook qui sort sans
+  lire son entrée tue l'écrivain par SIGPIPE, code 141 sous `pipefail` : test instable. Un test instable se mesure
+  en boucle (`for i in $(seq 60)`) avant d'être mis hors périmètre.
 - Un `GH_TOKEN` vide fait choisir à gh le compte actif : tester `[ -n "$token" ]` avant de le passer à gh.
 - Les skills du dépôt sont reliés à `~/.claude` : une autre session peut modifier `global/skills/*` pendant le travail sur une branche (les sessions des autres projets passent par `/notify claude-config` : `global/CLAUDE.md`, « Skills globaux »). Commiter fichier par fichier, jamais `git add -A`.
 - Texte ou diff demandé par une autre session (`/notify claude-config`) : l'appliquer tel quel. Une fusion avec une phrase voisine ou un changement de portée se propose à part, dans la PR.

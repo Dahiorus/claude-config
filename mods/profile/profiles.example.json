@@ -12,14 +12,7 @@
       "php-lsp@claude-plugins-official": false
     },
     "skillOverrides": {},
-    "env": {
-      "CLAUDE_CODE_ENABLE_TELEMETRY": "1",
-      "OTEL_METRICS_EXPORTER": "otlp",
-      "OTEL_LOGS_EXPORTER": "none",
-      "OTEL_EXPORTER_OTLP_METRICS_PROTOCOL": "http/protobuf",
-      "OTEL_EXPORTER_OTLP_METRICS_ENDPOINT": "http://otel.dockersw.vidal.net/v1/metrics",
-      "OTEL_METRICS_INCLUDE_REPOSITORY": "true"
-    }
+    "env": {}
   },
   "perso": {
     "owners": [
@@ -38,7 +31,8 @@
       "angular-developer": "off"
     },
     "env": {
-      "CLAUDE_CODE_ENABLE_TELEMETRY": "0"
+      "OTEL_METRICS_EXPORTER": "none",
+      "OTEL_LOGS_EXPORTER": "none"
     }
   }
 }

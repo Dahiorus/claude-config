@@ -26,12 +26,14 @@ Mis à jour le 2026-11-18.
    définition de `<sujet>` du skill `pr`.~~ (PR #134)
 2. ~~**Briefs et paquets de review hors du dossier de suivi** en PR unique ou en P1 : `feature` les met dans le
    dossier de suivi de `pr` pour toute PR.~~ (PR #134)
-3. **Télémétrie des projets déjà en vidal** : le hook de démarrage n'applique un profil qu'aux projets qui n'en ont
-   pas (`profile.sh`, `session_start`) ; un projet passé en vidal avant la PR #136 attend `/profile vidal`. (#137)
-4. **Endpoint Exploradora en `http://`** (`global/profiles.json`) : en-tête Bearer et nom du dépôt en clair ; à
-   vérifier côté Exploradora (réseau interne ou `https://`). (#138)
-5. **Jeton Exploradora recopié dans chaque `settings.local.json`** : piste `otelHeadersHelper` qui lit
-   `~/.claude/exploradora.token`. (#139)
+3. ~~**Télémétrie des projets déjà en vidal** : le hook de démarrage n'applique un profil qu'aux projets qui n'en ont
+   pas (`profile.sh`, `session_start`) ; un projet passé en vidal avant la PR #136 attend `/profile vidal`.~~ (#137)
+   Décision (#144) : pas de réapplication au démarrage ; `/profile <profil>` à la main dans chaque dépôt déjà
+   profilé, pour la coupure perso et le retrait du jeton vidal.
+4. **Endpoint Exploradora en `http://`** (`settings/local.json`, réglages utilisateur) : en-tête Bearer et nom du
+   dépôt en clair ; à vérifier côté Exploradora (réseau interne ou `https://`). (#138)
+5. ~~**Jeton Exploradora recopié dans chaque `settings.local.json`** : piste `otelHeadersHelper` qui lit
+   `~/.claude/exploradora.token`.~~ (#139) Caduc : le profil ne pose plus le jeton et `apply` le retire. (#144)
 6. **Préfixe `GH_TOKEN=$(gh auth token -u …)` des skills** (`pr`, `notify`, `release`, `todo`, `pr-risk`, `CLAUDE.md`) :
    à retirer une fois le hook du plugin `profile` éprouvé, il sert encore quand le hook n'a pas tourné. (spec
    2026-11-17-profile-plugin) (#140)
@@ -39,6 +41,8 @@ Mis à jour le 2026-11-18.
 8. **Code non nul de `profile.sh account` dans les skills** (`pr`, `notify`, `release`, `todo`, `pr-risk`) : ils
    ne disent que « vide sans profil : compte actif » ; depuis la validation, `account` peut échouer (code 1,
    message) et le skill devrait s'arrêter. (review finale de feat/profile-plugin, M7) (#142)
-9. **Variables OTEL des profils ignorées** : Claude Code refuse la télémétrie d'un `settings.local.json` ; elle part
+9. ~~**Variables OTEL des profils ignorées** : Claude Code refuse la télémétrie d'un `settings.local.json` ; elle part
    de `~/.claude/settings.json`, dépôts perso compris. Retirer OTEL et `secretEnv` du profil vidal, couper en perso
-   par `OTEL_METRICS_EXPORTER=none`, adapter `/profile`. Après #143. (session krema, recette de #143) (#144)
+   par `OTEL_METRICS_EXPORTER=none`, adapter `/profile`. Après #143. (session krema, recette de #143)~~ (#144)
+10. **Clés de télémétrie dupliquées** : les cinq clés que retire `apply` sont écrites dans `merge_profile`
+    (`profile.sh`) et dans le skill `/profile`, sans test qui compare les deux listes. (reliquats de #145) (#146)
