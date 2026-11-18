@@ -19,6 +19,11 @@ Mis à jour le 2026-11-18.
 4. **Rapport de dérive doc/code** (EGM, `skills/egm-drift-report`) : confronter `CLAUDE.md`, `docs/domaine.md` et les
    `AGENTS.md` au code, et ne lister que les écarts (champ absent, valeur codée en dur, autre bibliothèque que
    prévu). Un mode de `todo` ou un petit skill, lancé à la demande.
+5. **Hook qui rappelle `humanizer`** : la consigne du `CLAUDE.md` global (commits finaux d'une PR, description de
+   PR, réponse de review) s'oublie. Un hook ajouterait un rappel au contexte, sans réécrire la commande, avant
+   `gh pr create`, `gh pr edit` et le commit d'un squash. (mémoire du projet)
+6. **`/pr list toutes` limité à 30 PR** : `gh pr list` s'arrête à 30 par défaut ; passer `-L 100` pour
+   `--state all` et `--state closed` (`global/skills/pr/SKILL.md`). (mémoire du projet)
 
 ## Corrections
 
@@ -58,3 +63,6 @@ Mis à jour le 2026-11-18.
 12. **Jeton d'un `cd` annulé** : un `cd` hors des répertoires de travail est annulé par Claude Code, mais
     `cwd_changed` (`profile.sh`) a déjà posé le jeton du dossier cible ; `gh` hors skills part avec le mauvais
     compte. Les skills sont gardés par `require-token`. (recette de feat/jeton-session, R-1)
+13. **Divergences de `pr-risk` à reporter dans harnais** : la copie locale (softwarevidal/harnais@f2dc722) ajoute
+    `context: fork` et le compte gh du profil (`require-token` avant la recherche de son commentaire). Ce
+    passage n'a pas été rejoué sur une PR qui avait déjà un commentaire de `pr-risk`. (mémoire du projet)

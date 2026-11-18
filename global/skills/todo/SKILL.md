@@ -65,6 +65,8 @@ ligne faite, numérotation, sections, date « Mis à jour le ». Sans convention
   5. Rapport : un tableau point → verdict → preuve, puis les décisions attendues.
 - **`add <texte>`** — chercher d'abord un doublon. Puis la section qui convient (feature ou correction), au format des
   lignes voisines, avec le numéro suivant.
+  Point tiré de la mémoire ou d'une autre session : le confronter au code, aux skills et aux agents avant de
+  l'écrire (déjà couvert ? une cible ? description exacte ?). La mémoire peut porter l'erreur.
 - **`done <n°…>`** — rayer ou retirer ces points, avec la PR si elle est connue.
 
 ## Après une modification
