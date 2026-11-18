@@ -20,6 +20,9 @@
 - Test shell qui alimente un hook ou `jq` : here-string (`<<<"$json"`), pas `jq … | hook`. Un hook qui sort sans
   lire son entrée tue l'écrivain par SIGPIPE, code 141 sous `pipefail` : test instable. Un test instable se mesure
   en boucle (`for i in $(seq 60)`) avant d'être mis hors périmètre.
+- Branche qui modifie `mods/<plugin>/` : monter `version` dans `mods/<plugin>/.claude-plugin/plugin.json` dans la
+  même PR. Claude Code range le plugin installé par version : sans changement, `claude plugin update` répond « already
+  at the latest version » et garde l'ancien code.
 - Un `GH_TOKEN` vide fait choisir à gh le compte actif : tester `[ -n "$token" ]` avant de le passer à gh.
 - Les skills du dépôt sont reliés à `~/.claude` : une autre session peut modifier `global/skills/*` pendant le travail sur une branche (les sessions des autres projets passent par `/notify claude-config` : `global/CLAUDE.md`, « Skills globaux »). Commiter fichier par fichier, jamais `git add -A`.
 - Texte ou diff demandé par une autre session (`/notify claude-config`) : l'appliquer tel quel. Une fusion avec une phrase voisine ou un changement de portée se propose à part, dans la PR.
