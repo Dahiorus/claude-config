@@ -245,6 +245,10 @@ adaptée au langage et amendée par les conventions de l'`AGENTS.md` du projet (
      imposé ;
   8. ≤ 4 dépendances par constructeur ;
   9. pas d'état mutable exposé : objets immuables, flux en lecture seule, *Tell, don't ask*.
+
+  Script shell : 3, 4, 5, 8 et 9 sans objet ; 1 assoupli (un `if` dans une boucle reste, une fonction extraite
+  rendrait son résultat par `$( )` ou une globale) ; fichier sans seuil de 200 lignes, découpé seulement s'il mêle
+  plusieurs rôles (un `source` de plus est un chemin de plus à résoudre).
 - **Texte (skills, spec, docs)** : un nombre annoncé (« deux règles », « 3 commandes ») est égal au nombre d'éléments listés.
   Un chiffre mesuré (lignes d'un fichier, nombre de tests) cité dans la spec ou la PR se remesure après le dernier
   correctif. Un extrait que le plan recopie de la spec (ligne d'état, table, liste ordonnée, message) lui est

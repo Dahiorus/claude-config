@@ -14,9 +14,15 @@ nomme, jamais déduites.
 l'ordre, arrêt au premier échec ; chaque action attend la fin de la précédente, agents compris (`review comments` :
 `comments` ne lit les fils qu'une fois la review publiée ; sur sa propre PR, la paire reprend selon l'étape 6 de
 `comments.md`). Le texte libre qui suit les actions est une consigne pour elles (« en mode boîte
-noire », « la partie front », « de amercadal »). La PR est cherchée dans le dépôt courant uniquement. Les commandes `gh`
-et les `git push`, `git fetch` et `git pull` passent par le compte du profil du projet (`bash ~/.claude/profile.sh account` ; vide sans profil : compte actif), en jeton ponctuel testé, en une commande : `t=$(gh auth token -u <compte>); [ -n "$t" ] && GH_TOKEN=$t gh …` (même forme devant `git push`, `fetch` et `pull` ; sur un dépôt privé, un `fetch` sans jeton répond « Repository not found » et laisse `origin/main` périmée), jamais le jeton recopié en clair ; jeton vide → s'arrêter (gh prendrait le compte actif), jamais par `gh auth switch`. Les étapes écrivent `git fetch`, `git pull` et `git push` sans ce préfixe : il s'ajoute à chacune. En session `EnterWorktree`, Claude Code
-refuse `git -c …` et `VAR=… git/gh …` (commandes `gh` à jeton comprises) : `ExitWorktree` avec `action: "keep"`, puis lancer fetch, pull et push depuis le dépôt principal. Le classifieur du mode auto peut refuser `gh pr merge` et le push forcé de `rebase` et `squash` : donner alors d'emblée la commande à lancer avec `!`. Seul `switch` change la branche de l'arbre
+noire », « la partie front », « de amercadal »). La PR est cherchée dans le dépôt courant uniquement.
+Le compte gh vient du profil du projet par le jeton de session que le plugin `profile` exporte : les commandes
+`gh`, `git push`, `git fetch` et `git pull` partent sans préfixe. Avant la première d'entre elles, et après tout
+`cd` vers un autre dépôt, lancer `bash ~/.claude/profile.sh require-token` : s'il échoue, rapporter sa sortie et
+s'arrêter. Un `cd` ne change le jeton qu'à l'appel Bash suivant. Projet sans profil : compte actif. Jamais
+`gh auth switch`. Sur un dépôt privé, un `fetch` sans jeton répond « Repository not found » et laisse `origin/main`
+périmée. En session `EnterWorktree`, Claude Code refuse `git -c …` et `VAR=… git/gh …` : ce skill n'en écrit pas.
+Le classifieur du mode auto peut refuser `gh pr merge` et le push forcé de `rebase` et `squash` : donner alors
+d'emblée la commande à lancer avec `!`. Seul `switch` change la branche de l'arbre
 courant, et seulement s'il est propre : les autres actions travaillent dans l'arbre de la PR, le travail en cours n'est
 pas touché. Ce skill porte toutes les étapes d'une PR, qu'elle vienne de `feature`, de `bugfix` ou de `release` ;
 `feature` reste la référence pour le tri des retours et la grille qualité. Les étapes qui demandent du jugement
@@ -83,9 +89,11 @@ branche qui n'a pas encore de PR (`/pr push` sans référence vise la branche co
 
 ## Actions sans arbre
 
-- **`list`** — tableau markdown, rendu tel quel dans la réponse (pas dans un bloc de code) ; la consigne se traduit en
-  options `gh` (`open` ou « ouvertes » → défaut, `closed` ou « fermées » → `--state closed`, « toutes » → `--state all`, « de alice » → `--author alice`,
-  « les miennes » → `--author @me`, « à relire » → `--search "review-requested:@me"` (sous jeton ponctuel, `@me` =
+- **`list`** — tableau markdown, rendu tel quel dans la réponse (pas dans un bloc de code) ; liste vide → une phrase
+  qui nomme le filtre (« aucune PR ouverte », « aucune PR fermée de alice »), jamais l'en-tête seul ; la consigne se
+  traduit en options `gh` (`open` ou « ouvertes » → défaut, `closed` ou « fermées » → `--state closed`, « toutes » →
+  `--state all`, « de alice » → `--author alice`,
+  « les miennes » → `--author @me`, « à relire » → `--search "review-requested:@me"` (sous jeton de session, `@me` =
   soi ; demandes à une équipe comprises), dépôt courant seulement ; aucune → « aucune PR ne demande ta relecture ») :
 
   ```bash

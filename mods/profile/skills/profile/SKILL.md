@@ -40,6 +40,9 @@ Une sortie vide s'écrit « aucun ». Puis, selon le cas :
   tester `[ -n "$(gh auth token -u <compte>)" ]`. Sans jeton : `gh auth login` sur ce compte, puis relancer la
   session. Avec un jeton : le hook n'a pas tourné (session ouverte avant l'installation du plugin), relancer la
   session.
+- `profile.sh require-token` signale le jeton d'un autre compte : un `GH_TOKEN` posé dans le shell (le retirer), ou
+  un `cd` hors des répertoires de travail que Claude Code a annulé après que le hook a posé le jeton du dossier visé.
+  Relancer la session depuis le dépôt.
 
 ## Avec un nom
 
@@ -78,11 +81,10 @@ dans `~/.claude/settings.json` (écrasé par `install`, remonté dans `settings/
 
 ## À savoir
 
-- Le compte gh suit le propriétaire du dépôt (`account`) : les skills le passent en jeton ponctuel testé, en une
-  commande : `t=$(gh auth token -u <compte>); [ -n "$t" ] && GH_TOKEN=$t gh …` (même forme devant `git push`,
-  `git fetch` et `git pull`), jamais le jeton recopié en clair ; jeton vide → s'arrêter (gh prendrait le compte
-  actif). Le plugin exporte le jeton de session ; une commande sans préfixe prend le compte du profil du dossier
-  courant, ou le compte actif hors profil. Jamais `gh auth switch`.
+- Le compte gh suit le propriétaire du dépôt (`account`) : le plugin exporte le jeton de session, et les skills
+  lancent `gh`, `git push`, `git fetch` et `git pull` sans préfixe, après `profile.sh require-token`. Jeton absent
+  ou d'un autre compte : ils s'arrêtent et renvoient ici (diagnostic plus haut). Un `cd` ne change le jeton qu'à
+  l'appel Bash suivant ; hors profil, gh prend le compte actif. Jamais `gh auth switch`.
 - Changer de profil retire les clés `enabledPlugins`, `skillOverrides` et `env` que déclare un autre profil, et garde
   celles de l'utilisateur. Une variable de `secretEnv` dont le fichier manque est retirée, même posée à la main :
   pas de secret périmé envoyé. Les variables de télémétrie que Claude Code ignore en projet (jeton compris) sont

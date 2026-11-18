@@ -27,7 +27,7 @@ Comportement attendu absent ou ambigu → le demander, ne pas le choisir.
 | # | Étape | Comment |
 |---|---|---|
 | 1 | Constat | Citer la demande telle quelle (ticket, trace, retour de recette) : observé, attendu, périmètre |
-| 2 | Branche | `fix/<sujet>` depuis `origin/main` à jour (`git fetch origin main`, avec le jeton du compte du profil, voir `profile`), jamais sur `main` ni sur la branche d'une autre PR. Arbre pas propre → le dire et s'arrêter |
+| 2 | Branche | `fix/<sujet>` depuis `origin/main` à jour (`git fetch origin main`, avec le compte du profil, voir `profile`), jamais sur `main` ni sur la branche d'une autre PR. Arbre pas propre → le dire et s'arrêter |
 | 3 | Cause | `superpowers:systematic-debugging` : reproduire (test, commande, Playwright) avant de corriger, remonter à la cause racine, puis chercher (grep, LSP) tous les appelants du code fautif et les autres occurrences du même défaut. Non reproductible → rapporter ce qui a été essayé, ne rien corriger à l'aveugle |
 | 4 | Rouge | Un test qui reproduit le bug au plus près de la cause, lancé et vu échouer pour la bonne raison ; sortie gardée pour le rapport. Bug impossible à tester automatiquement → le dire et décrire la vérification manuelle |
 | 5 | Correctif | À la cause, une seule fois, dans le code partagé ; le même défaut ailleurs se corrige aussi (règle générale plutôt que cas). Rien d'autre : ni refactor ni amélioration en passant. Code front qui touche une API Angular → skill `angular-developer`, comme dans `feature`. Test au vert |
@@ -54,9 +54,9 @@ L'agent fait les étapes 1 à 7, sans le fetch de l'étape 2. Avant de répondre
 `WIP`, refait à l'étape 9), sinon le worktree disparaît, et rend la branche, le SHA et son rapport. Le contrôleur
 fait la review (étape 8) sur `git diff origin/main...fix/<sujet>`, puis la livraison (étape 9).
 
-- Avant de lancer les agents, le contrôleur fait le `git fetch origin main` de l'étape 2, avec le jeton du profil.
-  L'agent, sans jeton, crée sa branche par `git switch -c fix/<sujet> origin/main` : les refs d'`origin` sont
-  partagées entre worktrees.
+- Avant de lancer les agents, le contrôleur fait le `git fetch origin main` de l'étape 2, avec le compte du profil.
+  L'agent crée sa branche par `git switch -c fix/<sujet> origin/main` : les refs d'`origin` sont partagées entre
+  worktrees.
 - Lancer les commandes depuis la racine du worktree, sans `cd` vers un autre dossier, sans `git -C` ni
   `rtk git`, sans variable calculée (`D=…; cd $D`, `$(…)`) dans une commande git, sed, php ou gh.
 - Modifier les fichiers avec Edit et Write, pas avec un `sed -i` ou un heredoc python.
