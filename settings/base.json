@@ -154,6 +154,12 @@
     },
     "claude-sonnet-5-5": {
       "autoCompactWindow": 250000
+    },
+    "claude-haiku-5-5": {
+      "autoCompactWindow": 250000
+    },
+    "claude-fable-5-2": {
+      "autoCompactWindow": 250000
     }
   },
   "theme": "dark",
