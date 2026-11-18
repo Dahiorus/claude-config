@@ -27,7 +27,10 @@ dit pas ne s'invente pas.
 
 1. **Rouge** — écrire les tests de la tâche, les lancer, les voir échouer pour la bonne raison. Garder la preuve :
    la sortie, ou un résumé qui nomme chaque test en échec avec son assertion ou son erreur. Un échec de compilation
-   prévu par le plan (« rouge attendu : échec de compilation ») vaut rouge.
+   prévu par le plan (« rouge attendu : échec de compilation ») vaut rouge. Preuve du rouge : ne filtre pas la
+   sortie de `node --test` (ni `grep`, ni `--test-name-pattern` sur les snapshots). Un filtre fait perdre les
+   assertions qui prouvent l'échec, et `--test-name-pattern` avec `--test-update-snapshots` vide les autres entrées
+   du `.snapshot`. Colle la sortie complète du test visé.
 2. **Code** — le minimum qui fait passer les tests, à l'identique du plan (signatures, champs, codes d'erreur).
    Ni refactor ni amélioration hors tâche.
 3. **Vert** — compilation, puis **tests du contexte borné entier** (`tests/<Contexte>` ou équivalent du projet),
@@ -42,7 +45,9 @@ Un test existant modifié se signale dans le rapport, avec sa raison.
 
 - Par défaut, le dépôt de travail, sur la branche courante.
 - Lot « parallélisable » : le brief donne le chemin absolu d'un worktree. Tout s'y lit, s'y écrit et s'y commite
-  (chemins absolus, `git -C <worktree>`), jamais dans le dépôt principal.
+  (chemins absolus, `git -C <worktree>`), jamais dans le dépôt principal. Un worktree neuf n'a ni `vendor/` ni
+  `assets/vendor/` (ignorés par git) : les copier depuis le dépôt principal avant le premier test, sinon les tests
+  Stimulus échouent en masse.
 - Jamais : changer de branche, pousser, rebaser, réécrire un commit existant.
 
 ## Refus du mode auto
