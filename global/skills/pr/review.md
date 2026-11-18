@@ -6,8 +6,8 @@ sur son propre code : chercher ce qu'on a raté, pas justifier ce qu'on a écrit
 Étapes 1 et 2 dans un agent, en même temps que l'étape 3 (un seul message) : la lecture du diff et du code reste
 hors de la session, qui ne reçoit que les remarques.
 
-0. **Déjà fait** — lire les remarques déjà faites (fils de la PR : `path`, `line` sinon `originalLine`, texte, `isResolved` ; `body` des
-   reviews ; commentaires de la conversation, `gh api repos/<o/r>/issues/<n°>/comments --paginate`), hors commentaire
+0. **Déjà fait** — lire les remarques déjà faites (fils de la PR : `path`, `line` sinon `originalLine`, texte,
+   `isResolved`, `url` ; `body` des reviews ; commentaires de la conversation, `gh api repos/<o/r>/issues/<n°>/comments --paginate`), hors commentaire
    contenant `<!-- pr-risk -->` et auteurs de type `Bot` (fil dont le premier commentaire est d'un `Bot`), comme à
    l'étape 1 de `comments.md`, et la dernière relecture de soi (`commit_id` de sa review la plus récente au `body` non vide et d'`state` autre que `PENDING`,
    `gh api repos/<o/r>/pulls/<n°>/reviews --paginate` : les réponses aux fils créent des reviews vides, son brouillon
@@ -73,4 +73,7 @@ hors de la session, qui ne reçoit que les remarques.
    listées dans le rapport, chacune marquée « corrigée, fil à résoudre » ou « toujours là ».
 5. Rapport : verdict de `pr-risk` (niveau, relectures, dangers), lien de la review, remarques par gravité ; aussi le
    périmètre relu (depuis `<sha court>` ou complet), le nombre de remarques écartées comme déjà faites, et ce qui a
-   été publié (review, approbation ou rien, avec la raison).
+   été publié (review, approbation ou rien, avec la raison). Toujours, même avec des remarques nouvelles : les
+   bloquantes de soi encore ouvertes, chacune avec son lien (`url` du fil ; hors fil, celui de la review) et marquée
+   « corrigée, fil à résoudre » ou « toujours là » ; aucune → « aucun fil à résoudre ». La relecture ne résout
+   aucun fil, c'est au relecteur.
