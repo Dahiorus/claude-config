@@ -37,6 +37,8 @@ Les fichiers existants sont toujours sauvegardés en `<nom>.bak-<date>` avant d'
   `CwdChanged` de `settings/base.json` suit le compte après un `cd`. Après `claude-config install`, lancer
   `claude plugin update profile@claude-config`.
 - Plugins perso : dans `mods/<nom>/`, déclarés dans `.claude-plugin/marketplace.json` et activés dans `settings/base.json` (`<nom>@claude-config`). Pas de dossier `plugins/` : ignoré par `.gitignore`.
+  Tout changement de `mods/<nom>/` monte `version` dans son `.claude-plugin/plugin.json` : Claude Code range sa
+  copie par version, et `claude plugin update` ne voit rien tant qu'elle ne change pas.
 - Settings : via Claude Code (`/config`…), puis `claude-config capture`. On peut aussi éditer
   `settings/base.json` à la main, puis lancer `claude-config install`.
 - Surcharges propres à une machine : `settings/local.json` (non versionné), fusionné par-dessus la base.
