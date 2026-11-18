@@ -16,6 +16,10 @@
 - Agent lancé avec `isolation: "worktree"` : il part de `main`, pas de la branche, et le worktree disparaît s'il s'arrête sans commit (les bugs en parallèle de `bugfix` commitent un `WIP` avant de répondre). Les lots parallèles de `feature` passent par un worktree créé par le contrôleur sur la branche (étape 4).
 - Plan SDD : titres « Task N », N entier, pas « Tâche N » ni « Task C1 », sinon `task-brief` ne trouve pas la tâche ou la fond dans la précédente.
 - Règle ajoutée, changée ou exception à une règle : avant le premier push, chercher (grep) toutes ses formulations dans `global/skills/*/` (SKILL.md et fichiers d'action), la spec, `docs/domaine.md`, ce CLAUDE.md et la description de la PR. Une règle d'un skill est souvent recopiée dans les autres : celle du jeton gh l'était dans six skills. Règle sur un objet (description de PR, commit, worktree) : grepper aussi les commandes qui le produisent (`gh pr create`, `gh pr edit`, `git commit`, `git worktree add`), pas seulement les mots de la règle. Règle ajoutée à `feature` : `bugfix` a souvent la même étape (agents, review), l'y reporter.
+  - Étape de skill qui gagne un élément (une review, un agent, une condition) : grepper les décomptes et énumérations
+    qu'elle rend faux (« les deux reviews », « les trois »), et relire l'étape entière contre les phrases voisines :
+    un ajout contredit souvent une phrase déjà là. Agent dont le rôle s'étend : mettre à jour sa description
+    (frontmatter), que le skill appelant et la liste des agents recopient.
 - `bin/claude-config install` lancé dans un worktree relie `~/.claude` à ce worktree (le `claude-config` du PATH pointe vers le dépôt principal) : le relancer depuis le dépôt principal une fois la branche mergée.
 - Skill, doc ou script qui fait écrire dans `~/.claude/` (jeton, réglage) : `install` génère `settings.json` depuis
   `settings/base.json` (+ `local.json`) et `capture` remonte toute clé absente de `local.json` dans `base.json`,

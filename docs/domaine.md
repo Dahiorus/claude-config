@@ -41,8 +41,9 @@ Responsabilité : relire une PR (la sienne ou celle d'un autre) et publier une s
 | Relecture | Lecture critique du diff d'une PR contre sa base, du code touché et de son contexte (description, spec, issue) | `/pr review` | revue de code (ambigu avec la review finale de `/feature`) |
 | Agent de relecture | Le relecteur unique qui produit les remarques, hors de la session | agent `general-purpose`, `opus` | reviewer Opus (c'est celui de `/feature`) |
 | Grille | Règles contre lesquelles une remarque se justifie : celle du projet (dont un `AGENTS.md` qui en tient une complète), sinon la grille qualité de `feature` amendée par les conventions de l'`AGENTS.md` du projet | `WORKFLOW.md`, `AGENTS.md`, `CONTRIBUTING.md`, § « Grille qualité » | checklist, bonnes pratiques |
-| Remarque | Écart vérifié dans le code, avec sa nature et sa gravité, publié comme commentaire de ligne ou dans la synthèse | `{path, line, inDiff, nature, gravite, texte}` | finding, suggestion |
-| Nature | Ce que la remarque touche : bug, sécurité, performance, test, lisibilité, doc, question | `nature`, gitmoji | catégorie, aspect |
+| Remarque | Écart vérifié dans le code, avec sa nature et sa gravité, publié comme commentaire de ligne ou dans la synthèse | `{path, line, side, inDiff, nature, gravite, texte}` | finding, suggestion |
+| Nature | Ce que la remarque touche : bug, sécurité, performance, test, lisibilité, doc, conformité, question | `nature`, gitmoji | catégorie, aspect |
+| Conformité | Écart entre le diff et la demande (description, ticket Jira, spec, issue) : demandé mais absent, fait sans être demandé, fait autrement | nature `conformité`, 👔 | — |
 | Gravité | Poids de la remarque pour le merge : bloquant, non-bloquant, question | `gravite` | sévérité, criticité |
 | Review publiée | L'unique review d'une relecture : `COMMENT` avec la synthèse et toutes les remarques, ou `APPROVE` quand rien n'est nouveau | `gh api …/reviews`, `event: "COMMENT"` ou `"APPROVE"` | — |
 | Erreur avalée | Échec masqué (catch vide ou trop large, erreur journalisée puis ignorée, repli silencieux) sur une opération dont l'échec compte | nature `bug` | silent failure |
