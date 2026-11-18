@@ -21,3 +21,9 @@ Run plain `git …` there; the hook leaves it unwrapped.
 Keep the raw command when the output is consumed by a program or must be exact: counting
 (`| wc -l`), parsing (`| jq`, `| awk`, `$(…)`), redirection to a file (`git show sha:path > file`),
 patches (`git diff | git apply`). RTK compacts headers and may drop lines.
+
+## Write commands: write `rtk` yourself
+
+Auto mode refuses a write command the hook rewrote (« a hook changed this call's input »). For `gh` commands
+that write (`gh issue close --comment …`, `gh pr edit`), type the `rtk` prefix yourself so the hook has nothing
+to change.
