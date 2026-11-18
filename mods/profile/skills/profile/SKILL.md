@@ -32,10 +32,10 @@ Une sortie vide s'écrit « aucun ». Puis, selon le cas :
 - profil appliqué différent du détecté : proposer `/profile <détecté>` ;
 - télémétrie « sans jeton » : voir « Télémétrie » ;
 - profil perso appliqué et télémétrie « on » : projet passé en perso avant la coupure, proposer `/profile perso` ;
-- `.claude/settings.local.json` porte encore `CLAUDE_CODE_ENABLE_TELEMETRY`, `OTEL_METRICS_INCLUDE_REPOSITORY` ou
-  `OTEL_EXPORTER_OTLP_METRICS_` suivi de `PROTOCOL`, `ENDPOINT` ou `HEADERS` (lire les noms par
-  `jq -r '.env // {} | keys[]'`, jamais les valeurs) : ancien profil, jeton possible ; proposer
-  `/profile <appliqué>`, qui retire ces cinq clés ;
+- `.claude/settings.local.json` porte encore une de ces clés (lire les noms par `jq -r '.env // {} | keys[]'`,
+  jamais les valeurs) : `CLAUDE_CODE_ENABLE_TELEMETRY`, `OTEL_EXPORTER_OTLP_METRICS_PROTOCOL`,
+  `OTEL_EXPORTER_OTLP_METRICS_ENDPOINT`, `OTEL_EXPORTER_OTLP_METRICS_HEADERS`, `OTEL_METRICS_INCLUDE_REPOSITORY`.
+  Ancien profil, jeton possible ; proposer `/profile <appliqué>`, qui les retire ;
 - compte attendu mais `GH_TOKEN` absent de l'environnement (`[ -n "$GH_TOKEN" ]`, sans jamais afficher la valeur) :
   tester `[ -n "$(gh auth token -u <compte>)" ]`. Sans jeton : `gh auth login` sur ce compte, puis relancer la
   session. Avec un jeton : le hook n'a pas tourné (session ouverte avant l'installation du plugin), relancer la

@@ -47,8 +47,9 @@ Mis à jour le 2026-11-18.
 9. ~~**Variables OTEL des profils ignorées** : Claude Code refuse la télémétrie d'un `settings.local.json` ; elle part
    de `~/.claude/settings.json`, dépôts perso compris. Retirer OTEL et `secretEnv` du profil vidal, couper en perso
    par `OTEL_METRICS_EXPORTER=none`, adapter `/profile`. Après #143. (session krema, recette de #143)~~ (#144)
-10. **Clés de télémétrie dupliquées** : les cinq clés que retire `apply` sont écrites dans `merge_profile`
-    (`profile.sh`) et dans le skill `/profile`, sans test qui compare les deux listes. (reliquats de #145) (#146)
+10. ~~**Clés de télémétrie dupliquées** : les cinq clés que retire `apply` sont écrites dans `merge_profile`
+    (`profile.sh`) et dans le skill `/profile`, sans test qui compare les deux listes. (reliquats de #145)~~ Fait :
+    `test_profile_skill_lists_merge_telemetry_keys` (#146).
 11. ~~**`GH_TOKEN` hérité du shell** : compte du profil non connecté, `session-start` n'exporte rien et un `GH_TOKEN`
     du shell passe le test des skills ; fermer en comparant `gh api user --jq .login` au compte. (spec
     2026-11-18-jeton-session-skills, R7)~~ Fait : `profile.sh require-token` (spec 2026-11-18-jeton-session-skills,
