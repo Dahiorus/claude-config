@@ -19,6 +19,9 @@ d'alarme), avec les différences ci-dessous. La review (étape 8) et la livraiso
   constat et la question.
 - **Non reproductible** → rien corrigé, statut `BLOCKED` avec ce qui a été essayé.
 - **Recette** : le résultat revient dans la réponse, pas dans `recette.md`.
+- **Tests** : copier `assets/vendor/` et `vendor/` dans le worktree avant de les lancer (git les ignore, la suite
+  serait incomplète). Les tests cités par le brief figent un comportement voisin : les garder verts, sans les modifier ;
+  s'ils gênent le correctif, statut `NEEDS_CONTEXT`.
 
 ## Contraintes du worktree
 

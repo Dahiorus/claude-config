@@ -66,3 +66,7 @@ Mis à jour le 2026-11-18.
 13. **Divergences de `pr-risk` à reporter dans harnais** : la copie locale (softwarevidal/harnais@f2dc722) ajoute
     `context: fork` et le compte gh du profil (`require-token` avant la recherche de son commentaire). Ce
     passage n'a pas été rejoué sur une PR qui avait déjà un commentaire de `pr-risk`. (mémoire du projet)
+14. **Chemins `assets/vendor/` et `vendor/` du brief de `bug-worker`** (`bugfix`, « Plusieurs bugs en parallèle », et
+    `agents/bug-worker.md`) : repris tels quels d'un autre projet. À généraliser en « dossiers ignorés par git dont
+    les tests ont besoin », et à vérifier que la copie depuis le dépôt principal n'est pas refusée dans le
+    worktree. (reliquat de cette PR)
