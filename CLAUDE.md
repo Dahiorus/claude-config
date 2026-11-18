@@ -33,6 +33,8 @@
 - Texte demandé, ou leçon venue d'un autre projet, qui affirme un comportement d'un hook du dépôt (main-guard, bash-rewrite, pre-push) : le rejouer sur ce hook (dépôt jetable ou `tests/test_main_guard.sh`) avant de l'appliquer ; s'il est faux, le dire à la session d'origine au lieu de l'écrire.
   - Même règle pour un hook de plugin (`CwdChanged` du plugin `profile`…) ou un comportement de Claude Code
     rapporté par une autre session : le rejouer par une commande réelle dans cette session avant de l'écrire.
+  - Même contrôle pour ce qu'il affirme d'un skill ou d'un agent, simple parenthèse comprise : le relire dans le
+    fichier concerné, retirer ce qui est inexact.
 - Une autre session peut aussi commiter sur la branche extraite dans le dépôt principal. Avant de pousser, `git log --oneline origin/main..` ne doit montrer que les commits de la branche. Pour retirer un commit étranger, le classifieur refuse `git reset --hard` : recréer le commit sur sa propre branche, quitter la branche (`git switch`), puis demander à l'utilisateur `! git branch -f <branche> <sha>`.
 - Texte français ou Markdown (skill, spec, description de PR, réponse de fil ou de review) : l'écrire ou le modifier avec Edit/Write, jamais `sed -i`, `python3 -c`, `printf` ni `echo` en ligne. Apostrophes et backticks cassent le quoting ou font rater le motif sans erreur. Une édition en masse par script s'assure que le motif est présent (`assert`) et se vérifie avec `git diff --stat`.
 - Ligne de skill ou de Markdown ajoutée ou réécrite : 120 colonnes au plus. Quand on retire un morceau d'une
