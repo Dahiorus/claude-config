@@ -48,5 +48,6 @@ autre appel dans le même message, une fois. Refusé encore → le dire dans la 
    `{path, line, inDiff, nature, gravite, texte}` — `nature` : bug, sécurité, performance, test, lisibilité, doc,
    question ; `gravite` : bloquant, non-bloquant, question ; `line` : ligne du nouveau fichier ; `inDiff` : la ligne
    est dans un hunk du diff contre la base.
+   `texte` est en français, quelle que soit la langue du code ou du brief.
 2. Pour chaque bloquante de soi encore ouverte : `corrigée` ou `toujours là`, avec `fichier:ligne`.
 3. Le nombre de remarques écartées comme déjà faites.
