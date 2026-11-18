@@ -599,3 +599,13 @@ test_profile_require_token_account_failure() {
   assert_contains "$out" "1:profiles.json illisible"
   [[ ! -s "$CALLS_LOG" ]] || fail "gh lancé malgré l'échec de account"
 }
+
+test_profile_skill_lists_merge_telemetry_keys() {   # issue 146 : la liste du skill suit celle de merge_profile
+  local script skill
+  script=$(awk '/^merge_profile\(\)/,/^}/' "$REPO/global/profile.sh" \
+    | grep -oE '"(CLAUDE_CODE_ENABLE_TELEMETRY|OTEL_[A-Z_]+)"' | tr -d '"' | sort)
+  skill=$(awk '/porte encore une de ces clés/,/qui les retire/' "$REPO/mods/profile/skills/profile/SKILL.md" \
+    | grep -oE "\`(CLAUDE_CODE_ENABLE_TELEMETRY|OTEL_[A-Z_]+)\`" | tr -d "\`" | sort)
+  [[ -n "$script" ]] || fail "aucune clé lue dans merge_profile"
+  assert_eq "$skill" "$script" "clés de télémétrie du skill"
+}
