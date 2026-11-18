@@ -77,13 +77,19 @@ current() {  # <dossier>
   return 0
 }
 
-# État écrit par le profil, comme current : ~/.claude/settings.json et le shell ne sont pas lus.
+# Claude Code ne lit la télémétrie que dans les réglages utilisateur ; un fichier projet peut seulement la couper.
+# Le shell n'est pas lu.
 telemetry() {  # <dossier>
-  local file
-  file="$(project_root "$1")/.claude/settings.local.json"
-  [[ -f "$file" ]] || { echo off; return 0; }
-  jq -r '.env // {} | if .CLAUDE_CODE_ENABLE_TELEMETRY != "1" then "off"
-    elif .OTEL_EXPORTER_OTLP_METRICS_HEADERS then "on" else "sans jeton" end' "$file"
+  local project user
+  project="$(project_root "$1")/.claude/settings.local.json"
+  user="${CLAUDE_CONFIG_DIR:-$HOME/.claude}/settings.json"
+  [[ -f "$project" ]] || project=/dev/null
+  [[ -f "$user" ]] || user=/dev/null
+  jq -rn --slurpfile p "$project" --slurpfile u "$user" '($p[0].env // {}) as $p | ($u[0].env // {}) as $u
+    | if $p.OTEL_METRICS_EXPORTER == "none" or $u.OTEL_METRICS_EXPORTER == "none"
+      or $u.CLAUDE_CODE_ENABLE_TELEMETRY != "1"
+      then "off"
+      elif $u.OTEL_EXPORTER_OTLP_METRICS_HEADERS then "on" else "sans jeton" end'
 }
 
 exclude_from_git() {  # <racine>
@@ -117,12 +123,15 @@ read_secrets() {  # <profil>
 }
 
 # Retire d'abord les clés que déclare un profil quelconque : passer de perso à vidal ne garde pas les réglages perso.
+# Retire aussi la télémétrie des anciens profils (jeton compris), que Claude Code ignore dans un fichier projet.
 merge_profile() {  # <profil> <fichier> <secrets>
   jq --arg name "$1" --slurpfile profiles "$PROFILES_FILE" --slurpfile secrets <(printf '%s' "$3") \
     '$profiles[0] as $all
      | ([$all[].enabledPlugins | keys[]]) as $plugins
      | ([$all[].skillOverrides | keys[]]) as $skills
-     | ([$all[] | (.env // {}), (.secretEnv // {}) | keys[]]) as $envs
+     | ([$all[] | (.env // {}), (.secretEnv // {}) | keys[]] + ["CLAUDE_CODE_ENABLE_TELEMETRY",
+         "OTEL_EXPORTER_OTLP_METRICS_PROTOCOL", "OTEL_EXPORTER_OTLP_METRICS_ENDPOINT",
+         "OTEL_EXPORTER_OTLP_METRICS_HEADERS", "OTEL_METRICS_INCLUDE_REPOSITORY"]) as $envs
      | .enabledPlugins = ((.enabledPlugins // {}) | del(.[$plugins[]])) + $all[$name].enabledPlugins
      | .skillOverrides = ((.skillOverrides // {}) | del(.[$skills[]])) + $all[$name].skillOverrides
      | .env = ((.env // {}) | del(.[$envs[]])) + ($all[$name].env // {}) + $secrets[0]

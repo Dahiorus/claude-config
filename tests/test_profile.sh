@@ -92,7 +92,8 @@ test_profile_apply_local_project_without_git() {
   assert_eq "$(profile current "$SANDBOX/local")" "vidal" "profil"
 }
 
-session_start_in() { jq -nc --arg d "$1" '{cwd:$d}' | profile session-start; }
+# Entrée en here-string, pas en pipe : un hook qui sort sans la lire tuerait jq (SIGPIPE, 141 sous pipefail).
+session_start_in() { profile session-start <<<"$(jq -nc --arg d "$1" '{cwd:$d}')"; }
 
 test_profile_session_start_applies_once() {
   repo_with_origin "$SANDBOX/v" https://github.com/softwarevidal/y.git
@@ -183,60 +184,108 @@ test_profile_account_rejects_unsafe_name() {
   assert_eq "$(PROFILES_FILE="$SANDBOX/profiles.json" profile account "$SANDBOX/p" 2>/dev/null)" "" "compte refusé"
 }
 
-test_profile_apply_vidal_telemetry_with_token() {
-  mkdir -p "$HOME/.claude" "$SANDBOX/p/.claude" && printf 'Authorization=Bearer t0k\n' > "$HOME/.claude/exploradora.token"
+# Profil vidal muni d'un secret S lu dans ~/.claude/s.token (plus aucun profil réel n'a de secretEnv).
+secret_profiles() {
+  jq '.vidal.secretEnv = {"S": "~/.claude/s.token"}' "$REPO/global/profiles.json" > "$SANDBOX/profiles.json"
+  export PROFILES_FILE="$SANDBOX/profiles.json"
+}
+
+test_profile_apply_vidal_sets_no_telemetry() {
+  mkdir -p "$SANDBOX/p/.claude"
   printf '%s\n' '{"env":{"A":"1"}}' > "$SANDBOX/p/.claude/settings.local.json"
   local err; err=$(profile apply vidal "$SANDBOX/p" 2>&1)
   assert_eq "$err" "" "aucun avertissement"
-  local s; s="$(local_settings "$SANDBOX/p")"
-  assert_eq "$(jq -r '.env.OTEL_EXPORTER_OTLP_METRICS_HEADERS' <<<"$s")" "Authorization=Bearer t0k" "jeton lu"
-  assert_eq "$(jq -r '.env.CLAUDE_CODE_ENABLE_TELEMETRY + .env.OTEL_LOGS_EXPORTER + .env.A' <<<"$s")" "1none1" "env"
-  profile apply perso "$SANDBOX/p"
-  assert_eq "$(jq -cS '.env' "$SANDBOX/p/.claude/settings.local.json")" \
-    '{"A":"1","CLAUDE_CODE_ENABLE_TELEMETRY":"0","CLAUDE_PROFILE":"perso"}' "télémétrie retirée en perso"
+  assert_eq "$(jq -cS '.env' "$SANDBOX/p/.claude/settings.local.json")" '{"A":"1","CLAUDE_PROFILE":"vidal"}' "env"
 }
 
-test_profile_apply_vidal_without_token_warns() {
+# Claude Code ignore CLAUDE_CODE_ENABLE_TELEMETRY dans un fichier projet ; seul un exporteur à none y est lu.
+test_profile_apply_perso_cuts_telemetry() {
+  mkdir -p "$SANDBOX/p"
+  profile apply perso "$SANDBOX/p"
+  assert_eq "$(jq -cS '.env' "$SANDBOX/p/.claude/settings.local.json")" \
+    '{"CLAUDE_PROFILE":"perso","OTEL_LOGS_EXPORTER":"none","OTEL_METRICS_EXPORTER":"none"}' "coupure"
+  profile apply vidal "$SANDBOX/p"
+  assert_eq "$(jq -cS '.env' "$SANDBOX/p/.claude/settings.local.json")" '{"CLAUDE_PROFILE":"vidal"}' "coupure retirée"
+}
+
+test_profile_apply_secret_with_file() {
+  secret_profiles
+  mkdir -p "$HOME/.claude" "$SANDBOX/p" && printf 's3cret\n' > "$HOME/.claude/s.token"
+  local err; err=$(profile apply vidal "$SANDBOX/p" 2>&1)
+  assert_eq "$err" "" "aucun avertissement"
+  assert_eq "$(jq -r '.env.S' "$SANDBOX/p/.claude/settings.local.json")" "s3cret" "secret lu"
+  profile apply perso "$SANDBOX/p"
+  assert_eq "$(jq -r '.env.S // "absent"' "$SANDBOX/p/.claude/settings.local.json")" "absent" "secret retiré en perso"
+}
+
+test_profile_apply_secret_without_file_warns() {
+  secret_profiles
   mkdir -p "$SANDBOX/p"
   local err; err=$(profile apply vidal "$SANDBOX/p" 2>&1)
-  assert_contains "$err" "OTEL_EXPORTER_OTLP_METRICS_HEADERS omise"
+  assert_contains "$err" "S omise"
   local s; s="$(local_settings "$SANDBOX/p")"
-  assert_eq "$(jq -r '.env.OTEL_EXPORTER_OTLP_METRICS_HEADERS // "absent"' <<<"$s")" "absent" "en-tête"
+  assert_eq "$(jq -r '.env.S // "absent"' <<<"$s")" "absent" "secret"
   assert_eq "$(jq -r '.env.CLAUDE_PROFILE' <<<"$s")" "vidal" "profil appliqué"
 }
 
-test_profile_session_start_reports_missing_token() {
+test_profile_session_start_reports_missing_secret() {
+  secret_profiles
   repo_with_origin "$SANDBOX/v" https://github.com/softwarevidal/y.git
-  assert_contains "$(session_start_in "$SANDBOX/v")" "exploradora.token absent"
+  assert_contains "$(session_start_in "$SANDBOX/v")" "s.token absent"
 }
+
+# Réglages utilisateur pour telemetry : <env JSON>
+user_settings() { mkdir -p "$HOME/.claude" && jq -n --argjson env "$1" '{env: $env}' > "$HOME/.claude/settings.json"; }
 
 test_profile_telemetry_status() {
   mkdir -p "$SANDBOX/p"
   assert_eq "$(profile telemetry "$SANDBOX/p")" "off" "sans réglages"
-  profile apply vidal "$SANDBOX/p" 2>/dev/null
-  assert_eq "$(profile telemetry "$SANDBOX/p")" "sans jeton" "vidal sans jeton"
-  mkdir -p "$HOME/.claude" && printf 'Authorization=Bearer x\n' > "$HOME/.claude/exploradora.token"
+  user_settings '{"CLAUDE_CODE_ENABLE_TELEMETRY":"1"}'
+  assert_eq "$(profile telemetry "$SANDBOX/p")" "sans jeton" "sans en-tête"
+  user_settings '{"CLAUDE_CODE_ENABLE_TELEMETRY":"1","OTEL_EXPORTER_OTLP_METRICS_HEADERS":"Authorization=Bearer x"}'
+  assert_eq "$(profile telemetry "$SANDBOX/p")" "on" "réglages utilisateur"
   profile apply vidal "$SANDBOX/p"
   assert_eq "$(profile telemetry "$SANDBOX/p")" "on" "vidal"
   profile apply perso "$SANDBOX/p"
   assert_eq "$(profile telemetry "$SANDBOX/p")" "off" "perso"
+  user_settings '{"CLAUDE_CODE_ENABLE_TELEMETRY":"0"}'
+  profile apply vidal "$SANDBOX/p"
+  assert_eq "$(profile telemetry "$SANDBOX/p")" "off" "coupée par l'utilisateur"
+  local on='{"CLAUDE_CODE_ENABLE_TELEMETRY":"1","OTEL_EXPORTER_OTLP_METRICS_HEADERS":"x"}'
+  user_settings "$(jq -c '.OTEL_METRICS_EXPORTER = "none"' <<<"$on")"
+  assert_eq "$(profile telemetry "$SANDBOX/p")" "off" "exporteur coupé par l'utilisateur"
+  jq -n '{env: {CLAUDE_PROFILE: "vidal", OTEL_METRICS_EXPORTER: "otlp"}}' > "$SANDBOX/p/.claude/settings.local.json"
+  assert_eq "$(profile telemetry "$SANDBOX/p")" "off" "coupure utilisateur malgré un projet à otlp"
+  mkdir -p "$SANDBOX/cfg" && jq -n --argjson env "$on" '{env: $env}' > "$SANDBOX/cfg/settings.json"
+  assert_eq "$(CLAUDE_CONFIG_DIR="$SANDBOX/cfg" profile telemetry "$SANDBOX/p")" "on" "dossier de config"
 }
 
-test_profile_apply_blank_token_file_is_missing() {
+# Clés de l'ancien profil vidal, ignorées par Claude Code dans un fichier projet : jeton compris, retirées.
+test_profile_apply_drops_ignored_telemetry_keys() {
+  mkdir -p "$SANDBOX/p/.claude"
+  printf '%s\n' '{"env":{"A":"1","CLAUDE_CODE_ENABLE_TELEMETRY":"1","OTEL_EXPORTER_OTLP_METRICS_HEADERS":"Bearer vieux",
+    "OTEL_EXPORTER_OTLP_METRICS_ENDPOINT":"e","OTEL_EXPORTER_OTLP_METRICS_PROTOCOL":"p",
+    "OTEL_METRICS_INCLUDE_REPOSITORY":"true","CLAUDE_PROFILE":"vidal"}}' > "$SANDBOX/p/.claude/settings.local.json"
+  profile apply vidal "$SANDBOX/p"
+  assert_eq "$(jq -cS '.env' "$SANDBOX/p/.claude/settings.local.json")" '{"A":"1","CLAUDE_PROFILE":"vidal"}' "nettoyé"
+}
+
+test_profile_apply_blank_secret_file_is_missing() {
+  secret_profiles
   mkdir -p "$HOME/.claude" "$SANDBOX/p"
   local content
   for content in '' '\n' '  \n'; do
-    printf '%b' "$content" > "$HOME/.claude/exploradora.token"
+    printf '%b' "$content" > "$HOME/.claude/s.token"
     assert_contains "$(profile apply vidal "$SANDBOX/p" 2>&1)" "absent ou vide"
-    assert_eq "$(profile telemetry "$SANDBOX/p")" "sans jeton" "fichier [$content]"
+    assert_eq "$(jq -r '.env.S // "absent"' "$SANDBOX/p/.claude/settings.local.json")" "absent" "fichier [$content]"
   done
 }
 
-test_profile_apply_token_drops_trailing_blanks() {
-  mkdir -p "$HOME/.claude" "$SANDBOX/p" && printf 'Authorization=Bearer a b\n\n' > "$HOME/.claude/exploradora.token"
+test_profile_apply_secret_drops_trailing_blanks() {
+  secret_profiles
+  mkdir -p "$HOME/.claude" "$SANDBOX/p" && printf 'a b\n\n' > "$HOME/.claude/s.token"
   profile apply vidal "$SANDBOX/p"
-  assert_eq "$(jq -c '.env.OTEL_EXPORTER_OTLP_METRICS_HEADERS' "$SANDBOX/p/.claude/settings.local.json")" \
-    '"Authorization=Bearer a b"' "blancs finaux retirés"
+  assert_eq "$(jq -c '.env.S' "$SANDBOX/p/.claude/settings.local.json")" '"a b"' "blancs finaux retirés"
 }
 
 test_profile_apply_rejects_non_object_secret_env() {
@@ -249,13 +298,11 @@ test_profile_apply_rejects_non_object_secret_env() {
 }
 
 test_profile_apply_drops_secret_without_file() {
+  secret_profiles
   mkdir -p "$SANDBOX/p/.claude"
-  printf '%s\n' '{"env":{"OTEL_EXPORTER_OTLP_METRICS_HEADERS":"Authorization=Bearer vieux"}}' \
-    > "$SANDBOX/p/.claude/settings.local.json"
+  printf '%s\n' '{"env":{"S":"vieux"}}' > "$SANDBOX/p/.claude/settings.local.json"
   profile apply vidal "$SANDBOX/p" 2>/dev/null
-  assert_eq "$(jq -r '.env.OTEL_EXPORTER_OTLP_METRICS_HEADERS // "absent"' "$SANDBOX/p/.claude/settings.local.json")" \
-    "absent" "en-tête périmé retiré"
-  assert_eq "$(profile telemetry "$SANDBOX/p")" "sans jeton" "état"
+  assert_eq "$(jq -r '.env.S // "absent"' "$SANDBOX/p/.claude/settings.local.json")" "absent" "secret périmé retiré"
 }
 
 test_profile_global_path_is_link() {
@@ -332,7 +379,7 @@ cd_file() { echo "$SANDBOX/session-env/cwdchanged-hook-0.sh"; }       # lisibles
 start_with_env() {  # <dossier> : session-start avec un fichier d'env jetable, sortie = systemMessage
   [[ -x "$STUBS/gh" ]] || make_gh_stub   # garde un faux gh modifié par le test
   mkdir -p "$SANDBOX/session-env"
-  jq -nc --arg d "$1" '{cwd:$d}' | PATH="$STUBS:$PATH" CLAUDE_ENV_FILE="$(ss_file)" profile session-start
+  PATH="$STUBS:$PATH" CLAUDE_ENV_FILE="$(ss_file)" profile session-start <<<"$(jq -nc --arg d "$1" '{cwd:$d}')"
 }
 test_profile_session_start_exports_token() {
   repo_with_origin "$SANDBOX/v" https://github.com/softwarevidal/y.git
@@ -482,8 +529,8 @@ test_profile_cwd_changed_bad_input() {   # Review Focus 2
 test_profile_cwd_changed_without_profiles_file() {   # spec : sans profiles.json, les hooks ne font rien
   repo_with_origin "$SANDBOX/v" https://github.com/softwarevidal/y.git
   mkdir -p "$SANDBOX/session-env"; : > "$(cd_file)"
-  jq -nc --arg d "$SANDBOX/v" '{new_cwd:$d}' | CLAUDE_ENV_FILE="$(cd_file)" bash "$REPO/global/profile.sh" \
-    cwd-changed || fail "code"
+  CLAUDE_ENV_FILE="$(cd_file)" bash "$REPO/global/profile.sh" cwd-changed \
+    <<<"$(jq -nc --arg d "$SANDBOX/v" '{new_cwd:$d}')" || fail "code"
   [[ ! -s "$(cd_file)" ]] || fail "écrit"
 }
 test_profile_cwd_changed_reports_error() {
