@@ -34,8 +34,12 @@ ligne faite, numérotation, sections, date « Mis à jour le ». Sans convention
      (`gh pr list -R <owner/repo> --state merged --search "merged:>=<date du commit>"`, `<owner/repo>` tiré de
      `git remote get-url origin`).
 
-     Le compte gh vient du profil du projet (`bash ~/.claude/profile.sh account`), en jeton ponctuel testé, en une commande : `t=$(gh auth token -u <compte>); [ -n "$t" ] && GH_TOKEN=$t gh …` (même forme devant `git push`, `git fetch` et `git pull`), jamais le jeton recopié en clair ; jeton vide → s'arrêter (gh prendrait le compte actif) ; projet sans profil : compte actif ; jamais `gh auth switch`.
-     Toujours en échec → travailler sur le `main` local et le dire dans le rapport. Fichier déjà modifié sans commit
+     Le compte gh vient du profil du projet par le jeton de session que le plugin `profile` exporte : les commandes
+     `gh`, `git push`, `git fetch` et `git pull` partent sans préfixe. Avant la première d'entre elles, et après
+     tout `cd` vers un autre dépôt, lancer `bash ~/.claude/profile.sh require-token` : s'il échoue, rapporter sa
+     sortie et s'arrêter. Un `cd` ne change le jeton qu'à l'appel Bash suivant. Projet sans profil : compte actif.
+     Jamais `gh auth switch`.
+     `git fetch` toujours en échec → travailler sur le `main` local et le dire dans le rapport. Fichier déjà modifié sans commit
      (`git status --short <fichier>`) → le signaler, et partir de cette version.
   2. Un point est ouvert tant qu'une partie n'est pas rayée ; le verdict porte sur cette partie. Une ligne qui ne fait
      que renvoyer à un autre point (« voir le point 2 des Features ») n'est pas un point. Pour chacun, lire le code

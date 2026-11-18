@@ -34,15 +34,25 @@ Mis à jour le 2026-11-18.
    dépôt en clair ; à vérifier côté Exploradora (réseau interne ou `https://`). (#138)
 5. ~~**Jeton Exploradora recopié dans chaque `settings.local.json`** : piste `otelHeadersHelper` qui lit
    `~/.claude/exploradora.token`.~~ (#139) Caduc : le profil ne pose plus le jeton et `apply` le retire. (#144)
-6. **Préfixe `GH_TOKEN=$(gh auth token -u …)` des skills** (`pr`, `notify`, `release`, `todo`, `pr-risk`, `CLAUDE.md`) :
-   à retirer une fois le hook du plugin `profile` éprouvé, il sert encore quand le hook n'a pas tourné. (spec
-   2026-11-17-profile-plugin) (#140)
-7. **Découper `mods/profile/scripts/profile.sh`** (239 lignes, seuil 200). (spec 2026-11-17-profile-plugin, § 7) (#141)
-8. **Code non nul de `profile.sh account` dans les skills** (`pr`, `notify`, `release`, `todo`, `pr-risk`) : ils
+6. ~~**Préfixe `GH_TOKEN=$(gh auth token -u …)` des skills** (`pr`, `notify`, `release`, `todo`, `pr-risk`,
+   `CLAUDE.md`) : à retirer une fois le hook du plugin `profile` éprouvé, il sert encore quand le hook n'a pas
+   tourné. (spec 2026-11-17-profile-plugin) (#140)~~ Fait : jeton de session (spec 2026-11-18-jeton-session-skills).
+7. ~~**Découper `mods/profile/scripts/profile.sh`** (260 lignes depuis `require_token`, seuil 200). (spec
+   2026-11-17-profile-plugin, § 7) (#141)~~ Caduc : la grille de `feature` ne fixe plus de seuil de fichier aux
+   scripts shell ; `profile.sh` n'a qu'un rôle, le profil du projet.
+8. ~~**Code non nul de `profile.sh account` dans les skills** (`pr`, `notify`, `release`, `todo`, `pr-risk`) : ils
    ne disent que « vide sans profil : compte actif » ; depuis la validation, `account` peut échouer (code 1,
-   message) et le skill devrait s'arrêter. (review finale de feat/profile-plugin, M7) (#142)
+   message) et le skill devrait s'arrêter. (review finale de feat/profile-plugin, M7) (#142)~~ Fait : règle R1
+   (spec 2026-11-18-jeton-session-skills).
 9. ~~**Variables OTEL des profils ignorées** : Claude Code refuse la télémétrie d'un `settings.local.json` ; elle part
    de `~/.claude/settings.json`, dépôts perso compris. Retirer OTEL et `secretEnv` du profil vidal, couper en perso
    par `OTEL_METRICS_EXPORTER=none`, adapter `/profile`. Après #143. (session krema, recette de #143)~~ (#144)
 10. **Clés de télémétrie dupliquées** : les cinq clés que retire `apply` sont écrites dans `merge_profile`
     (`profile.sh`) et dans le skill `/profile`, sans test qui compare les deux listes. (reliquats de #145) (#146)
+11. ~~**`GH_TOKEN` hérité du shell** : compte du profil non connecté, `session-start` n'exporte rien et un `GH_TOKEN`
+    du shell passe le test des skills ; fermer en comparant `gh api user --jq .login` au compte. (spec
+    2026-11-18-jeton-session-skills, R7)~~ Fait : `profile.sh require-token` (spec 2026-11-18-jeton-session-skills,
+    R8).
+12. **Jeton d'un `cd` annulé** : un `cd` hors des répertoires de travail est annulé par Claude Code, mais
+    `cwd_changed` (`profile.sh`) a déjà posé le jeton du dossier cible ; `gh` hors skills part avec le mauvais
+    compte. Les skills sont gardés par `require-token`. (recette de feat/jeton-session, R-1)

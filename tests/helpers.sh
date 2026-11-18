@@ -80,7 +80,7 @@ make_stub() {
 }
 
 # Faux gh : comptes connectés $GH_ACCOUNTS, compte actif $GH_ACTIVE, compte qui voit le dépôt $GH_SEES, comptes non connectés $GH_MISSING,
-# autre échec de « gh auth token » $GH_TOKEN_ERROR.
+# autre échec de « gh auth token » $GH_TOKEN_ERROR, échec de « gh api user » $GH_API_USER_ERROR.
 make_gh_stub() {
   mkdir -p "$STUBS"
   cat > "$STUBS/gh" <<'STUB'
@@ -93,6 +93,9 @@ case "$1 $2" in
     [[ " ${GH_MISSING:-} " != *" $4 "* ]] || { echo "no oauth token found for github.com account $4" >&2; exit 1; }
     echo "tok-$4" ;;
   "api graphql") printf '%s' "${GH_GRAPHQL:-}" ;;
+  "api user")
+    [[ -z "${GH_API_USER_ERROR:-}" ]] || { echo "$GH_API_USER_ERROR" >&2; exit 1; }
+    echo "${GH_TOKEN#tok-}" ;;
   "api repos/"*) [[ "${GH_TOKEN:-tok-${GH_ACTIVE:-}}" == "tok-${GH_SEES:-}" ]] ;;  # sans jeton : compte actif
 esac
 STUB

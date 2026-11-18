@@ -16,7 +16,7 @@ VALIDATION_PROGRAM='
         (select(.owners | type != "array" or any(type != "string"))
           | "profil \($name) : owners doit être une liste de noms"),
         sections_errors($name),
-        # les skills placent le compte dans une commande shell (gh auth token -u <compte>)
+        # le compte passe à gh auth token -u <compte> (write_token) et se compare au login (require_token)
         (select(.account | type != "string" or (test("^[A-Za-z0-9-]+$") | not))
           | "compte gh invalide pour le profil \($name)")
       end;
@@ -64,6 +64,17 @@ account() {  # <dossier>
   [[ -n "$name" ]] || return 0
   account=$(jq -r --arg name "$name" '.[$name].account' "$PROFILES_FILE")   # format vérifié par detect
   printf '%s\n' "$account"
+}
+
+# Garde des skills : le jeton de session est celui du compte du profil (rien à vérifier hors profil).
+require_token() {  # <dossier>
+  local account login
+  account=$(account "$1") || return 1
+  [[ -n "$account" ]] || return 0
+  [[ -n "${GH_TOKEN:-}" ]] || { echo "GH_TOKEN absent pour le compte $account : lancer /profile" >&2; return 1; }
+  login=$(gh api user --jq .login 2>&1) || { echo "gh api user a échoué : ${login%%$'\n'*}" >&2; return 1; }
+  [[ "${login,,}" == "${account,,}" ]] \
+    || { echo "jeton de session de $login, compte attendu $account : lancer /profile" >&2; return 1; }
 }
 
 project_root() {  # <dossier>
@@ -239,10 +250,11 @@ cwd_changed() {
 case "${1:-}" in
   detect) detect "${2:-.}" ;;
   account) account "${2:-.}" ;;
+  require-token) require_token "${2:-.}" ;;
   apply) apply "${2:?profil}" "${3:-.}" ;;
   current) current "${2:-.}" ;;
   telemetry) telemetry "${2:-.}" ;;
   session-start) session_start ;;
   cwd-changed) cwd_changed ;;
-  *) echo "usage: profile.sh detect|account|current|telemetry [dossier], apply <profil> [dossier], session-start|cwd-changed < entrée du hook" >&2; exit 2 ;;
+  *) echo "usage: profile.sh detect|account|require-token|current|telemetry [dossier], apply <profil> [dossier], session-start|cwd-changed < entrée du hook" >&2; exit 2 ;;
 esac

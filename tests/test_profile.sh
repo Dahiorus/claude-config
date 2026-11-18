@@ -554,3 +554,48 @@ test_profile_plugin_layout() {
   [[ -f "$m/skills/profile/SKILL.md" && ! -e "$REPO/global/skills/profile" ]] || fail "skill"
   PROFILES_FILE="$m/profiles.example.json" bash "$m/scripts/profile.sh" detect "$SANDBOX" || fail "exemple invalide"
 }
+
+token_check() {  # <dossier> <GH_TOKEN> : « code:stderr » de require-token, faux gh
+  [[ -x "$STUBS/gh" ]] || make_gh_stub
+  local rc=0 err
+  err=$(PATH="$STUBS:$PATH" GH_TOKEN="$2" profile require-token "$1" 2>&1) || rc=$?
+  printf '%s:%s' "$rc" "$err"
+}
+
+test_profile_require_token_matching_account() {
+  repo_with_origin "$SANDBOX/p" https://github.com/Dahiorus/x.git
+  assert_eq "$(token_check "$SANDBOX/p" tok-Dahiorus)" "0:" "même compte"
+  assert_eq "$(token_check "$SANDBOX/p" tok-dahiorus)" "0:" "casse ignorée"
+}
+
+test_profile_require_token_without_profile() {
+  repo_with_origin "$SANDBOX/a" https://github.com/someone/x.git
+  assert_eq "$(token_check "$SANDBOX/a" "")" "0:" "projet sans profil"
+  [[ ! -s "$CALLS_LOG" ]] || fail "gh lancé hors profil"
+}
+
+test_profile_require_token_missing_token() {
+  repo_with_origin "$SANDBOX/p" https://github.com/Dahiorus/x.git
+  assert_eq "$(token_check "$SANDBOX/p" "")" "1:GH_TOKEN absent pour le compte Dahiorus : lancer /profile" "jeton vide"
+  [[ ! -s "$CALLS_LOG" ]] || fail "gh lancé sans jeton"
+}
+
+test_profile_require_token_other_account() {   # review finale I1 : cd annulé, GH_TOKEN du shell
+  repo_with_origin "$SANDBOX/p" https://github.com/Dahiorus/x.git
+  assert_eq "$(token_check "$SANDBOX/p" tok-brondon-ung)" \
+    "1:jeton de session de brondon-ung, compte attendu Dahiorus : lancer /profile" "autre compte"
+}
+
+test_profile_require_token_gh_failure() {
+  repo_with_origin "$SANDBOX/p" https://github.com/Dahiorus/x.git
+  assert_eq "$(GH_API_USER_ERROR=$'HTTP 401: Bad credentials\ndétail' token_check "$SANDBOX/p" tok-Dahiorus)" \
+    "1:gh api user a échoué : HTTP 401: Bad credentials" "échec de gh"
+}
+
+test_profile_require_token_account_failure() {
+  repo_with_origin "$SANDBOX/p" https://github.com/Dahiorus/x.git
+  echo '{' > "$SANDBOX/bad.json"
+  local out; out=$(PROFILES_FILE="$SANDBOX/bad.json" token_check "$SANDBOX/p" tok-Dahiorus)
+  assert_contains "$out" "1:profiles.json illisible"
+  [[ ! -s "$CALLS_LOG" ]] || fail "gh lancé malgré l'échec de account"
+}

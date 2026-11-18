@@ -17,13 +17,11 @@ per sentence, active voice, common words.
 
 ## 1. Find the target
 
-- gh account: `bash ~/.claude/profile.sh account`. Not empty: run every `gh` command and `git fetch` as
-  `t=$(gh auth token -u <account>); [ -n "$t" ] && GH_TOKEN=$t gh …`, in one
-  command; never paste the token. Empty token: the `&&` stops the call; stop and
-  say so (gh would fall back to the active account).
-  No account: use the active account.
-  Claude Code refuses the `GH_TOKEN=` prefix (an `EnterWorktree` session): stop,
-  give no verdict, and say to run it again after `ExitWorktree` with `keep`.
+- gh account: the session token that the `profile` plugin exports; run `gh`
+  and `git fetch` with no prefix. Before the first of them, and after any `cd`
+  to another repository, run `bash ~/.claude/profile.sh require-token`: if it
+  fails, report its output and stop. A `cd` changes the token only at the next
+  Bash call. No profile account: use the active account.
 - Argument is a number, a PR URL or a branch:
   `gh pr view <arg> --json number,title,body,baseRefName,headRefOid,url,state`.
 - No argument: same command without `<arg>`, on the current branch.
@@ -222,12 +220,11 @@ graph LR
 
 Post without asking. Edit the existing comment, never add a second one: auto mode
 refuses to delete a duplicate. Never skip the lookup, and run the block as one
-command so every `gh` call, `gh api user` included, uses the profile account
-(otherwise `ME` is the active account, nothing matches, and a duplicate is posted).
-Without a profile account, drop the first line:
+command: its first line stops it when the session token is missing or belongs to another account (otherwise `ME` is the
+active account, nothing matches, and a duplicate is posted):
 
 ```bash
-t=$(gh auth token -u <account>); [ -n "$t" ] || exit 1; export GH_TOKEN=$t
+bash ~/.claude/profile.sh require-token || exit 1
 F="${TMPDIR:-/tmp}/pr-risk-<N>.md"
 ME=$(gh api user --jq .login)
 ID=$(gh api "repos/$R/issues/<N>/comments" --paginate \

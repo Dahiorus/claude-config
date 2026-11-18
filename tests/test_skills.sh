@@ -22,3 +22,19 @@ test_no_bare_reference_to_pr_action() {
     "$REPO_SRC/global" "$REPO_SRC/docs/domaine.md")" || [[ $? -eq 1 ]] || fail "grep en erreur"
   assert_eq "$hits" "" "renvois à une action de pr sans .md"
 }
+
+test_no_per_command_token() {
+  local hits
+  # shellcheck disable=SC2016 # motif littéral, pas d'expansion voulue
+  hits="$(grep -rnE '(GH_TOKEN=|t=)\$\(gh auth token' "$REPO_SRC/global/skills" "$REPO_SRC/mods/profile/skills")" \
+    || [[ $? -eq 1 ]] || fail "grep en erreur"
+  assert_eq "$hits" "" "préfixe de jeton ponctuel dans un skill"
+}
+
+test_skills_call_require_token() {
+  local skill
+  for skill in pr notify release todo pr-risk; do
+    grep -qF 'bash ~/.claude/profile.sh require-token' "$REPO_SRC/global/skills/$skill/SKILL.md" \
+      || fail "$skill ne lance pas require-token"
+  done
+}

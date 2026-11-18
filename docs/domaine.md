@@ -14,11 +14,12 @@ Responsabilité : dire quels réglages (plugins, skills, variables d'environneme
 | Compte du profil | Compte gh avec lequel on agit sur un projet, déduit du profil détecté | `profile.sh account`, `.account` | compte actif, compte courant |
 | Compte actif | Compte gh par défaut de la machine, celui de `gh auth switch` | `gh auth status` (Active account) | compte du projet |
 | Jeton ponctuel | Jeton d'un compte donné, passé à une seule commande ou un seul processus sans changer le compte actif | `GH_TOKEN=$(gh auth token -u <compte>)` | switch de compte |
-| Jeton de session | Jeton du compte du profil, exporté pour toutes les commandes Bash de la session, sous-agents compris, et recalculé à chaque `cd` | `GH_TOKEN` dans `CLAUDE_ENV_FILE`, marqueur `# claude-config-profile` | jeton ponctuel, compte actif |
+| Jeton de session | Jeton du compte du profil, exporté pour toutes les commandes Bash de la session, sous-agents compris, et recalculé à chaque `cd` qui change le dossier de la session (valable pour les appels suivants, pas pour la suite de l'appel qui fait le `cd`) | `GH_TOKEN` dans `CLAUDE_ENV_FILE`, marqueur `# claude-config-profile` | jeton ponctuel, compte actif |
+| Jeton de session refusé | Projet à profil (compte du profil non vide) dont le `GH_TOKEN` manque (hook pas encore installé ou pas relancé, compte non connecté) ou appartient à un autre compte (`GH_TOKEN` du shell, `cd` annulé par Claude Code). gh agirait avec un autre compte : les skills s'arrêtent et renvoient à `/profile` | `profile.sh require-token` | compte non connecté (une des causes) |
 | Compte non connecté | Compte du profil dont `gh auth token -u` répond « no oauth token found » : message au démarrage ou au `cd`, aucun jeton exporté ; un autre échec de gh (trousseau) est rapporté tel quel | `session-start`, `cwd-changed` | compte sans jeton |
 | Projet sans profil | Projet dont le propriétaire n'est dans aucun profil, ou sans `origin` GitHub | `account` vide | projet inconnu |
 
-Invariants : le compte du profil suit le propriétaire du dépôt, jamais le profil appliqué ; le compte actif n'est jamais changé ; un projet sans profil garde la configuration globale.
+Invariants : le compte du profil suit le propriétaire du dépôt, jamais le profil appliqué ; le compte actif n'est jamais changé ; un projet sans profil garde la configuration globale ; dans un projet à profil, un skill n'agit jamais sur GitHub avec le compte actif : jeton de session refusé, il s'arrête.
 
 ## Contexte : Statusline
 
@@ -50,10 +51,10 @@ Responsabilité : relire une PR (la sienne ou celle d'un autre) et publier une s
 | Projet sans suite de tests | Projet sans fichier de test (dossier de tests, `*.test.*`, `*.spec.*`) ni commande de test (CLAUDE.md, AGENTS.md, README, `package.json`, Makefile) | — | projet non testé |
 | Criticité | Danger de la PR et nombre de relectures humaines qu'elle demande, dans un commentaire à part | skill `pr-risk` | gravité |
 | Agent spécialisé | Relecteur limité à un angle (tests, erreurs avalées, commentaires, types), fourni par le plugin `pr-review-toolkit`. Non utilisé : ses deux angles utiles sont des règles de l'agent de relecture | `pr-test-analyzer`, `silent-failure-hunter`, `comment-analyzer`, `type-design-analyzer` | sous-reviewer |
-| Soi | Le compte du profil du projet, celui avec lequel `/pr` publie | `profile.sh account`, jeton ponctuel | moi, compte actif |
+| Soi | Le compte du profil du projet, celui avec lequel `/pr` publie | `profile.sh account`, jeton de session | moi, compte actif |
 | Remarque déjà faite | Remarque qu'un relecteur (soi compris) a déjà publiée sur le même point, en fil, dans le `body` d'une review ou en commentaire de la conversation (hors `pr-risk` et bots), résolue ou non | fils, `body` des reviews et commentaires de la conversation de la PR | doublon |
 | Dernière relecture | La plus récente review de soi au `body` non vide et d'état autre que `PENDING` (les réponses aux fils créent des reviews vides, un brouillon est `PENDING`), et le commit qu'elle a relu | `reviews[].commit_id` | dernière review |
-| Demande de relecture | PR ouverte dont la relecture est demandée à soi ou à une de ses équipes | `review-requested:@me` sous jeton ponctuel | PR à valider |
+| Demande de relecture | PR ouverte dont la relecture est demandée à soi ou à une de ses équipes | `review-requested:@me` sous jeton de session | PR à valider |
 
 Invariants : une relecture publie au plus une review, jamais `REQUEST_CHANGES` ; `APPROVE` seulement sans remarque nouvelle, sur une PR d'un autre où soi est relecteur demandé, sans remarque bloquante de soi ouverte ; une remarque de goût sans règle de la grille derrière n'est pas publiée ; chaque remarque est vérifiée dans le code ; la criticité ne se répète pas dans la review ; la session ne reçoit que les remarques, jamais le diff ; une remarque déjà faite n'est pas republiée ; le périmètre incrémental (depuis la dernière relecture) ne vaut que sans push forcé, squash, rebase ni merge de la base depuis, sinon diff complet contre la base : le code des PR déjà mergées n'est pas relu.
 
