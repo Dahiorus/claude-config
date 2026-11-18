@@ -34,4 +34,5 @@
 - Une autre session peut aussi commiter sur la branche extraite dans le dépôt principal. Avant de pousser, `git log --oneline origin/main..` ne doit montrer que les commits de la branche. Pour retirer un commit étranger, le classifieur refuse `git reset --hard` : recréer le commit sur sa propre branche, quitter la branche (`git switch`), puis demander à l'utilisateur `! git branch -f <branche> <sha>`.
 - Texte français ou Markdown (skill, spec, description de PR, réponse de fil ou de review) : l'écrire ou le modifier avec Edit/Write, jamais `sed -i`, `python3 -c`, `printf` ni `echo` en ligne. Apostrophes et backticks cassent le quoting ou font rater le motif sans erreur. Une édition en masse par script s'assure que le motif est présent (`assert`) et se vérifie avec `git diff --stat`.
 - Ligne de skill ou de Markdown ajoutée ou réécrite : 120 colonnes au plus. Quand on retire un morceau d'une
-  phrase (commande, incise), relire la phrase entière : le raccord casse souvent.
+  phrase (commande, incise), relire la phrase entière : le raccord casse souvent. Ligne déjà plus longue que 120
+  colonnes : ne pas la réécrire, ajouter le texte sur une sous-ligne ou une sous-puce.

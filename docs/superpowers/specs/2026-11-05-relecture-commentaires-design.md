@@ -117,6 +117,8 @@ Décision (Q4) : le périmètre incrémental part de la dernière review de soi 
 Décision (Q5, réponse de l'utilisateur : « Si une relecture ne retrouve rien de nouveau, en tout cas sur une pr que je dois relire, approve la pr ») : sur une PR d'un autre, une relecture sans remarque nouvelle publie une review `APPROVE`, aux conditions de Q8 et Q9. Sur sa propre PR (GitHub refuse l'approbation par son auteur), rien n'est publié et le rapport le dit.
 
 Décision (Q8) : l'approbation n'est publiée que si aucune remarque bloquante de soi n'est ouverte (fil non résolu, ou point hors fil sans réponse qui le cite) ; sinon rien n'est publié et le rapport liste ces bloquantes, chacune vérifiée dans le code et marquée « corrigée, fil à résoudre » ou « toujours là » (décidé à la relecture de la PR #88) : la relecture ne résout aucun fil, c'est au relecteur.
+Cette liste figure au rapport de toute relecture, même quand elle publie des remarques, avec le lien
+de chaque fil ; aucune bloquante ouverte → « aucun fil à résoudre ».
 
 
 Décision (Q9) : seulement sur une PR où soi est relecteur demandé, seul ou par une de ses équipes (« les PR pour lesquelles j'ai une request review »), lu par `gh pr view <n°> --json reviewRequests` sous jeton ponctuel (une équipe compte si soi en est membre). GitHub retire la demande dès qu'une review de soi est publiée : au passage suivant, l'approbation suppose que l'auteur l'a redemandée. Pas de demande en cours → rien n'est publié, le rapport le dit.
@@ -154,6 +156,8 @@ Une seule story : les règles sont indépendantes et chacune livre seule. La rec
 - Q2 : la réponse publiée est un seul commentaire de conversation qui cite chaque point traité, avec le SHA. Un point « à trancher » pas encore répondu → toujours présent au passage suivant.
 - R5 : plus de 3 retours → un agent `general-purpose` `opus` trie, pas `Explore`.
 - R6 : deuxième `/pr review` sans nouveau commit → aucune remarque republiée ; PR d'un autre où soi est relecteur demandé, sans bloquante de soi ouverte → review `APPROVE` ; sa propre PR, ou PR sans demande en cours → rien de publié, le rapport le dit. Combiné : rien de nouveau mais une bloquante de soi ouverte → rien de publié, le rapport la liste, marquée « corrigée, fil à résoudre » si le code l'a corrigée, « toujours là » sinon ; un fil ouvert par un bot ne compte pas comme remarque déjà faite. Nouveau commit → seul `<commit_id>...HEAD` reçoit des remarques. Après un push forcé, ou un merge de la base dans la branche → diff complet, aucune remarque déjà faite republiée. Une review d'un autre relecteur après celle de soi ne déplace pas le périmètre (Q4).
+  - Même liste, avec le lien de chaque fil, au rapport d'une relecture qui publie des remarques ; aucune → « aucun
+    fil à résoudre ».
 - R7 : `/pr list à relire` liste les PR où le compte du profil est relecteur demandé ; aucune → message dédié. Une demande adressée à une équipe dont soi est membre apparaît ; une PR d'un autre dépôt n'apparaît jamais.
 - R1 : après `/pr merge`, la mémoire ne gagne aucune ligne « Mergée le » ; un piège rencontré y entre ; un bug hors périmètre sans reste à faire versionné → issue proposée, pas ligne de mémoire.
 
