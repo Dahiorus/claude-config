@@ -2,5 +2,10 @@
   "name": "claude-config",
   "owner": { "name": "Brondon Ung" },
   "plugins": [
+    {
+      "name": "profile",
+      "source": "./mods/profile",
+      "description": "Profil de projet et compte gh selon le propriétaire du dépôt"
+    }
   ]
 }

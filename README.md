@@ -32,7 +32,10 @@ Les fichiers existants sont toujours sauvegardés en `<nom>.bak-<date>` avant d'
 - `CLAUDE.md`, `RTK.md`, statusline, skills et agents perso : directement dans `global/` (ils sont symlinkés ;
   `global/agents/*.md` un par un dans `~/.claude/agents`).
 - Profils par projet (`global/profiles.json`) : plugins, variables d'environnement (télémétrie
-  Exploradora pour vidal) et compte gh selon le propriétaire du dépôt, voir `/profile`.
+  Exploradora pour vidal) et compte gh selon le propriétaire du dépôt. Ils vivent dans le plugin `profile`
+  (`mods/profile/` : hook `SessionStart`, script, skill `/profile`) ; `global/profile.sh` en est un lien, et le hook
+  `CwdChanged` de `settings/base.json` suit le compte après un `cd`. Après `claude-config install`, lancer
+  `claude plugin update profile@claude-config`.
 - Plugins perso : dans `mods/<nom>/`, déclarés dans `.claude-plugin/marketplace.json` et activés dans `settings/base.json` (`<nom>@claude-config`). Pas de dossier `plugins/` : ignoré par `.gitignore`.
 - Settings : via Claude Code (`/config`…), puis `claude-config capture`. On peut aussi éditer
   `settings/base.json` à la main, puis lancer `claude-config install`.

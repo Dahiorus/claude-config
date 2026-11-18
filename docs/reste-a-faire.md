@@ -1,6 +1,6 @@
 # Reste à faire
 
-Mis à jour le 2026-11-17.
+Mis à jour le 2026-11-18.
 
 ## Features
 
@@ -32,3 +32,13 @@ Mis à jour le 2026-11-17.
    vérifier côté Exploradora (réseau interne ou `https://`). (#138)
 5. **Jeton Exploradora recopié dans chaque `settings.local.json`** : piste `otelHeadersHelper` qui lit
    `~/.claude/exploradora.token`. (#139)
+6. **Préfixe `GH_TOKEN=$(gh auth token -u …)` des skills** (`pr`, `notify`, `release`, `todo`, `pr-risk`, `CLAUDE.md`) :
+   à retirer une fois le hook du plugin `profile` éprouvé, il sert encore quand le hook n'a pas tourné. (spec
+   2026-11-17-profile-plugin) (#140)
+7. **Découper `mods/profile/scripts/profile.sh`** (239 lignes, seuil 200). (spec 2026-11-17-profile-plugin, § 7) (#141)
+8. **Code non nul de `profile.sh account` dans les skills** (`pr`, `notify`, `release`, `todo`, `pr-risk`) : ils
+   ne disent que « vide sans profil : compte actif » ; depuis la validation, `account` peut échouer (code 1,
+   message) et le skill devrait s'arrêter. (review finale de feat/profile-plugin, M7) (#142)
+9. **Variables OTEL des profils ignorées** : Claude Code refuse la télémétrie d'un `settings.local.json` ; elle part
+   de `~/.claude/settings.json`, dépôts perso compris. Retirer OTEL et `secretEnv` du profil vidal, couper en perso
+   par `OTEL_METRICS_EXPORTER=none`, adapter `/profile`. Après #143. (session krema, recette de #143) (#144)

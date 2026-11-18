@@ -6,7 +6,7 @@
 # Crée un bac à sable jetable (chemin avec espaces) contenant une copie du repo.
 setup_sandbox() {
   # Lancés par un hook git (pre-push), les tests héritent de GIT_DIR : leurs dépôts jetables viseraient le vrai.
-  unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_PREFIX GIT_COMMON_DIR
+  unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_PREFIX GIT_COMMON_DIR CLAUDE_CONFIG_DIR CLAUDE_ENV_FILE
   SANDBOX="$(mktemp -d "${TMPDIR:-/tmp}/claude config test.XXXXXX")"
   SANDBOX="$(cd "$SANDBOX" && pwd -P)"
   export SANDBOX
@@ -77,4 +77,24 @@ make_stub() {
     printf 'exit %s\n' "$code"
   } > "$STUBS/$name"
   chmod +x "$STUBS/$name"
+}
+
+# Faux gh : comptes connectés $GH_ACCOUNTS, compte actif $GH_ACTIVE, compte qui voit le dépôt $GH_SEES, comptes non connectés $GH_MISSING,
+# autre échec de « gh auth token » $GH_TOKEN_ERROR.
+make_gh_stub() {
+  mkdir -p "$STUBS"
+  cat > "$STUBS/gh" <<'STUB'
+#!/usr/bin/env bash
+printf 'GH_TOKEN=%s gh %s\n' "${GH_TOKEN:-}" "$*" >> "$CALLS_LOG"
+case "$1 $2" in
+  "auth status") for a in ${GH_ACCOUNTS:-}; do echo "  ✓ Logged in to github.com account $a (keyring)"; done ;;
+  "auth token")
+    [[ -z "${GH_TOKEN_ERROR:-}" ]] || { echo "$GH_TOKEN_ERROR" >&2; exit 1; }
+    [[ " ${GH_MISSING:-} " != *" $4 "* ]] || { echo "no oauth token found for github.com account $4" >&2; exit 1; }
+    echo "tok-$4" ;;
+  "api graphql") printf '%s' "${GH_GRAPHQL:-}" ;;
+  "api repos/"*) [[ "${GH_TOKEN:-tok-${GH_ACTIVE:-}}" == "tok-${GH_SEES:-}" ]] ;;  # sans jeton : compte actif
+esac
+STUB
+  chmod +x "$STUBS/gh"
 }

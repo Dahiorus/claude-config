@@ -2,7 +2,7 @@
 
 ## Contexte : Profils
 
-Responsabilité : dire quels réglages (plugins, skills, variables d'environnement, compte gh) valent pour un projet · Dans le code : `global/profile.sh`, `global/profiles.json`, skill `/profile` · Dépend de : rien (source amont des comptes gh)
+Responsabilité : dire quels réglages (plugins, skills, variables d'environnement, compte gh) valent pour un projet · Dans le code : plugin `mods/profile/` (`scripts/profile.sh`, lié depuis `global/profile.sh`, skill `/profile`), `global/profiles.json` · Dépend de : rien (source amont des comptes gh)
 
 | Terme | Définition métier | Dans le code | À ne pas dire |
 |---|---|---|---|
@@ -14,6 +14,8 @@ Responsabilité : dire quels réglages (plugins, skills, variables d'environneme
 | Compte du profil | Compte gh avec lequel on agit sur un projet, déduit du profil détecté | `profile.sh account`, `.account` | compte actif, compte courant |
 | Compte actif | Compte gh par défaut de la machine, celui de `gh auth switch` | `gh auth status` (Active account) | compte du projet |
 | Jeton ponctuel | Jeton d'un compte donné, passé à une seule commande ou un seul processus sans changer le compte actif | `GH_TOKEN=$(gh auth token -u <compte>)` | switch de compte |
+| Jeton de session | Jeton du compte du profil, exporté pour toutes les commandes Bash de la session, sous-agents compris, et recalculé à chaque `cd` | `GH_TOKEN` dans `CLAUDE_ENV_FILE`, marqueur `# claude-config-profile` | jeton ponctuel, compte actif |
+| Compte non connecté | Compte du profil dont `gh auth token -u` répond « no oauth token found » : message au démarrage ou au `cd`, aucun jeton exporté ; un autre échec de gh (trousseau) est rapporté tel quel | `session-start`, `cwd-changed` | compte sans jeton |
 | Projet sans profil | Projet dont le propriétaire n'est dans aucun profil, ou sans `origin` GitHub | `account` vide | projet inconnu |
 
 Invariants : le compte du profil suit le propriétaire du dépôt, jamais le profil appliqué ; le compte actif n'est jamais changé ; un projet sans profil garde la configuration globale.
@@ -84,7 +86,7 @@ Invariants : la mémoire ne recopie pas ce que git ou GitHub savent déjà (n° 
 
 Responsabilité : écrire `~/.claude/settings.json` depuis le dépôt · Dans le code : `settings/base.json`, `bin/claude-config install|capture` · Dépend de : rien
 
-Invariants : `install` n'écrit que `base.json` (+ `local.json`), donc tout hook voulu sur la machine y figure, sonar-secrets compris (PreToolUse `Read` et UserPromptSubmit), chacun sans effet quand son script manque.
+Invariants : `install` n'écrit que `base.json` (+ `local.json`), donc tout hook voulu sur la machine y figure, ou dans un plugin activé par `base.json` (le `SessionStart` de `profile`), sonar-secrets compris (PreToolUse `Read` et UserPromptSubmit), chacun sans effet quand son script manque.
 
 ## Contexte : Garde de main
 
