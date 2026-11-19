@@ -1,6 +1,6 @@
 # Reste à faire
 
-Mis à jour le 2026-11-18.
+Mis à jour le 2026-11-19.
 
 ## Features
 
@@ -62,7 +62,11 @@ Mis à jour le 2026-11-18.
     R8).
 12. **Jeton d'un `cd` annulé** : un `cd` hors des répertoires de travail est annulé par Claude Code, mais
     `cwd_changed` (`profile.sh`) a déjà posé le jeton du dossier cible ; `gh` hors skills part avec le mauvais
-    compte. Les skills sont gardés par `require-token`. (recette de feat/jeton-session, R-1)
+    compte. Les skills sont gardés par `require-token`. (recette de feat/jeton-session, R-1) Reste après le
+    correctif de `fix/profile-cwd-reset` (un dossier hors dépôt, `/tmp` ou scratchpad, garde le compte du dossier
+    quitté) : le `cd` annulé vers un dépôt, d'un autre profil ou sans profil, laisse son jeton au retour
+    (`shortcut:` de `cwd_changed`). Gardé aussi (décision de la PR #160) : un `cd` qui tient d'un dossier hors
+    dépôt vers un autre, ajouté par `/add-dir`, vide le jeton, l'ancien dossier n'ayant pas de compte.
 13. **Divergences de `pr-risk` à reporter dans harnais** : la copie locale (softwarevidal/harnais@f2dc722) ajoute
     `context: fork` et le compte gh du profil (`require-token` avant la recherche de son commentaire). Ce
     passage n'a pas été rejoué sur une PR qui avait déjà un commentaire de `pr-risk`. (mémoire du projet)

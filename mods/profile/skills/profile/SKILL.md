@@ -38,8 +38,9 @@ Une sortie vide s'écrit « aucun ». Puis, selon le cas :
   Ancien profil, jeton possible ; proposer `/profile <appliqué>`, qui les retire ;
 - compte attendu mais `GH_TOKEN` absent de l'environnement (`[ -n "$GH_TOKEN" ]`, sans jamais afficher la valeur) :
   tester `[ -n "$(gh auth token -u <compte>)" ]`. Sans jeton : `gh auth login` sur ce compte, puis relancer la
-  session. Avec un jeton : souvent un `cd` vers un dossier sans profil (scratchpad, `/tmp`) a vidé `GH_TOKEN`, puis
-  Claude Code est revenu au dépôt sans relancer le hook. Lancer `cd <dépôt>/<sous-dossier>` dans un appel Bash, puis
+  session. Avec un jeton : un `cd` hors des répertoires de travail vers un dépôt sans profil ou sans compte
+  connecté a vidé `GH_TOKEN`, puis Claude Code est revenu au dépôt sans relancer le hook (un dossier hors dépôt,
+  scratchpad ou `/tmp`, garde le compte du dossier quitté). Lancer `cd <dépôt>/<sous-dossier>` dans un appel Bash, puis
   `cd <dépôt>` dans un second : le jeton revient à l'appel suivant. Un `cd` vers le dossier courant ne relance pas
   le hook. Toujours absent : le hook n'a pas tourné (session ouverte avant l'installation du plugin), relancer la
   session.

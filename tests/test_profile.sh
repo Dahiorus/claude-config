@@ -471,10 +471,10 @@ test_profile_session_start_clears_stale_token_on_gh_failure() {
   [[ ! -s "$(ss_file)" ]] || fail "jeton périmé gardé pour un compte non connecté"
 }
 
-cwd_to() {  # <dossier> : cwd-changed avec le fichier cwdchanged de la même session
+cwd_to() {  # <dossier> [ancien dossier] : cwd-changed avec le fichier cwdchanged de la même session
   [[ -x "$STUBS/gh" ]] || make_gh_stub
   mkdir -p "$SANDBOX/session-env"; : > "$(cd_file)"
-  jq -nc --arg d "$1" '{old_cwd:"/", new_cwd:$d}' \
+  jq -nc --arg d "$1" --arg o "${2:-/}" '{old_cwd:$o, new_cwd:$d}' \
     | PATH="$STUBS:$PATH" CLAUDE_ENV_FILE="$(cd_file)" profile cwd-changed
 }
 test_profile_cwd_changed_switches_account() {
@@ -490,6 +490,53 @@ test_profile_cwd_changed_reads_session_start_file() {   # contrat entre copies :
   mkdir -p "$SANDBOX/tmpdir"
   start_with_env "$SANDBOX/v" >/dev/null
   cwd_to "$SANDBOX/tmpdir" >/dev/null
+  assert_eq "$(cat "$(cd_file)")" $'# claude-config-profile\nexport GH_TOKEN=' "vidé"
+}
+test_profile_cwd_changed_no_profile_keeps_old_account() {   # cd /tmp : Claude Code revient sans relancer le hook
+  repo_with_origin "$SANDBOX/v" https://github.com/softwarevidal/y.git
+  repo_with_origin "$SANDBOX/p" https://github.com/Dahiorus/x.git
+  mkdir -p "$SANDBOX/tmpdir"
+  start_with_env "$SANDBOX/v" >/dev/null
+  cwd_to "$SANDBOX/tmpdir" "$SANDBOX/p" >/dev/null
+  assert_eq "$(cat "$(cd_file)")" $'# claude-config-profile\nexport GH_TOKEN=\'tok-Dahiorus\'' "compte de old_cwd"
+}
+test_profile_cwd_changed_translated_git_keeps_old_account() {   # git traduit : « hors dépôt » lu sous LC_ALL=C
+  repo_with_origin "$SANDBOX/v" https://github.com/softwarevidal/y.git
+  repo_with_origin "$SANDBOX/p" https://github.com/Dahiorus/x.git
+  mkdir -p "$SANDBOX/tmpdir"
+  start_with_env "$SANDBOX/v" >/dev/null
+  # shellcheck disable=SC2016   # variables lues par le faux git, pas ici
+  printf '#!/bin/sh\nif [ "$LC_ALL" != C ] && [ "$3" = rev-parse ]; then\n' > "$STUBS/git"
+  printf '  echo "fatal: ni ceci ni aucun parent : .git" >&2; exit 128\nfi\nexec %s "$@"\n' "$(command -v git)" \
+    >> "$STUBS/git"
+  /bin/chmod +x "$STUBS/git"
+  cwd_to "$SANDBOX/tmpdir" "$SANDBOX/p" >/dev/null
+  assert_eq "$(cat "$(cd_file)")" $'# claude-config-profile\nexport GH_TOKEN=\'tok-Dahiorus\'' "compte de old_cwd"
+}
+test_profile_cwd_changed_git_error_does_not_take_old_account() {   # dépôt douteux : erreur, pas « hors dépôt »
+  repo_with_origin "$SANDBOX/v" https://github.com/softwarevidal/y.git
+  repo_with_origin "$SANDBOX/p" https://github.com/Dahiorus/x.git
+  start_with_env "$SANDBOX/v" >/dev/null
+  # propriété douteuse partout sauf sur l'ancien dossier, déclaré sûr
+  local out; out=$(GIT_TEST_ASSUME_DIFFERENT_OWNER=1 GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=safe.directory \
+    GIT_CONFIG_VALUE_0="$SANDBOX/p" cwd_to "$SANDBOX/v" "$SANDBOX/p")
+  assert_contains "$(jq -r .systemMessage <<<"$out")" "git :"
+  assert_eq "$(cat "$(cd_file)")" $'# claude-config-profile\nexport GH_TOKEN=' "vidé"
+}
+test_profile_cwd_changed_without_old_cwd() {   # old_cwd absent : git -C "" viserait le dossier du hook
+  repo_with_origin "$SANDBOX/v" https://github.com/softwarevidal/y.git
+  mkdir -p "$SANDBOX/tmpdir"
+  start_with_env "$SANDBOX/v" >/dev/null
+  make_gh_stub; : > "$(cd_file)"
+  (cd "$SANDBOX/v" && PATH="$STUBS:$PATH" CLAUDE_ENV_FILE="$(cd_file)" profile cwd-changed \
+    <<<"$(jq -nc --arg d "$SANDBOX/tmpdir" '{new_cwd:$d}')") >/dev/null
+  assert_eq "$(cat "$(cd_file)")" $'# claude-config-profile\nexport GH_TOKEN=' "vidé"
+}
+test_profile_cwd_changed_repo_without_profile_empties() {   # projet sans profil : compte actif, pas celui quitté
+  repo_with_origin "$SANDBOX/v" https://github.com/softwarevidal/y.git
+  repo_with_origin "$SANDBOX/o" https://github.com/someone/x.git
+  start_with_env "$SANDBOX/v" >/dev/null
+  cwd_to "$SANDBOX/o" "$SANDBOX/v" >/dev/null
   assert_eq "$(cat "$(cd_file)")" $'# claude-config-profile\nexport GH_TOKEN=' "vidé"
 }
 test_profile_cwd_changed_reports_unwritable_env_file() {   # review M1 : vidage impossible → message

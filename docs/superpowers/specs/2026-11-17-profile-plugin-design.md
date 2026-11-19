@@ -24,8 +24,8 @@ après un `cd`. Il emporte aussi ce que fait déjà `profile.sh` (plugins, skill
 ## Objectifs
 
 - Toute commande Bash de la session, sous-agents compris, utilise le compte gh du propriétaire du dépôt courant.
-- Un `cd` vers un dépôt d'un autre propriétaire bascule le compte ; vers un dossier sans profil, le jeton posé par
-  le plugin est vidé.
+- Un `cd` vers un dépôt d'un autre propriétaire bascule le compte ; vers un dépôt sans profil, le jeton posé par
+  le plugin est vidé ; un dossier hors dépôt (`/tmp`, scratchpad) garde le compte du dossier quitté.
 - Le profil, ses plugins, skills, `env` et `secretEnv`, et le skill `/profile` vivent dans un plugin
   `mods/profile/` du marketplace `claude-config`.
 
@@ -87,7 +87,9 @@ Le script reste en bash (décision de l'utilisateur) : `profile.sh` est déplac�
      « gh introuvable ». Jeton hors `[A-Za-z0-9_-]+` : refusé, message. Dans un dépôt à profil, le jeton
      de session remplace un `GH_TOKEN` du dev (constat 1) : c'est voulu, le compte suit le dépôt.
    - `CwdChanged` (dans `settings/base.json`, vers `bash ~/.claude/profile.sh cwd-changed`) : recalcule le compte
-     de `new_cwd` et réécrit le jeton ; dossier sans profil ou compte non connecté : `export GH_TOKEN=`, seulement si
+     de `new_cwd` et réécrit le jeton ; dossier hors dépôt git : compte de `old_cwd` (correctif du 2026-11-19 :
+     Claude Code annule un `cd` hors des dossiers de travail sans relancer le hook, le jeton vidé pour `/tmp` restait
+     vide dans le dépôt) ; dépôt sans profil, `old_cwd` sans profil ou compte non connecté : `export GH_TOKEN=`, si
      un hook du plugin a posé un jeton dans la session (marqueur présent) ; un `GH_TOKEN` du dev n'est touché que
      là où un profil s'applique. Compte non connecté : message qui nomme le compte, non affiché (constat 7).
      `profiles.json` mal formé ou git en échec : traité comme un compte non connecté (vidé si marqueur, message),
@@ -158,12 +160,13 @@ recette passe par `claude --plugin-dir mods/profile`.
 
 **P1 : le compte gh suit le dépôt.**
 - Démarrage dans un dépôt `softwarevidal` : fichier d'env en 600 avec le jeton de `brondon-ung`.
-- `cd` vers un dépôt `Dahiorus` : jeton de `Dahiorus` ; vers `/tmp` : `export GH_TOKEN=` ; vers un dépôt dont le
-  compte n'a pas de jeton : vidé, message qui nomme le compte.
+- `cd` vers un dépôt `Dahiorus` : jeton de `Dahiorus` ; vers `/tmp` : compte du dossier quitté ; vers un dépôt sans
+  profil : vidé ; vers un dépôt dont le compte n'a pas de jeton : vidé, message qui nomme le compte.
 - Démarrage hors profil (`~/IdeaProjects`) : rien d'exporté ; `cd` vers un dépôt vidal → jeton de `brondon-ung` ;
-  puis `cd /tmp` → rien d'écrit (Claude Code vide le fichier `cwdchanged` : `GH_TOKEN` d'origine). Démarrage dans
-  un dépôt vidal puis `cd /tmp` → `export GH_TOKEN=`. « Un hook du plugin a posé un jeton » se lit au marqueur
-  dans les fichiers `sessionstart-hook-*.sh` du dossier de `CLAUDE_ENV_FILE`.
+  puis `cd /tmp` → jeton de `brondon-ung` (dossier quitté). Démarrage hors profil puis `cd /tmp` → rien d'écrit
+  (Claude Code vide le fichier `cwdchanged` : `GH_TOKEN` d'origine).
+  « Un hook du plugin a posé un jeton » se lit au marqueur dans les fichiers `sessionstart-hook-*.sh` du dossier
+  de `CLAUDE_ENV_FILE`.
 - Combinés : profil appliqué perso dans un dépôt vidal → plugins perso, compte `brondon-ung` ; `GH_TOKEN` du dev,
   démarrage et `cd` hors profil → pas touché ; fichier d'env déjà créé en 644 → 600.
 - Refus : compte non connecté au démarrage → message, aucun export ; jeton hors format → message ; git en panne →
