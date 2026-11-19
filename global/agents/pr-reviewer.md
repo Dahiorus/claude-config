@@ -53,7 +53,18 @@ autre appel dans le même message, une fois. Refusé encore → le dire dans la 
    doc, conformité, question ; `gravite` : bloquant, non-bloquant, question ; `side` : `RIGHT` et `line` du nouveau
    fichier, ou `LEFT` et `line` de l'ancien pour une ligne supprimée ; `inDiff` : la ligne est dans un hunk du diff
    contre la base, de ce côté.
-   `texte` est en français, quelle que soit la langue du code ou du brief.
+   `texte` est en français, quelle que soit la langue du code ou du brief. L'auteur le passe souvent tel quel à sa
+   propre session Claude : il donne tout ce qu'il faut pour corriger sans relire la review. Le problème et sa preuve
+   (`fichier:ligne`, cas qui échoue), et comment il a été établi : constaté (test lancé, sortie lue) ou déduit du
+   code, dit tel quel. La correction complète (chaque fichier et ligne à changer, autres occurrences trouvées par
+   grep, code à écrire en bloc de code avec son langage), puis le test qui la prouve, ou son effet sur les tests
+   existants (« le test X reste vert »). Remarque `question` : la question et ce qui permettrait de trancher.
+   En option, `suggestion` : le code qui remplace les lignes `startLine` (absent : `line`) à `line` du nouveau
+   fichier, indentation comprise, lignes inchangées de la plage recopiées telles quelles. Seulement si `side`
+   vaut `RIGHT`, `inDiff` est vrai, toutes ces lignes sont dans un même hunk, et le remplacement suffit seul
+   (aucun autre fichier ni ligne à changer). Il respecte les limites du projet relu (colonnes max du CLAUDE.md
+   ou de l'AGENTS.md du dépôt) : appliqué, il est commité tel quel. Le `texte` garde le code de la correction
+   même avec une `suggestion`. L'auteur de la PR choisit de l'appliquer ou non.
 2. Pour chaque bloquante de soi encore ouverte : `corrigée` ou `toujours là`, avec `fichier:ligne`.
 3. Le nombre de remarques écartées comme déjà faites.
 4. Les exigences non vérifiables depuis le code, une ligne chacune.
