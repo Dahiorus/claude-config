@@ -234,11 +234,23 @@ session_start_set_token() {  # <fichier d'env du CwdChanged>
 }
 
 cwd_changed() {
-  local dir message
+  local input dir old err message
   require_profiles || return 0
   [[ -n "${CLAUDE_ENV_FILE:-}" ]] || return 0
-  dir=$(jq -r '.new_cwd // empty')
+  input=$(cat)
+  dir=$(jq -r '.new_cwd // empty' <<<"$input")
   [[ -d "$dir" ]] || return 0
+  # Un cd hors des dossiers de travail (/tmp, scratchpad) est annulé par Claude Code sans relancer le hook :
+  # un dossier hors dépôt git garde le compte de old_cwd ; un dépôt sans profil garde la règle « compte actif ».
+  # shortcut: un cd annulé vers un dépôt (autre profil ou sans profil) laisse son jeton au retour, à revoir si
+  # Claude Code passe un jour les dossiers de travail au hook. Un cd qui tient d'un dossier hors dépôt vers un
+  # autre (dossier ajouté par /add-dir) vide le jeton : l'ancien dossier n'a pas de compte (« compte actif »).
+  # Seul « not a git repository » vaut hors dépôt : une autre erreur (propriété douteuse) remonte par write_token.
+  old=$(jq -r '.old_cwd // empty' <<<"$input")
+  if [[ -d "$old" ]] && ! err=$(LC_ALL=C git -C "$dir" rev-parse --git-dir 2>&1 >/dev/null) \
+    && [[ "$err" == *"not a git repository"* ]]; then
+    dir="$old"
+  fi
   : > "$CLAUDE_ENV_FILE"
   message=$(write_token "$dir" "$CLAUDE_ENV_FILE")
   if [[ ! -s "$CLAUDE_ENV_FILE" ]] && session_start_set_token "$CLAUDE_ENV_FILE"; then

@@ -135,6 +135,8 @@ le hook `CwdChanged` a posé le jeton du dossier cible. La session garde alors l
 
 Une commande d'API par lancement de skill : coût accepté. `[ -n "$GH_TOKEN" ]` seul ne suffit pas (cas ci-dessus
 et R7). Le correctif de `cwd_changed` est écarté : le hook ne voit pas l'annulation du `cd`.
+Corrigé le 2026-11-19 pour un `cd` annulé vers un dossier hors dépôt (le hook reprend `old_cwd`, spec du plugin
+`profile`) ; le `cd` annulé vers un dépôt reste ouvert.
 
 ## 2. Portée
 
