@@ -76,7 +76,7 @@ existant pour ce sujet, daté (`2026-11-08-x`) ou non, se réutilise ; on n'en c
   update-desc   réécrit la description d'après les commits et le suivi
   review        relit la PR (la sienne comprise), évalue sa criticité (relecture humaine requise ?),
                 publie les commentaires, ou approuve si rien n'est nouveau et la relecture demandée
-  comments      traite les fils et commentaires en attente, corrige, pousse, répond
+  comments      traite les fils et commentaires en attente, corrige, pousse, répond, redemande la relecture
   help          cette aide
 
 Exemples : /pr list · /pr list closed · /pr list à relire · /pr 42 · /pr 42 switch · /pr push recette · /pr 42 squash merge · /pr 42 review la partie front
