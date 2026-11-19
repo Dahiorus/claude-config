@@ -299,6 +299,10 @@ adaptée au langage et amendée par les conventions de l'`AGENTS.md` du projet (
   motif sans borne de mot touche aussi les noms qui le contiennent (`$value` → `$notation` change aussi `$values` en
   `$notations`) : `\b` après le nom (`\$value\b`), devant seulement si le motif commence par une lettre (`$` n'est
   pas un caractère de mot), ou `git grep -w`.
+  Étape de skill qui ajoute une commande `gh`, `git` ou une API : l'écrire avec ce qui se passe quand elle échoue
+  (tout le lot refusé ? reprise ? message cité), qui elle vise quand « l'auteur », « le relecteur » ou « chaque
+  retour » a plusieurs lectures (fil, bot, soi-même), et ce que le rapport dit de son effet, y compris quand rien
+  n'est parti.
 
 Ne pas signaler : code généré, tests (longueur libre), largeur des lignes, écart imposé par le framework ou une API externe, dépassement
 d'une ou deux lignes des seuils du point 7. Sortie : écarts classés par gravité, avec `fichier:ligne`, principe

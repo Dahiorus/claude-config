@@ -39,7 +39,13 @@ L'invocation vaut demande de corriger, pousser et répondre.
    cite chaque point (`> …`, mot pour mot) avec ce qui a changé, le SHA et le sujet du commit, passé par `humanizer:humanizer`, qui garde
    les citations telles quelles. Points non corrigés :
    comme les fils, réponse proposée, publiée après accord ; tant qu'aucune réponse ne les cite, ils restent en attente.
+   Réponses publiées : redemander la relecture à l'auteur du premier commentaire de chaque fil qui en a reçu une, et
+   de la review ou du commentaire d'où vient chaque point hors fil qui en a reçu une
+   (`gh pr edit <n°> --add-reviewer <login1>,<login2>`), hors soi, l'auteur de la PR et les auteurs de type `Bot`.
+   Échec (un login non collaborateur fait refuser toute la liste, 422) : un appel par login, le rapport cite l'erreur
+   de chaque échec. Réponse publiée plus tard, après accord : même demande pour son auteur.
 5. Tri, SHA et, pour chaque point hors fil, origine et rattachement dans `final-review.md`, frictions dans `lecons.md`. Rapport : décompte corrigés (SHA) / écartés, puis seuls les « à trancher » détaillés, lien de la PR.
+   Le rapport et `final-review.md` ajoutent « relecture redemandée à <logins> » (ou l'erreur de la demande).
 6. **Boucle**, sur sa propre PR seulement (sur celle d'un autre, c'est l'auteur qui corrige : une seule paire). Un
    tour est une paire `review` puis `comments` ; le premier est celui de l'invocation. Un tour en lance un autre si
    sa review a publié au moins une remarque `**[bloquant]**` nouvelle et que son `comments` a poussé un correctif.
