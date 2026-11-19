@@ -6,9 +6,9 @@ L'invocation vaut demande de corriger, pousser et répondre.
    - **Fils** : `gh api graphql`, `reviewThreads` avec `isResolved`, `all: comments { totalCount }`,
      `first: comments(first: 1) { nodes { author { __typename } } }`,
      `last: comments(last: 1) { nodes { author { login } } }`,
-     `comments(first: 100) { databaseId path line originalLine body author { __typename login } }`, lus avant tout
-     push : `line` passe à null quand un push sort la ligne commentée du diff, `originalLine` garde celle d'origine
-     (la ligne d'un retour est `line`, sinon `originalLine`). Gardés : non résolus, dont le
+     `comments(first: 100) { databaseId path line originalLine body createdAt author { __typename login } }`, lus
+     avant tout push : `line` passe à null quand un push sort la ligne commentée du diff, `originalLine` garde celle
+     d'origine (la ligne d'un retour est `line`, sinon `originalLine`). Gardés : non résolus, dont le
      dernier commentaire (`last`) n'est pas de soi, ou, sur sa propre PR, fil de soi seul, sans réponse
      (`totalCount` 1 : sa propre review est un retour ; sur la PR d'un autre, c'est l'auteur qui la traite). Exclus : fils dont le premier commentaire (`first`) est d'un auteur de type `Bot`.
    - **Hors fil** : commentaires de la conversation (`gh api repos/<o/r>/issues/<n°>/comments --paginate`) et `body`
@@ -42,10 +42,19 @@ L'invocation vaut demande de corriger, pousser et répondre.
    Réponses publiées : redemander la relecture à l'auteur du premier commentaire de chaque fil qui en a reçu une, et
    de la review ou du commentaire d'où vient chaque point hors fil qui en a reçu une
    (`gh pr edit <n°> --add-reviewer <login1>,<login2>`), hors soi, l'auteur de la PR et les auteurs de type `Bot`.
+   Relecteur qui a déjà approuvé (dernier avis décisif `APPROVED`, filtré comme `approvals` de `SKILL.md`, dont on
+   garde `submittedAt` : la requête d'`approvals` ne rend que les logins) : seulement si l'un des retours répondus
+   porte un commentaire de lui, bloquant et publié après son approbation. Dans un fil, chacun de ses commentaires
+   compte, pas seulement le premier (`author.login` et `createdAt` de `comments(first: 100)`) ; hors fil, la date
+   est le `created_at` du commentaire ou le `submitted_at` de la review ; jamais la date de la réponse. Bloquant :
+   préfixe `**[bloquant]**` ; sans préfixe, ce que l'étape 2 de `review.md` et la grille rendent bloquant (résultat
+   faux, faille de sécurité, perte de données, objet de la PR ou critère d'acceptation non atteint, test de
+   non-régression absent d'un correctif). Sinon pas de demande, le rapport le dit.
    Échec (un login non collaborateur fait refuser toute la liste, 422) : un appel par login, le rapport cite l'erreur
-   de chaque échec. Réponse publiée plus tard, après accord : même demande pour son auteur.
+   de chaque échec. Réponse publiée plus tard, après accord : même demande pour son auteur, même règle d'approbation.
 5. Tri, SHA et, pour chaque point hors fil, origine et rattachement dans `final-review.md`, frictions dans `lecons.md`. Rapport : décompte corrigés (SHA) / écartés, puis seuls les « à trancher » détaillés, lien de la PR.
-   Le rapport et `final-review.md` ajoutent « relecture redemandée à <logins> » (ou l'erreur de la demande).
+   Le rapport et `final-review.md` ajoutent « relecture redemandée à <logins> » (ou l'erreur de la demande),
+   et « non redemandée à <logins> (approuvé, aucun bloquant répondu publié depuis) ».
 6. **Boucle**, sur sa propre PR seulement (sur celle d'un autre, c'est l'auteur qui corrige : une seule paire). Un
    tour est une paire `review` puis `comments` ; le premier est celui de l'invocation. Un tour en lance un autre si
    sa review a publié au moins une remarque `**[bloquant]**` nouvelle et que son `comments` a poussé un correctif.
