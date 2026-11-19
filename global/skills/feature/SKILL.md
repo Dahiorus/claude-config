@@ -292,6 +292,12 @@ adaptée au langage et amendée par les conventions de l'`AGENTS.md` du projet (
   étape vaut aussi pour les autres étapes qui produisent le même objet (description de PR, commit, worktree) : les trouver par grep.
   Une exception à une règle générale se reporte sur chaque copie de cette règle, dans le même fichier compris : grepper
   toutes ses formulations (synonymes compris : traçabilité, « rien que la spec ne demande ») avant le premier push.
+  Une liste ou un critère déjà défini dans un autre fichier (gravité, filtre, requête) se cite par son chemin et son
+  étape, jamais par une copie abrégée : elle dérive, et ne couvre pas les cas que la recette simule. Un renvoi à une
+  commande ou à une donnée (« comme `approvals` ») se vérifie en relisant la commande citée : rend-elle bien
+  le champ dont la règle a besoin (une date, pas seulement un login) ?
+  Une règle qui porte sur un ensemble (fil de commentaires, liste, lot) dit si elle vaut pour le premier élément ou
+  pour chacun. La recette prévoit un cas où l'élément qui décide n'est pas le premier (bloquant ajouté dans un fil).
   Ce que la description de PR ou un message de commit annonce se retrouve dans le diff, et chaque commande qu'elle cite
   (grep de vérification) applique les règles que la PR ajoute. Un exemple qu'une règle donne (motif, commande,
   renommage) se lance sur son propre cas avant le push : il fait ce que la règle annonce. Après un `sed -i` ou un
