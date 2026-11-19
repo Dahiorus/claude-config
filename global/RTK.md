@@ -25,5 +25,5 @@ patches (`git diff | git apply`). RTK compacts headers and may drop lines.
 ## Write commands: write `rtk` yourself
 
 Auto mode refuses a write command the hook rewrote (« a hook changed this call's input »). For `gh` commands
-that write (`gh issue close --comment …`, `gh pr edit`), type the `rtk` prefix yourself so the hook has nothing
-to change.
+that write (`gh issue close --comment …`, `gh pr edit`) and for `git push`, type the `rtk` prefix yourself so
+the hook has nothing to change. Inside a worktree session, keep plain `git …` (see Pipes).
