@@ -67,7 +67,11 @@ hors de la session, qui ne reçoit que les remarques.
    L'agent rend une liste JSON, sans rien publier :
    `{path, line, side, inDiff, nature, gravite, texte}` (`nature` : bug, sécurité, performance, test, lisibilité,
    doc, conformité, question ; `gravite` : bloquant, non-bloquant, question ; `side` : `RIGHT` et `line` du nouveau
-   fichier, ou `LEFT` et `line` de l'ancien pour une ligne supprimée).
+   fichier, ou `LEFT` et `line` de l'ancien pour une ligne supprimée), plus en option `startLine` et `suggestion`,
+   la correction proposée (code qui remplace les lignes `startLine` à `line`, côté `RIGHT`, dans un hunk, et qui
+   suffit seul). `texte` est exhaustif, car l'auteur le passe souvent à sa propre session Claude : problème et
+   preuve (constatée ou déduite du code, dit tel quel), correction complète avec son code (tous les endroits à
+   changer), test qui la prouve ou effet sur les tests existants.
 3. Criticité : skill `pr-risk` sur la PR, invoqué par la session (il tourne dans son propre agent ; depuis un sous-agent, son fork ne publie rien), qui publie (ou met à jour) son
    commentaire de risque : niveau, nombre de relectures humaines, dangers à vérifier. Son brief dit de publier sans
    demander, comme dans `push.md` (étape 4).
@@ -76,10 +80,20 @@ hors de la session, qui ne reçoit que les remarques.
    (la criticité reste dans le seul commentaire de `pr-risk`, ne pas la répéter), et un `comments` par remarque
    (`path`, `line` et `side` de la remarque), en français, préfixé du gitmoji de sa nature (🐛 bug,
    🔒️ sécurité, ⚡️ performance, ✅ test, ♻️ lisibilité, 📝 doc, 👔 conformité, 💬 question) puis de `**[bloquant]**`,
-   `**[non-bloquant]**` ou `**[question]**`, puis problème + suggestion (ou la question). `body` et commentaires passés par `humanizer:humanizer`, qui garde
-   tels quels le gitmoji et le préfixe de gravité (l'`APPROVE` en dépend), comme les identifiants. Ligne hors des
-   hunks du diff (`git diff <base>...HEAD | grep ^@@` : plages `+c,d` pour `RIGHT`, `-a,b` pour `LEFT` ; une seule
-   suffit pour que GitHub refuse toute la review, 422) → dans le `body`, avec `fichier:ligne` et le même préfixe.
+   `**[non-bloquant]**` ou `**[question]**`, puis le `texte` de la remarque. `body` et commentaires passés par
+   `humanizer:humanizer`, qui garde tels quels le gitmoji et le préfixe de gravité (l'`APPROVE` en dépend), comme
+   les identifiants.
+   Il garde aussi chaque élément de la correction (endroits à changer, code, test) : il en retire le style, pas le
+   contenu.
+   - Remarque avec `suggestion` : le commentaire finit par un bloc ` ```suggestion `, mis après le passage par
+     `humanizer` et jamais réécrit (clôture de quatre accents graves si le code en contient trois) ; avec
+     `startLine`, ajouter `start_line` et `start_side: "RIGHT"`. La relecture ne l'applique pas : l'auteur de la PR
+     le prend (« Commit suggestion ») ou non. Remarque reportée dans le `body` : ni bloc `suggestion` ni
+     `start_line`, le code de la correction va dans son texte en bloc de code.
+
+   Ligne hors des hunks du diff (`git diff <base>...HEAD | grep ^@@` : plages `+c,d` pour `RIGHT`, `-a,b` pour
+   `LEFT` ; une seule suffit pour que GitHub refuse toute la review, 422) → dans le `body`, avec `fichier:ligne` et
+   le même préfixe.
    Aucune remarque nouvelle → `APPROVE` seulement si la PR est d'un autre, que soi est relecteur demandé
    (`gh pr view <n°> --json reviewRequests` : son login, ou une équipe dont il est membre,
    `gh api orgs/<org>/teams/<slug>/memberships/<soi>` qui répond `active`) et qu'aucune remarque bloquante de soi
