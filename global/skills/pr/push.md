@@ -18,7 +18,10 @@ porter plusieurs commits ; un historique désordonné se signale au plus dans le
    faire ». Rien à changer → passer.
    **Issues** — dépôt aux issues activées (`gh repo view --json hasIssuesEnabled`) : chaque point ajouté qui est de
    la dette (§7 de la spec, `shortcut:`, review non retenue) ou un problème hors périmètre découvert pendant le
-   développement devient une issue proposée. Doublon d'abord (`gh issue list --state open --search "<mots-clés>"`) :
+   développement devient une issue proposée, sauf deux cas. Dette locale à une méthode que la PR touche, au
+   découpage mécanique (chaîne de `if`, extraction d'une fonction) : la proposer d'abord comme correctif dans la PR.
+   Point que la liste « Ne pas signaler » de la grille exclut (longueur d'un fichier de test, par exemple) : relire
+   cette liste avant, pas d'issue. Doublon d'abord (`gh issue list --state open --search "<mots-clés>"`) :
    trouvé → le citer, pas de nouvelle issue. Montrer la liste (titre, label, origine) et attendre l'accord (« crée
    tout », numéros) : une issue est visible de l'équipe. Puis `gh issue create --body-file <fichier>` par point : titre court, corps en français
    (constat avec `fichier:ligne`, impact, piste, origine : PR et spec), label `dette-technique` ou `hors-perimetre`
