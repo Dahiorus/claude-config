@@ -39,6 +39,12 @@ Comportement attendu absent ou ambigu → le demander, ne pas le choisir.
 Les étapes 1 à 8 s'enchaînent sans demander. Rapport à la fin de l'étape 8 : cause, correctif (`fichier:ligne`),
 sortie du test rouge puis verte, vérification, reviews (seuls les « à trancher » détaillés), ce qui reste.
 
+**Issue de couverture** (la règle est juste, aucun test ne la protège) → rouge par mutation, à l'étape 4 : casser la
+règle en production, lancer le test, le voir échouer pour la bonne raison, puis restaurer le code par
+`git checkout -- <fichier de prod>` (jamais `git stash`, qui emporte le test non commité ; `git diff` vide hors
+tests). L'étape 3 ne reproduit pas de défaut, elle situe la règle non protégée ; l'étape 5 n'a pas de correctif de
+prod (le test seul est commité) ; le commit `✅` et le rapport le disent, sans cause ni correctif.
+
 **PHP : outil `LSP` (plugin `php-lsp`, Intelephense)**, avec les règles et limites du paragraphe du même nom du
 skill `feature` : à l'étape 3, `findReferences`/`incomingCalls` sur le code fautif pour ses appelants, et
 `workspaceSymbol` pour les autres occurrences du défaut ; à l'étape 5, `hover`/`goToDefinition` avant d'appeler un

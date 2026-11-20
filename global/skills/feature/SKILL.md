@@ -212,6 +212,10 @@ Le code est généré : la relecture est l'étape où la dépense vaut le plus. 
   courante contre sa base. Sans PR sur la branche (cas normal à ce stade), il ne publie rien ; si une PR existe
   (reviews relancées après `/pr push`), il poste ou met à jour son commentaire, ce n'est pas un défaut. Son verdict
   (niveau, dangers) va en tête de `final-review.md`.
+  Diff de tests seuls (aucun correctif de prod commité) : le dire dans son brief, sinon il suppose un correctif
+  manquant. Chaque danger qu'il rapporte est vérifié dans le code (appelants, `git show origin/main:<fichier>`,
+  schéma SQL) avant d'être relayé dans la description ou `final-review.md` : il déduit parfois d'un docblock
+  ou d'un alias sans lire le SQL.
 - **Faible** : rien de plus.
 - **Moyen** : en plus, `code-review` avec `high <branche>` (chasse aux bugs).
 - **Élevé** : `code-review` avec `xhigh <branche>`.
