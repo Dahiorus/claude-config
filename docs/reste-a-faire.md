@@ -9,13 +9,16 @@ Mis à jour le 2026-11-20.
    « comment marche l'existant selon elle ». Une paraphrase fausse est un défaut. Elle repère une spec dont chaque
    terme est défini mais dont les parties ne s'enchaînent pas. L'auteur la compare à son intention avant
    Plannotator.~~ (PR #135)
-2. **Relecteur YAGNI sur la spec** (EGM, `agents/zoom_out.md`) : à l'étape 1 ou 1b de `feature`, en parallèle de
+2. ~~**Relecteur YAGNI sur la spec** (EGM, `agents/zoom_out.md`) : à l'étape 1 ou 1b de `feature`, en parallèle de
    `ddd revue`, un agent neuf cherche dans le code un utilitaire qui fait déjà le travail, une option spéculative ou
    une optimisation prématurée. Aujourd'hui, ce contrôle n'existe qu'en fin de feature, sur le code
-   (`ponytail-review`).
-3. **Relecteur en échec = « non lancé »** (EGM, `agents/synthesizer.md`) : un agent de review, de convergence ou
-   `ddd revue` qui expire ou ne rend rien est relancé une fois. S'il échoue encore, son rapport l'affiche
-   « non lancé », jamais « aucun défaut ». Une phrase dans « Exécution » de `feature`, à reporter dans `bugfix`.
+   (`ponytail-review`).~~ Fait : agent `spec-yagni-checker`, à l'étape 1 de `feature`. Hors périmètre (spec
+   `2026-11-20-yagni-spec-design`) : les autres axes d'EGM (contexte insuffisant, détail d'implémentation, impasse
+   d'architecture) et le contrôle du plan.
+3. **Relecteur en échec = « non lancé »** (EGM, `agents/synthesizer.md`) : un agent de review, de convergence,
+   `spec-yagni-checker` ou `ddd revue` qui expire ou ne rend rien est relancé une fois. S'il échoue encore, son
+   rapport l'affiche « non lancé », jamais « aucun défaut ». Une phrase dans « Exécution » de `feature`,
+   à reporter dans `bugfix`.
 4. **Rapport de dérive doc/code** (EGM, `skills/egm-drift-report`) : confronter `CLAUDE.md`, `docs/domaine.md` et les
    `AGENTS.md` au code, et ne lister que les écarts (champ absent, valeur codée en dur, autre bibliothèque que
    prévu). Un mode de `todo` ou un petit skill, lancé à la demande.
@@ -27,6 +30,11 @@ Mis à jour le 2026-11-20.
    `;` ou `&` entre guillemets (lecture par motif : passer à l'arbre shfmt de main-guard).
 6. **`/pr list toutes` limité à 30 PR** : `gh pr list` s'arrête à 30 par défaut ; passer `-L 100` pour
    `--state all` et `--state closed` (`global/skills/pr/SKILL.md`). (mémoire du projet)
+7. **Jamais `git stash` pour voir un test rouge** : le brief de `sdd-implementer` et de `bug-worker`, et le rôle de
+   contrôleur de `feature` et `bugfix`, disent d'utiliser `git checkout <rév> -- <fichiers>` (puis remettre) ou un
+   worktree sur `main`, comme l'`AGENTS.md` du projet s'il le demande. `git stash` échoue sur les fichiers en
+   intention d'ajout et met de côté un test déjà suivi. (leçon d'une session d'un autre projet, revenue sur
+   plusieurs de ses PR)
 
 ## Corrections
 

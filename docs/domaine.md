@@ -138,3 +138,25 @@ Invariants : le hook ne réécrit jamais la commande (le mode auto refuse un app
 règle de `bash-rewrite`) ; un appel qui n'envoie pas de texte publié (`gh pr edit --add-reviewer`, `gh pr view`,
 lecture `gh api`, commit WIP d'un agent, push simple) passe sans jugement ; entrée ou transcript illisibles → l'appel
 passe.
+
+## Contexte : Conception de feature
+
+Responsabilité : faire contrôler une spec ou un plan avant qu'ils s'ouvrent dans Plannotator, pour que l'utilisateur
+n'y tranche que ce qui reste · Dans le code : `global/skills/feature/SKILL.md` (§ « Validation fonctionnelle »,
+étapes 1 et 2), `global/skills/ddd/SKILL.md` (§ `revue`), `global/agents/spec-yagni-checker.md` · Dépend de :
+Plannotator (en aval : « à trancher » → blocs `:::question`)
+
+| Terme | Définition métier | Dans le code | À ne pas dire |
+|---|---|---|---|
+| Validation fonctionnelle | Contrôle d'une spec ou d'un plan, sans la conversation ni l'avis de l'auteur, avant leur première ouverture dans Plannotator | § « Validation fonctionnelle » | relecture (c'est celle d'une PR) |
+| Revue métier | Contrôle qu'une spec ou un plan répond au besoin et parle le langage du glossaire | `ddd revue` | review (c'est celle de l'étape 7) |
+| Écart | Point relevé par la validation fonctionnelle (`ddd revue`, `spec-yagni-checker`), trié à corriger, à trancher ou écarté | rapport de `ddd revue`, réponse de `spec-yagni-checker` | finding, remarque (c'est celle d'une PR) |
+| Contrôle YAGNI | Contrôle d'une spec contre le code du dépôt, à la recherche d'un utilitaire existant, d'une option spéculative ou d'une optimisation prématurée | `spec-yagni-checker` | relecteur YAGNI, revue YAGNI |
+| Utilitaire existant | Fonction, script, règle, skill ou agent du dépôt, ou outil standard déjà utilisé, qui fait déjà ce que la spec prévoit d'écrire | — | doublon |
+| Option spéculative | Option, mode, réglage ou cas que la spec ajoute sans que la demande initiale le demande | — | évolutivité |
+| Optimisation prématurée | Cache, parallélisme ou détour écrit pour la vitesse sans lenteur constatée ni volume qui l'exige | — | performance |
+| Review finale | Relecture du code de la branche à l'étape 7 (`ponytail-review` et `sdd-final-reviewer`, Opus), après l'implémentation | `final-review.md` | revue métier |
+
+Invariants : la validation fonctionnelle ne reçoit pas l'avis de l'auteur et ne modifie pas le document ; un
+élément cité dans la demande initiale n'est jamais une option spéculative ; ses « à trancher » deviennent des blocs
+`:::question`.
