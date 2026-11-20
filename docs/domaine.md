@@ -115,3 +115,26 @@ Responsabilité : refuser, avant qu'il ne parte, un appel Bash qui pousse vers m
 | Faux refus | Refus d'un appel qui ne pousse pas vers main (`cd <worktree>; git push`, `"$X"` lu comme refspec inconnue, `checkout -- <fichier>` lu comme une branche inconnue) | — | contournement |
 
 Invariants : un `cd` ou un switch ne compte que suivi de `&&` ; un dossier, une branche ou une refspec inconnus sont jugés comme main ; un seul état possible qui pousse vers main suffit à refuser ; shfmt absent, appel illisible, plantage du hook ou plafond dépassé = refus, jamais passage sans jugement ; un commit, le push d'un tag, d'une autre branche et `--delete` d'une autre branche restent permis depuis main ; échappent au jugement ce qui dépend de l'exécution (alias et fonctions shell, `"$X"` qui cache une option) et les formes rares listées en `shortcut:` en tête du hook (alias git, `eval`, `xargs`, `exec`, `trap`, `watch`, `export GIT_DIR`, options abrégées, `remote.*.push`…).
+
+## Contexte : Garde humanizer
+
+Responsabilité : refuser, avant qu'il ne parte vers GitHub, un texte publié qui n'est pas passé par
+`humanizer:humanizer` (consigne « Humanizer » du `CLAUDE.md` global), sans réécrire l'appel · Dans le code :
+`global/humanizer-hook.sh`, déclaré dans `settings/base.json`, `tests/test_humanizer_hook.sh` · Dépend de : Réglages
+(hook PreToolUse déclaré dans `base.json`), transcript de la session (`transcript_path`), skills `pr` (`push`,
+`squash`, `merge`, `comments`, `review`, `rebase`), qui portent déjà la consigne à leur étape
+
+| Terme | Définition métier | Dans le code | À ne pas dire |
+|---|---|---|---|
+| Texte publié | Prose écrite par Claude que la consigne cite : description et titre de PR, commit final, remarque ou réponse de relecture, commentaire de conversation de la PR | `--body-file`, `--title`, `-F body=@`, `--input` | message, sortie |
+| Commit final | Commit qui reste sur main après le merge : celui d'un squash, ou le commit unique d'une PR mergée tel quel | push forcé de `squash.md`, `gh pr merge` de `merge.md` | commit de squash (un cas seulement) |
+| Point de publication | Appel Bash qui envoie un texte publié (liste fermée : spec `2026-11-20-rappel-humanizer-design.md`, R1) | — | commande d'écriture (plus large) |
+| Passage humanizer | Réécriture d'un texte publié par le skill `humanizer:humanizer` avant de l'envoyer, code, commandes, identifiants et citations gardés tels quels | skill `humanizer:humanizer` | relecture, correction |
+| Passage récent | Appel de l'outil `Skill` à `humanizer:humanizer` postérieur au dernier message tapé par l'utilisateur (retours d'outil, messages méta, notifications, messages d'un plugin et résumé de compaction exclus) | transcript | — |
+| Refus | Réponse `deny` du hook à un point de publication sans passage récent ni marqueur ; sa raison cite la consigne | `permissionDecision` | rappel, blocage |
+| Marqueur | Commentaire présent n'importe où dans l'appel qui dispense du passage récent : texte qui n'est pas de la prose, ou déjà relu | `# humanizer: …` | contournement |
+
+Invariants : le hook ne réécrit jamais la commande (le mode auto refuse un appel d'écriture modifié par un hook,
+règle de `bash-rewrite`) ; un appel qui n'envoie pas de texte publié (`gh pr edit --add-reviewer`, `gh pr view`,
+lecture `gh api`, commit WIP d'un agent, push simple) passe sans jugement ; entrée ou transcript illisibles → l'appel
+passe.

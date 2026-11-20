@@ -8,5 +8,6 @@ L'invocation vaut demande de réécrire la branche et de la pousser.
    l'intention de chacune ; jamais `--ours`/`--theirs` en bloc. Intention ambiguë → montrer le conflit et attendre la décision (rebase laissé en cours).
 4. Vérification du projet dans l'arbre de la PR. Rouge → ne pas pousser, rapporter, laisser l'arbre en l'état.
 5. Approbations existantes (`approvals`, `SKILL.md`) → prévenir qu'un push forcé peut les invalider, puis pousser :
-   `git push --force-with-lease=<headRefName>:<SHA distant noté> origin <headRefName>`, jamais `--force` seul.
+   `git push --force-with-lease=<headRefName>:<SHA distant noté> origin <headRefName> # humanizer: sans objet`
+   (aucun texte publié : sans le marqueur, le hook `humanizer-hook.sh` refuse ce push forcé), jamais `--force` seul.
 6. Frictions dans `lecons.md`. Rapport : commits rejoués, fichiers en conflit et résolution choisie, résultat des tests, nouveau SHA.

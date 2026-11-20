@@ -34,11 +34,16 @@ L'invocation vaut demande de corriger, pousser et répondre.
    (`update-desc`, `SKILL.md`) et la relire contre le diff comme à l'étape 4 de `push.md`, avant la review du tour suivant.
 4. Répondre à chaque fil corrigé (`gh api repos/<owner/repo>/pulls/<n°>/comments/<databaseId>/replies -F body=@<fichier>`, corps écrit dans un fichier avec Write d'abord, pas `printf`/`echo`) :
    ce qui a changé, le SHA et le sujet du commit (un `squash` qui suit efface le SHA), passé par `humanizer:humanizer`. Ne pas résoudre les fils : c'est au relecteur. Fils non corrigés : réponse proposée
-   dans le rapport et dans `final-review.md`, publiée après accord.
+   passée par `humanizer:humanizer` avant d'être montrée, dans le rapport et dans `final-review.md`,
+   publiée après accord.
    Points hors fil corrigés : un seul commentaire de conversation (`gh pr comment <n°> --body-file <fichier>`) qui
    cite chaque point (`> …`, mot pour mot) avec ce qui a changé, le SHA et le sujet du commit, passé par `humanizer:humanizer`, qui garde
-   les citations telles quelles. Points non corrigés :
-   comme les fils, réponse proposée, publiée après accord ; tant qu'aucune réponse ne les cite, ils restent en attente.
+   les citations telles quelles. Points non corrigés : comme les fils, réponse
+   proposée, passée par `humanizer:humanizer` avant d'être montrée, publiée après accord ; tant qu'aucune réponse ne
+   les cite, ils restent en attente.
+   Réponse approuvée telle quelle, déjà passée par `humanizer:humanizer` : marqueur `# humanizer: déjà relu` en fin
+   d'appel, sinon le hook `humanizer-hook.sh` la refuse et un second passage changerait le texte approuvé. Réponse
+   modifiée à la demande de l'utilisateur : nouveau passage, montrée de nouveau.
    Réponses publiées : redemander la relecture à l'auteur du premier commentaire de chaque fil qui en a reçu une, et
    de la review ou du commentaire d'où vient chaque point hors fil qui en a reçu une
    (`gh pr edit <n°> --add-reviewer <login1>,<login2>`), hors soi, l'auteur de la PR et les auteurs de type `Bot`.
