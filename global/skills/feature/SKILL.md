@@ -169,7 +169,9 @@ changer de branche dans le dépôt de travail (compiler et lancer les tests y re
 dossier de suivi : il demande le rapport complet dans la réponse, et le contrôleur écrit le fichier.
 Le brief de chaque sous-agent, implémenteur compris, dit qu'un refus du mode auto « a hook changed this call's
 input » n'est pas un jugement : relancer l'appel seul, à l'identique, sans autre appel dans le même message, une
-fois ; refusé encore → BLOCKED, avec la commande.
+fois ; refusé encore → BLOCKED, avec la commande. Le contrôleur lance chaque appel `Agent` seul dans son message,
+sans Bash ni autre appel : le classifieur le refuse sinon (« another call in this response was changed »), sauf
+lot parallélisable, où les Agent partent ensemble mais sans autre outil.
 
 **PHP : outil `LSP` (plugin `php-lsp`, Intelephense)** — dans un projet PHP, l'outil `LSP` sert à chaque étape qui
 cherche ou modifie un symbole : portée de la spec et usages de l'étape 1b (`findReferences`, `incomingCalls`,
