@@ -18,6 +18,8 @@ d'alarme), avec les différences ci-dessous. La review (étape 8) et la livraiso
 - **Bascule vers `/feature`** ou attendu absent ou ambigu → s'arrêter sans corriger, statut `NEEDS_CONTEXT` avec le
   constat et la question.
 - **Non reproductible** → rien corrigé, statut `BLOCKED` avec ce qui a été essayé.
+- **Issue de couverture** : pas de `BLOCKED` faute de défaut à reproduire ; rouge par mutation (`bugfix`, étape 4),
+  **Correctif** « aucun (couverture) ».
 - **Recette** : le résultat revient dans la réponse, pas dans `recette.md`.
 - **Tests** : copier `assets/vendor/` et `vendor/` dans le worktree avant de les lancer (git les ignore, la suite
   serait incomplète). Les tests cités par le brief figent un comportement voisin : les garder verts, sans les modifier ;

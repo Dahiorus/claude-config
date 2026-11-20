@@ -64,6 +64,8 @@
 - Texte ou diff demandé par une autre session (`/notify claude-config`) : l'appliquer tel quel. Une fusion avec une phrase voisine ou un changement de portée se propose à part, dans la PR.
   - Avant d'ouvrir la PR, relire ce texte contre la grille de `feature` (langage nommé, branche locale au lieu de
     `origin/main`, pronom à deux référents, attendu tiré du code) et lister les écarts dans la description.
+  - « Tel quel » ne vaut pas contre la règle des 120 colonnes : si le texte réécrit une ligne ou une cellule déjà plus
+    longue, ne pas la réécrire, mettre le texte reçu sous elle, et le dire dans la description.
 - Texte demandé, ou leçon venue d'un autre projet, qui affirme un comportement d'un hook du dépôt (main-guard, bash-rewrite, pre-push) : le rejouer sur ce hook (dépôt jetable ou `tests/test_main_guard.sh`) avant de l'appliquer ; s'il est faux, le dire à la session d'origine au lieu de l'écrire.
   - Même règle pour un hook de plugin (`CwdChanged` du plugin `profile`…) ou un comportement de Claude Code
     rapporté par une autre session : le rejouer par une commande réelle dans cette session avant de l'écrire.

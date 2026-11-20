@@ -35,6 +35,7 @@ Mis à jour le 2026-11-20.
    worktree sur `main`, comme l'`AGENTS.md` du projet s'il le demande. `git stash` échoue sur les fichiers en
    intention d'ajout et met de côté un test déjà suivi. (leçon d'une session d'un autre projet, revenue sur
    plusieurs de ses PR)
+   Le rouge par mutation de `bugfix` (issue de couverture) restaure déjà le code par `git checkout`, sans `git stash`.
 
 ## Corrections
 
@@ -85,3 +86,9 @@ Mis à jour le 2026-11-20.
     `agents/bug-worker.md`) : repris tels quels d'un autre projet. À généraliser en « dossiers ignorés par git dont
     les tests ont besoin », et à vérifier que la copie depuis le dépôt principal n'est pas refusée dans le
     worktree. (reliquat de cette PR)
+15. **Règle `pr-risk` de `feature` (« Dosage des reviews »), reçue d'un autre projet par `/notify`** : appliquée telle
+    quelle, avec trois écarts à la grille. Vocabulaire d'un projet PHP/SQL (« docblock », « alias », « schéma SQL »)
+    à généraliser ; « le dire dans son brief » alors que `pr-risk` se lance sans argument (« Dosage des reviews »,
+    première puce) : dire comment lui passer l'information ; la vérification des dangers avant de les relayer
+    manque aussi à `pr/push.md` (étape 4) et à `pr/review.md` (étape 3), qui lancent aussi `pr-risk`. (relecture
+    de cette PR)
