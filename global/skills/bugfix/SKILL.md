@@ -50,6 +50,8 @@ dans un worktree → session lancée depuis le worktree.
 Un agent `bug-worker` par bug (`~/.claude/agents`, sauf agent du projet de même nom, qui prime ; modèle `sonnet`
 passé explicitement), lancé avec `isolation: "worktree"` (il part de `main`, ce qui convient à `fix/<sujet>`). Claude
 Code refuse dans ce worktree toute commande dont il ne peut pas vérifier qu'elle y reste : son brief l'impose donc, avec la règle du refus de hook (`feature`, « Exécution »).
+Le contrôleur lance chaque appel `Agent` seul dans son message, sans Bash ni autre appel, sauf lot de
+`bug-worker` ou de reviews parallèles (Agent seulement) : même règle que `feature`, « Exécution ».
 Le brief demande aussi de copier `assets/vendor/` et `vendor/` dans le worktree avant de lancer les tests (git les
 ignore, et sans eux la suite est incomplète). Il cite aussi les tests déjà écrits qui figent le comportement voisin
 du bug (contrats d'autres PR), pour que le correctif ne les casse pas.
