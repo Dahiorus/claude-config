@@ -23,6 +23,9 @@
   - Règle qui prescrit une commande (`git grep`, `git push`, `gh`) : la jouer sur un cas réel avant de l'écrire. Un
     `git grep` lit ligne par ligne : une phrase coupée à 120 colonnes ne se trouve pas entière, il faut un fragment
     tenu sur une ligne.
+  - Agent qui lit ou cherche dans un dépôt : sa consigne nomme la racine que le brief lui donne (arbre de la PR,
+    pas le dépôt principal) et écrit la commande avec elle (`git -C <racine> grep …`), sur tout le dépôt, sans
+    liste de dossiers. Sans cela il cherche dans son dossier courant, celui de la session.
   - Règle changée en cours de PR (correctif de review compris) : relire aussi le titre de la PR, pas seulement la
     description (`gh pr edit --title`). `pr-risk` compte un titre resté sur l'ancienne règle comme écart d'intention.
   - Liste fermée changée (points de publication du hook humanizer, par exemple) : grepper aussi les phrases de

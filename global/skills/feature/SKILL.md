@@ -135,14 +135,21 @@ configuration) est présenté dans un bloc de code délimité par ```` ``` ```` 
 du fichier précède le bloc.
 
 **Validation fonctionnelle** — avant la première ouverture dans Plannotator de la spec, puis du plan : skill `ddd`
-en mode `revue` sur le document (`revue spec <spec>`, `revue plan <plan> <spec>`), sans l'avis de l'auteur. Ses
-« à corriger » s'appliquent avant l'ouverture, ses « à trancher » deviennent des blocs `:::question` à l'endroit
-qu'ils touchent. Les réouvertures suivantes ne le relancent pas, sauf si les annotations changent le comportement
-ou la portée. Pour une spec, avant d'appliquer les « à corriger », l'auteur compare d'abord la paraphrase qui ouvre
-le rapport (« Ce que la spec propose », « L'existant selon la spec ») au § « Demande initiale » et à son intention :
-un écart dû à une formulation fait réécrire le passage qui a égaré la revue, comme un « à corriger » ; un
+en mode `revue` sur le document (`revue spec <spec>`, `revue plan <plan> <spec>`), sans l'avis de l'auteur. Pour une
+spec, le contrôle YAGNI s'y ajoute : l'agent `spec-yagni-checker` (**Sonnet**, modèle passé explicitement), avec le
+chemin de la spec et la racine du dépôt pour seule entrée, part en arrière-plan seul dans son message, puis
+`ddd revue spec` au message suivant. Les deux tournent en même temps ; aucun écart ne s'applique avant le retour
+des deux. Un plan n'y passe pas. Les « à corriger » de `ddd revue` et, pour une spec, du contrôle YAGNI
+s'appliquent avant l'ouverture, leurs « à trancher » deviennent des blocs `:::question` à l'endroit qu'ils touchent.
+Un point relevé par les deux donne une seule correction ou un seul bloc ; un « à trancher » posé sur un passage
+qu'un « à corriger » de l'autre réécrit porte sur le texte corrigé. Le rapport du contrôle YAGNI reste dans la
+conversation, comme celui de `ddd revue`. Les réouvertures suivantes ne les relancent pas, sauf si les annotations
+changent le comportement ou la portée. Pour une spec, avant d'appliquer les « à corriger », l'auteur compare
+d'abord la paraphrase qui ouvre le rapport de `ddd revue` (« Ce que la spec propose », « L'existant selon la
+spec ») au § « Demande initiale » et à son intention : un écart dû à une formulation fait réécrire le passage qui a
+égaré la revue, comme un « à corriger » ; un
 comportement que la spec n'a pas tranché devient un bloc `:::question` à l'endroit qu'il touche.
-La revue n'est pas relancée après cette réécriture. La paraphrase ne s'ouvre pas dans Plannotator.
+`ddd revue` n'est pas relancée après cette réécriture. La paraphrase ne s'ouvre pas dans Plannotator.
 
 **Découpage en PR** — le plan regroupe ses tâches par story, dans l'ordre des priorités, après les tâches
 communes (caractérisation, refacto, socle partagé). Il estime les fichiers touchés hors tests, spec et plan : plus de
@@ -170,6 +177,7 @@ retour, le contrôleur vérifie que le fichier existe ; s'il manque, il l'écrit
 du rouge, qu'on redemande à l'implémenteur avant le contrôle. Le brief des agents de contrôle, de convergence et de review leur interdit d'éditer, de commiter ou de
 changer de branche dans le dépôt de travail (compiler et lancer les tests y restent permis), et d'écrire dans le
 dossier de suivi : il demande le rapport complet dans la réponse, et le contrôleur écrit le fichier.
+`spec-yagni-checker` obéit aux mêmes interdits et rend aussi son rapport dans sa réponse.
 Le brief de chaque sous-agent, implémenteur compris, dit qu'un refus du mode auto « a hook changed this call's
 input » n'est pas un jugement : relancer l'appel seul, à l'identique, sans autre appel dans le même message, une
 fois ; refusé encore → BLOCKED, avec la commande. Le contrôleur lance chaque appel `Agent` seul dans son message,
