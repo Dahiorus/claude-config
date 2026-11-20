@@ -22,15 +22,20 @@ if [[ "${1:-}" == "--one" ]]; then
   exit 0
 fi
 
-filter="${1:-}"
+# Filtres : un test tourne si son nom contient l'un d'eux ; aucun filtre → tous les tests et shellcheck.
+filters=("$@")
 passed=0
 failed=0
 out="$(mktemp)"
 trap 'rm -f "$out"' EXIT
 
 while IFS= read -r t; do
-  if [[ -n "$filter" && "$t" != *"$filter"* ]]; then
-    continue
+  if (($#)); then
+    keep=0
+    for f in "${filters[@]}"; do
+      if [[ "$t" == *"$f"* ]]; then keep=1; fi
+    done
+    ((keep)) || continue
   fi
   # </dev/null : un test qui lit stdin ne doit pas consommer la liste des tests.
   if bash "${BASH_SOURCE[0]}" --one "$t" >"$out" 2>&1 </dev/null; then
@@ -43,7 +48,7 @@ while IFS= read -r t; do
   fi
 done < <(declare -F | awk '{print $3}' | grep '^test_' | sort || true)
 
-if [[ -z "$filter" ]]; then
+if ((${#filters[@]} == 0)); then
   if command -v shellcheck >/dev/null 2>&1; then
     mapfile -t files < <(git -C "$REPO_SRC" ls-files --cached --others --exclude-standard '*.sh' 'bin/*' 'githooks/*')
     if (cd "$REPO_SRC" && shellcheck -x "${files[@]}"); then

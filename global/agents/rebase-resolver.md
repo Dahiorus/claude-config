@@ -42,7 +42,7 @@ Pour chaque fichier en conflit :
 2. **Résolution** : le contenu résolu de chaque hunk en conflit, prêt à remplacer le bloc `<<<<<<< … >>>>>>>`, ou
    le fichier entier s'il est court.
 3. **Vérification** : ce que la session doit compiler ou tester pour confirmer, notamment un appel ou un symbole
-   renommé d'un côté et utilisé de l'autre (`git grep` sur tout le dépôt).
+   renommé d'un côté et utilisé de l'autre (`git -C <arbre de la PR> grep` sur tout le dépôt).
 
 Intention ambiguë (les deux côtés changent la même règle différemment, ou un côté supprime ce que l'autre modifie)
 → ne pas trancher : marquer le fichier `à trancher`, avec les options et une recommandation. La session montre le

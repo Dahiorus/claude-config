@@ -1,6 +1,6 @@
 # Reste à faire
 
-Mis à jour le 2026-11-20.
+Mis à jour le 2026-11-21.
 
 ## Features
 
@@ -36,6 +36,13 @@ Mis à jour le 2026-11-20.
    intention d'ajout et met de côté un test déjà suivi. (leçon d'une session d'un autre projet, revenue sur
    plusieurs de ses PR)
    Le rouge par mutation de `bugfix` (issue de couverture) restaure déjà le code par `git checkout`, sans `git stash`.
+8. **Collecte des leçons sans règle qui grossit** (audit de `lecons.md` et du `CLAUDE.md`, 2026-11-21) : sur ~135
+   leçons, ~35 % sont ponctuelles, ~20 % déjà couvertes, et 8 groupes de frictions sur 10 sont revenus malgré leur
+   règle. À faire avec `/feature` (touche `merge.md` étape 2, `lessons-extractor`, `tests/`) : étiquette `méca`,
+   `jugement` ou `ponctuel` sur chaque ligne de `lecons.md` (un `ponctuel` ne produit pas de règle) ; une friction
+   mécanisable devient un test, un hook ou un script, jamais une phrase ; une récidive met la règle en cause au lieu de
+   la reformuler ; budget de lignes du `CLAUDE.md` vérifié par un test ; règle citée dans `lecons.md` quand la
+   friction revient, pour retirer celles qu'on ne cite plus. (#180)
 
 ## Corrections
 
@@ -92,3 +99,12 @@ Mis à jour le 2026-11-20.
     première puce) : dire comment lui passer l'information ; la vérification des dangers avant de les relayer
     manque aussi à `pr/push.md` (étape 4) et à `pr/review.md` (étape 3), qui lancent aussi `pr-risk`. (relecture
     de cette PR)
+16. **Règles de l'audit du `CLAUDE.md` restées en prose** (2026-11-21) : deux contrôles proposés n'ont pas été écrits.
+    Agents qui citent `git grep` sans `git -C <racine>` : trois exceptions (`todo-verifier` et `sdd-task-reviewer`
+    cherchent dans une révision ; le brief de `sdd-final-reviewer` ne donne pas de racine, sa review rejoue dans un
+    dépôt jetable). `jq … | hook` dans un test : `guard_raw` (`tests/test_main_guard.sh`) passe
+    par un pipe vers un hook qui lit son entrée, donc le motif signalerait un cas sûr. Les règles restent en une ligne
+    du `CLAUDE.md`. Le troisième, `fromjson?` sans `type == "object"`, est `test_jq_fromjson_selects_objects`. (#181)
+17. **`md_long_lines` compte les lignes longues d'un bloc de code** (`tests/test_rules.sh`) : `git diff -U0` ne dit
+    pas si la ligne est dans un bloc. À lire le fichier entier si un cas réel gêne. Les tableaux et la ligne
+    `description:` du frontmatter sont exemptés : 8 des 15 derniers commits en ajoutaient. (#182)

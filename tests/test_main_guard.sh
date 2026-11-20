@@ -237,3 +237,18 @@ test_guard_follows_switch_in_same_command() {
   assert_eq "$(guard 'git switch main && git push')" deny "switch main depuis le worktree"
   assert_eq "$(guard 'git checkout README.md && git push')" deny "checkout d'un fichier depuis le worktree : inconnue"
 }
+
+# Chaque `git push` que les skills et agents font écrire passe depuis une branche de feature.
+test_guard_allows_skill_pushes() {
+  make_repo
+  git -C "$GUARD_REPO" switch -q feat/x
+  local cmd n=0
+  # shellcheck disable=SC2016 # les accents graves sont ceux du Markdown
+  while IFS= read -r cmd; do
+    cmd="$(sed -E 's/<[^>]*>/feat\/x/g; s/…//g' <<<"${cmd//\`/}")"
+    assert_eq "$(guard "$cmd")" allow "$cmd"
+    assert_eq "$(guard "rtk $cmd")" allow "rtk $cmd"
+    n=$((n + 1))
+  done < <(grep -rhoE '`git push[^`]*`' "$REPO/global/skills" "$REPO/global/agents")
+  (( n >= 5 )) || fail "seulement $n git push trouvés dans les skills"
+}
