@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# PreToolUse Bash : refuse un appel qui publie du texte vers GitHub (PR, commentaire de PR ou d'issue, relecture,
+# PreToolUse Bash : refuse un appel qui publie du texte vers GitHub (PR, issue, commentaire de PR ou d'issue, relecture,
 # push forcé, merge)
 # si le skill humanizer:humanizer n'est pas passé depuis le dernier message tapé par l'utilisateur.
 # shortcut: lecture par motif du texte de l'appel ; une commande cachée (variable, alias, eval) n'est pas vue,
@@ -26,6 +26,7 @@ line_is_publication() {
   [[ "$l" =~ ${W}gh${SP}+issue${SP}+comment${END} ]] && return 0
   [[ "$l" =~ ${W}gh${SP}+pr${SP}+edit${END} && "$l" =~ $EDIT_OPTS ]] && return 0
   [[ "$l" =~ ${W}gh${SP}+pr${SP}+review${END} && "$l" =~ $BODY_OPTS ]] && return 0
+  [[ "$l" =~ ${W}gh${SP}+issue${SP}+(create|edit)${END} && "$l" =~ $BODY_OPTS ]] && return 0
   [[ "$l" =~ ${W}gh${SP}+(pr|issue)${SP}+close${END} && "$l" =~ $CLOSE_OPTS ]] && return 0
   [[ "$l" =~ ${W}gh${SP}+api${END} && "$l" =~ $API_PATH && "$l" =~ $API_WRITE ]] && return 0
   [[ "$l" =~ ${W}git${SP}+(.*${SP})?push${SP}.*--force-with-lease ]] && return 0

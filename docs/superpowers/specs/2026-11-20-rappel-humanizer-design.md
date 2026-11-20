@@ -10,7 +10,8 @@ Origine : `docs/reste-a-faire.md`, point 5 (*défaut ancien* : consigne oubliée
 
 La consigne visée, `global/CLAUDE.md` § Humanizer : « Before publishing the final commit(s) of a PR (squashed, or a
 single commit merged as is), a PR description or a review comment you wrote, run it through the
-`humanizer:humanizer` skill, then use the rewritten text. » Amendée par #167 : les commentaires d'issue aussi.
+`humanizer:humanizer` skill, then use the rewritten text. » Amendée par #167 : les commentaires d'issue aussi ;
+par #172 : le corps d'une issue.
 
 ## Constat qui oriente la conception
 
@@ -37,6 +38,7 @@ Liste fermée des points de publication (décision de relecture) :
 - `gh pr edit` avec `--body`, `--body-file` ou `--title` (`-b`, `-F`, `-t`) ; `--add-reviewer` seul passe ;
 - `gh pr comment` ; `gh pr review` avec `-b`/`--body` ou `-F`/`--body-file` ; `gh pr close` avec `-c`/`--comment` ;
 - `gh issue comment` ; `gh issue close` avec `-c`/`--comment` (fermeture d'issue de l'étape 4 de `merge.md`) ;
+- `gh issue create` et `gh issue edit` avec `-b`/`--body` ou `-F`/`--body-file` (issues de `push.md`, étape 2) ;
 - `gh api` qui écrit (`-f`, `-F`, `--field`, `--raw-field`, `--input` ou `-X POST`) vers un chemin en `…/reviews`,
   `…/replies` ou `…/comments`, suivi ou non d'un segment (`issues/comments/<id>`) : commentaire de relecture
   (`pulls/N/comments`) ou de conversation (`issues/N/comments`, l'API de `gh pr comment` ; un commentaire d'issue
@@ -80,13 +82,13 @@ Endroits touchés :
 | `settings/base.json`, `PreToolUse` | nouvelle entrée `matcher: "Bash"`, `bash ~/.claude/humanizer-hook.sh`, après main-guard |
 | `lib/links.sh` (`install_links`) | inchangé : il relie déjà tout `global/*` dans `~/.claude` |
 | `global/bash-rewrite-hook.sh`, `global/main-guard-hook.sh` | inchangés : hooks indépendants ; un push vers main refusé par main-guard l'est quel que soit le rappel |
-| `global/CLAUDE.md` § Humanizer | la consigne reste la référence, la raison du refus la cite ; phrase ajoutée pour les commentaires d'issue (#167) |
-| `global/skills/pr/push.md`, `squash.md`, `merge.md`, `comments.md`, `review.md`, `SKILL.md` | inchangés : ils demandent déjà le passage humanizer avant ces appels ; le hook les rattrape quand l'étape est sautée |
+| `global/CLAUDE.md` § Humanizer | la consigne reste la référence, la raison du refus la cite ; phrases ajoutées pour les commentaires d'issue (#167) et le corps d'une issue (#172) |
+| `global/skills/pr/squash.md`, `merge.md`, `comments.md`, `review.md`, `SKILL.md` | inchangés : ils demandent déjà le passage humanizer avant ces appels ; le hook les rattrape quand l'étape est sautée |
 | `global/skills/bugfix/SKILL.md` (étape 9), `global/skills/release/SKILL.md` | inchangés : leur commit atteint main par `/pr merge` (push forcé de `squash.md` ou `gh pr merge`), donc par les points ci-dessus |
 | `global/skills/pr/rebase.md` (push forcé) | `# humanizer: sans objet` ajouté à son push |
 | `global/skills/pr/comments.md` (réponses publiées après accord, étape 4) | réponse proposée passée par humanizer avant d'être montrée (décision de relecture du plan), puis `# humanizer: déjà relu` ajouté aux appels qui publient le texte approuvé tel quel |
 | `global/skills/pr/review.md` (remarques publiées par `gh api …/reviews --input`) | inchangé : passage humanizer prescrit juste avant l'envoi (étape 4), sans accord de l'utilisateur entre les deux |
-| `gh issue create` (`push.md`) | inchangé, hors des points : la consigne ne cite que les commentaires d'issue (#167) |
+| `gh issue create` (`push.md`) | corps passé par humanizer après l'accord sur la liste (#172) |
 | `global/skills/pr-risk/SKILL.md` (`gh pr comment`, `gh api …/comments` PATCH) | `# humanizer: sans objet` ajouté au script qui publie son commentaire (décision ci-dessous) |
 | Agents (`sdd-implementer`, `bug-worker`) | inchangés : ils commitent sans pousser en force ni publier sur GitHub |
 | `docs/domaine.md`, contexte « Garde humanizer » | glossaire aligné sur les décisions de cette spec |
@@ -123,6 +125,8 @@ Nominaux :
 - `gh pr review 12 --comment -b "…"` → refus sans passage récent.
 - `gh pr close 12 --comment "…"`, `gh pr close 12 -dc "…"` → refus ; `gh pr close 12` → passe.
 - `gh issue comment 167 --body-file f`, `gh issue close 167 -c "…"` → refus ; `gh issue close 167 -r completed` →
+  passe.
+- `gh issue create -t x --body-file f`, `gh issue edit 172 -b "…"` → refus ; `gh issue edit 172 --add-label bug` →
   passe.
 - `gh api repos/o/r/pulls/12/comments -f body=x`, `gh api repos/o/r/issues/12/comments -F body=@f`,
   `gh api -X PATCH repos/o/r/issues/comments/9 -F body=@f` → refus ; `gh api repos/o/r/issues/12/comments --paginate`
@@ -162,6 +166,10 @@ quels. Aucun test de caractérisation à ajouter.
   l'utilisateur.
 - `gh issue comment` et `gh issue close --comment` : ajoutés par l'issue #167 (cas réel : fermeture d'issue de
   `merge.md`), la consigne citant désormais les commentaires d'issue.
+- `gh issue create` et `gh issue edit` avec un corps : ajoutés par l'issue #172 (issues de dette de `push.md`), la
+  consigne citant désormais le corps d'une issue.
+- Titre d'issue seul (`gh issue edit -t`/`--title`) : hors des points, c'est un identifiant court ; le titre d'une
+  PR reste un point (`gh pr edit --title`).
 - Hors périmètre : un texte publié par un autre outil que Bash (MCP GitHub), une commande cachée (variable, alias,
   `eval`), un message de commit relu mais poussé sans force (premier push d'une branche : la PR le reprend au squash).
 

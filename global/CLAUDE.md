@@ -17,6 +17,7 @@ lecture en Bash est un tour de plus sur tout le contexte.
 Before publishing the final commit(s) of a PR (squashed, or a single commit merged as is), a PR description or a review comment you wrote, run it through the
 `humanizer:humanizer` skill, then use the rewritten text. Leave code, commands, identifiers and quoted output as is.
 An issue comment you wrote (`gh issue comment`, `gh issue close --comment`) goes through it too.
+So does an issue body you wrote (`gh issue create`, `gh issue edit` with `--body` or `--body-file`).
 
 # Skills globaux
 

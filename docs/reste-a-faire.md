@@ -77,8 +77,3 @@ Mis à jour le 2026-11-20.
     `agents/bug-worker.md`) : repris tels quels d'un autre projet. À généraliser en « dossiers ignorés par git dont
     les tests ont besoin », et à vérifier que la copie depuis le dépôt principal n'est pas refusée dans le
     worktree. (reliquat de cette PR)
-15. **Hook humanizer : `gh issue create` et `gh issue edit`** (corps d'une issue, `push.md` étape 2) : hors du hook
-    et de la consigne « Humanizer » de `global/CLAUDE.md`, exclus de #167 par la spec
-    (`2026-11-20-rappel-humanizer-design.md`). À trancher : refus avec un corps seulement (`--body`, `--body-file`,
-    `-b`, `-F`), marqueur `# humanizer: déjà relu` dans `push.md` (liste approuvée avant création). Un seul
-    appelant aujourd'hui (`push.md`). (reliquat de la PR #171, #172)
