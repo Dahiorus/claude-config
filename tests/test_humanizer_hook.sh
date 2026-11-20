@@ -115,6 +115,15 @@ test_humanizer_denies_pr_close_comment() {
   assert_eq "$(decision 'gh pr close 12 -c "x"')" "deny" "-c"
 }
 
+test_humanizer_denies_issue_comment() {
+  transcript "$(t_prompt a)"
+  assert_eq "$(decision 'gh issue comment 167 --body-file f')" "deny" "issue comment"
+  assert_eq "$(decision 'rtk gh issue close 167 --comment "x"')" "deny" "issue close --comment"
+  assert_eq "$(decision 'gh issue close 167 -c "x"')" "deny" "issue close -c"
+  assert_eq "$(decision 'gh issue close 167 -r completed')" "silence" "issue close sans commentaire"
+  assert_eq "$(decision 'gh issue view 167 --comments')" "silence" "issue view --comments"
+}
+
 test_humanizer_denies_api_comments() {
   transcript "$(t_prompt a)"
   assert_eq "$(decision 'gh api repos/o/r/pulls/12/comments -f body=x')" "deny" "pulls/N/comments"

@@ -28,7 +28,8 @@ sa section « État » s'il y en a, et proposer `/pr push` (qui la sort du draft
    `--delete`) → le signaler avant de merger. Issues réglées entièrement par la PR (spec, commits, branche) absentes de
    `gh pr view --json closingIssuesReferences` → ajouter leur `Closes #n` à la description avant de merger, relue contre le diff comme à l'étape 4 de `push.md` ; après le merge,
    vérifier que chacune est `CLOSED` (`gh issue view <n> --json state`), sinon la fermer avec un commentaire qui cite la
-   PR et le SHA de merge. CI de la PR au vert si le dépôt en a une (`.github/workflows/` non vide) : revérifier toutes
+   PR et le SHA de merge, passé par `humanizer:humanizer`.
+   CI de la PR au vert si le dépôt en a une (`.github/workflows/` non vide) : revérifier toutes
    les 10 s `gh pr view --json headRefOid,statusCheckRollup` jusqu'à ce que `headRefOid` soit égal à `git rev-parse HEAD`
    et qu'au moins un check apparaisse, puis lancer `gh pr checks --watch`. Lancé juste après un push, `gh pr checks
    --watch` répond « no checks reported » ou suit le run annulé de l'ancien SHA. Toujours aucun check après ~2 min (filtre
