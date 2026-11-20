@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# PreToolUse Bash : refuse un appel qui publie du texte vers GitHub (PR, commentaire, relecture, push forcé, merge)
+# PreToolUse Bash : refuse un appel qui publie du texte vers GitHub (PR, commentaire de PR ou d'issue, relecture,
+# push forcé, merge)
 # si le skill humanizer:humanizer n'est pas passé depuis le dernier message tapé par l'utilisateur.
 # shortcut: lecture par motif du texte de l'appel ; une commande cachée (variable, alias, eval) n'est pas vue,
 #   un corps de texte qui cite un point de publication fait un faux refus. Passer à l'arbre shfmt de main-guard si
@@ -22,9 +23,10 @@ API_WRITE="${SP}(--field|--raw-field|--input)${END}|${SHORT}[fF]|${SP}(-X|--meth
 line_is_publication() {
   local l="$1"
   [[ "$l" =~ ${W}gh${SP}+pr${SP}+(create|comment|merge)${END} ]] && return 0
+  [[ "$l" =~ ${W}gh${SP}+issue${SP}+comment${END} ]] && return 0
   [[ "$l" =~ ${W}gh${SP}+pr${SP}+edit${END} && "$l" =~ $EDIT_OPTS ]] && return 0
   [[ "$l" =~ ${W}gh${SP}+pr${SP}+review${END} && "$l" =~ $BODY_OPTS ]] && return 0
-  [[ "$l" =~ ${W}gh${SP}+pr${SP}+close${END} && "$l" =~ $CLOSE_OPTS ]] && return 0
+  [[ "$l" =~ ${W}gh${SP}+(pr|issue)${SP}+close${END} && "$l" =~ $CLOSE_OPTS ]] && return 0
   [[ "$l" =~ ${W}gh${SP}+api${END} && "$l" =~ $API_PATH && "$l" =~ $API_WRITE ]] && return 0
   [[ "$l" =~ ${W}git${SP}+(.*${SP})?push${SP}.*--force-with-lease ]] && return 0
   return 1

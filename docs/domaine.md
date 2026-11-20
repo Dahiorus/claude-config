@@ -126,7 +126,7 @@ Responsabilité : refuser, avant qu'il ne parte vers GitHub, un texte publié qu
 
 | Terme | Définition métier | Dans le code | À ne pas dire |
 |---|---|---|---|
-| Texte publié | Prose écrite par Claude que la consigne cite : description et titre de PR, commit final, remarque ou réponse de relecture, commentaire de conversation de la PR | `--body-file`, `--title`, `-F body=@`, `--input` | message, sortie |
+| Texte publié | Prose écrite par Claude que la consigne cite : description et titre de PR, commit final, remarque ou réponse de relecture, commentaire de conversation de la PR, commentaire d'issue (`gh issue comment`, `gh issue close --comment`) | `--body-file`, `--title`, `-F body=@`, `--input`, `-c`/`--comment` | message, sortie |
 | Commit final | Commit qui reste sur main après le merge : celui d'un squash, ou le commit unique d'une PR mergée tel quel | push forcé de `squash.md`, `gh pr merge` de `merge.md` | commit de squash (un cas seulement) |
 | Point de publication | Appel Bash qui envoie un texte publié (liste fermée : spec `2026-11-20-rappel-humanizer-design.md`, R1) | — | commande d'écriture (plus large) |
 | Passage humanizer | Réécriture d'un texte publié par le skill `humanizer:humanizer` avant de l'envoyer, code, commandes, identifiants et citations gardés tels quels | skill `humanizer:humanizer` | relecture, correction |
