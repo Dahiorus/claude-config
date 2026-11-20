@@ -25,6 +25,11 @@
     tenu sur une ligne.
   - Règle changée en cours de PR (correctif de review compris) : relire aussi le titre de la PR, pas seulement la
     description (`gh pr edit --title`). `pr-risk` compte un titre resté sur l'ancienne règle comme écart d'intention.
+  - Skill qui gagne un mode ou un état d'objet (draft d'une PR, par exemple) : avant le premier push, lister chaque
+    action du skill (`global/skills/<skill>/*.md`) et chaque entrée ou sortie de cet état, et écrire ce que chacune
+    fait : objet déjà dans l'état visé ou dans l'état inverse, travail restant à la sortie, vérification impossible
+    dans l'état (pre-push, tests), action qui lit l'objet sans le modifier (`merge`, `squash`, `review`). Les cas de
+    bord de cette liste sont ce que les reviews trouvent un par un, en autant de tours.
 - `bin/claude-config install` lancé dans un worktree relie `~/.claude` à ce worktree (le `claude-config` du PATH pointe vers le dépôt principal) : le relancer depuis le dépôt principal une fois la branche mergée.
 - Skill, doc ou script qui fait écrire dans `~/.claude/` (jeton, réglage) : `install` génère `settings.json` depuis
   `settings/base.json` (+ `local.json`) et `capture` remonte toute clé absente de `local.json` dans `base.json`,
