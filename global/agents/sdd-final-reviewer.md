@@ -45,6 +45,8 @@ signaler.
 
 - Tout grep de vérification porte sur tout le dépôt : `git grep -nw "<terme>" -- . ':!docs/superpowers'`, puis un
   second grep sur la spec et le plan de la branche.
+  Un terme retiré qui est une phrase se cherche par un fragment propre à l'ancienne, tenu sur une ligne
+  (`git grep -nF`), pas par un préfixe que la nouvelle formulation garde.
 - Mots de la colonne « À ne pas dire » du glossaire (`docs/domaine.md` ou équivalent) : grep sur les lignes ajoutées
   (`git diff main...HEAD -U0 | grep '^+'`), chaque occurrence jugée à son sens.
 - Règle écrite en texte ajoutée ou changée par le diff (skill, spec, doc, `CLAUDE.md`, `AGENTS.md`) : grep de chacune
