@@ -59,6 +59,9 @@
     rapporté par une autre session : le rejouer par une commande réelle dans cette session avant de l'écrire.
   - Même contrôle pour ce qu'il affirme d'un skill ou d'un agent, simple parenthèse comprise : le relire dans le
     fichier concerné, retirer ce qui est inexact.
+  - Même contrôle pour un remède de code qu'il prescrit (« dans un bloc », « avec X ») : le jouer sur chaque langage
+    du dépôt (bash, Python, JS) avant de l'écrire. Faux pour l'un d'eux → un remède qui vaut partout, sinon limiter
+    la règle au langage où il vaut.
   - Sonder un hook de plugin qui exporte dans `CLAUDE_ENV_FILE` : un fichier écrit dans
     `~/.claude/session-env/<session>/` ne change pas l'env des appels Bash (Claude Code met le script en cache
     jusqu'à un hook), donc poser un hook temporaire dans `.claude/settings.local.json`. Le fichier d'env reste fait

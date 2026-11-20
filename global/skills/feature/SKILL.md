@@ -110,7 +110,10 @@ au hasard. Un test cité comme preuve d'un critère, ou comme caractérisation a
 le code qu'il couvre (garde, branche) : le plan relit chaque test contre le code qu'il couvre (code existant pour une
 caractérisation, code du plan pour un critère). Chaque refus que le code du plan pose ou déplace d'une couche à l'autre (garde de type,
 `?? throw`, valeur inconnue → 422) a son test dans la même tâche, même s'il reprend un refus existant. Un test
-existant que le plan rend faux est nommé dans la tâche qui le casse. Une tâche dont le test vise un symbole
+existant que le plan rend faux est nommé dans la tâche qui le casse. Un test ajouté à un fichier de test existant
+ne redéclare aucun nom de premier niveau de ce fichier (constante, fonction, import, classe) : le plan relit ces
+noms et renomme l'ajout. Une redéclaration casse à l'exécution (JS) ou écrase l'ancien test sans erreur (bash,
+Python). Une tâche dont le test vise un symbole
 encore absent l'écrit : « rouge attendu : échec de compilation ». Le plan d'un
 changement de règle métier, de route, de contrat d'API ou de schéma a sa tâche de mise à jour de la doc du projet
 (AGENTS.md, README…), avec le grep des termes retirés : elle ne s'ajoute pas au moment de la PR. Elle figure dans
