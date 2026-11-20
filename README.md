@@ -53,6 +53,7 @@ Credentials, historique, sessions, caches, `skills/synced/` : voir `.gitignore`.
 ```bash
 tests/run.sh           # tous les tests + shellcheck
 tests/run.sh capture   # seulement les tests dont le nom contient « capture »
+tests/run.sh a b       # les tests dont le nom contient « a » ou « b »
 ```
 
 Pas de CI : `githooks/pre-push` lance `tests/run.sh` avant chaque push (environ 40 s) et le refuse si l'arbre a des
