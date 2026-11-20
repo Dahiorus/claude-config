@@ -62,6 +62,8 @@
 - Un `GH_TOKEN` vide fait choisir à gh le compte actif : tester `[ -n "$token" ]` avant de le passer à gh.
 - Les skills du dépôt sont reliés à `~/.claude` : une autre session peut modifier `global/skills/*` pendant le travail sur une branche (les sessions des autres projets passent par `/notify claude-config` : `global/CLAUDE.md`, « Skills globaux »). Commiter fichier par fichier, jamais `git add -A`.
 - Texte ou diff demandé par une autre session (`/notify claude-config`) : l'appliquer tel quel. Une fusion avec une phrase voisine ou un changement de portée se propose à part, dans la PR.
+  - Avant d'ouvrir la PR, relire ce texte contre la grille de `feature` (langage nommé, branche locale au lieu de
+    `origin/main`, pronom à deux référents, attendu tiré du code) et lister les écarts dans la description.
 - Texte demandé, ou leçon venue d'un autre projet, qui affirme un comportement d'un hook du dépôt (main-guard, bash-rewrite, pre-push) : le rejouer sur ce hook (dépôt jetable ou `tests/test_main_guard.sh`) avant de l'appliquer ; s'il est faux, le dire à la session d'origine au lieu de l'écrire.
   - Même règle pour un hook de plugin (`CwdChanged` du plugin `profile`…) ou un comportement de Claude Code
     rapporté par une autre session : le rejouer par une commande réelle dans cette session avant de l'écrire.
