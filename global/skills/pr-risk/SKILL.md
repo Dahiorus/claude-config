@@ -225,6 +225,7 @@ active account, nothing matches, and a duplicate is posted):
 
 ```bash
 bash ~/.claude/profile.sh require-token || exit 1
+# humanizer: sans objet
 F="${TMPDIR:-/tmp}/pr-risk-<N>.md"
 ME=$(gh api user --jq .login)
 ID=$(gh api "repos/$R/issues/<N>/comments" --paginate \
@@ -235,4 +236,5 @@ else
   gh pr comment <N> -R "$R" --body-file "$F"
 fi
 ```
+The `# humanizer: sans objet` line tells `humanizer-hook.sh` this templated comment is not prose.
 Print the comment URL.

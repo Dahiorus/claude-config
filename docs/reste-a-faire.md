@@ -1,6 +1,6 @@
 # Reste à faire
 
-Mis à jour le 2026-11-19.
+Mis à jour le 2026-11-20.
 
 ## Features
 
@@ -19,9 +19,12 @@ Mis à jour le 2026-11-19.
 4. **Rapport de dérive doc/code** (EGM, `skills/egm-drift-report`) : confronter `CLAUDE.md`, `docs/domaine.md` et les
    `AGENTS.md` au code, et ne lister que les écarts (champ absent, valeur codée en dur, autre bibliothèque que
    prévu). Un mode de `todo` ou un petit skill, lancé à la demande.
-5. **Hook qui rappelle `humanizer`** : la consigne du `CLAUDE.md` global (commits finaux d'une PR, description de
+5. ~~**Hook qui rappelle `humanizer`** : la consigne du `CLAUDE.md` global (commits finaux d'une PR, description de
    PR, réponse de review) s'oublie. Un hook ajouterait un rappel au contexte, sans réécrire la commande, avant
-   `gh pr create`, `gh pr edit` et le commit d'un squash. (mémoire du projet)
+   `gh pr create`, `gh pr edit` et le commit d'un squash. (mémoire du projet)~~ Fait : `humanizer-hook.sh` refuse
+   l'envoi sans passage récent. Hors périmètre (spec `2026-11-20-rappel-humanizer`) : texte publié par le MCP GitHub,
+   commande cachée (variable, alias, `eval`), message de commit poussé sans force, option d'écriture après un `|`,
+   `;` ou `&` entre guillemets (lecture par motif : passer à l'arbre shfmt de main-guard).
 6. **`/pr list toutes` limité à 30 PR** : `gh pr list` s'arrête à 30 par défaut ; passer `-L 100` pour
    `--state all` et `--state closed` (`global/skills/pr/SKILL.md`). (mémoire du projet)
 
@@ -74,3 +77,6 @@ Mis à jour le 2026-11-19.
     `agents/bug-worker.md`) : repris tels quels d'un autre projet. À généraliser en « dossiers ignorés par git dont
     les tests ont besoin », et à vérifier que la copie depuis le dépôt principal n'est pas refusée dans le
     worktree. (reliquat de cette PR)
+15. **`gh issue comment` hors liste de `humanizer-hook.sh`** : passe sans passage humanizer (les autres cas de la
+    review `code-review` R3 sont traités par la spec `2026-11-20-rappel-humanizer`). La consigne ne cite pas les
+    issues : l'ajouter si un cas réel le demande. *Hors périmètre* de cette spec. #167

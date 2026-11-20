@@ -38,6 +38,13 @@
 - Test shell qui alimente un hook ou `jq` : here-string (`<<<"$json"`), pas `jq … | hook`. Un hook qui sort sans
   lire son entrée tue l'écrivain par SIGPIPE, code 141 sous `pipefail` : test instable. Un test instable se mesure
   en boucle (`for i in $(seq 60)`) avant d'être mis hors périmètre.
+- Hook à motifs : une mutation par garde (motif, option, branche), pas seulement pour les gardes que l'on juge
+  importantes. Une mutation scriptée se vérifie par un `assert ancien in texte` avant l'écriture et par un nombre
+  d'échecs non nul après : « 0 FAIL » sur une mutation est un signal d'alarme (motif non trouvé, rien muté), pas
+  un succès. Une garde sans test qui échoue reçoit son test avant le push.
+- Test shell qui lit la sortie d'un hook avec `jq` : `jq … // "x"` n'imprime rien sur une entrée vide, et
+  `select(.champ)` échoue en entier sur une ligne JSONL qui n'est pas un objet (`123`). Lancer l'aide de test sur
+  la sortie vide et sur une ligne non objet avant de la recopier ; filtrer par `select(type == "object" and …)`.
 - Branche qui modifie `mods/<plugin>/` : monter `version` dans `mods/<plugin>/.claude-plugin/plugin.json` dans la
   même PR. Claude Code range le plugin installé par version : sans changement, `claude plugin update` répond « already
   at the latest version » et garde l'ancien code.
