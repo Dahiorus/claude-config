@@ -44,7 +44,8 @@ les citer et demander avant de continuer. Sinon toutes les étapes, la descripti
    trouvé → le citer, pas de nouvelle issue. Montrer la liste (titre, label, origine) et attendre l'accord (« crée
    tout », numéros) : une issue est visible de l'équipe. Puis `gh issue create --body-file <fichier>` par point : titre court, corps en français
    (constat avec `fichier:ligne`, impact, piste, origine : PR et spec), label `dette-technique` ou `hors-perimetre`
-   (créé s'il manque : `gh label create <label>`). La ligne du reste à faire renvoie à `#n`.
+   (créé s'il manque : `gh label create <label>`). Corps passé par `humanizer:humanizer` après l'accord, juste
+   avant la création. La ligne du reste à faire renvoie à `#n`.
 3. `git push` simple (`-u origin <branche>` la première fois).
 4. Aucune PR ouverte pour la branche : `gh pr create --body-file <fichier>` (titre = sujet du commit ou de la feature, description
    fonctionnelle en français, sans détail d'un autre projet (nom, PR, taille, venus d'une autre session), passée par `humanizer:humanizer`, terminée par une ligne `Closes #n` par issue que la PR

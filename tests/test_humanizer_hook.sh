@@ -124,6 +124,19 @@ test_humanizer_denies_issue_comment() {
   assert_eq "$(decision 'gh issue view 167 --comments')" "silence" "issue view --comments"
 }
 
+test_humanizer_denies_issue_create_edit_with_body() {
+  transcript "$(t_prompt a)"
+  assert_eq "$(decision 'gh issue create --title "x" --body-file f')" "deny" "create --body-file"
+  assert_eq "$(decision 'rtk gh issue create -t x --body "y"')" "deny" "create --body"
+  assert_eq "$(decision 'gh issue create -t x -F f')" "deny" "create -F"
+  assert_eq "$(decision 'gh issue create -t x -b "y"')" "deny" "create -b"
+  assert_eq "$(decision 'gh issue edit 172 --body-file f')" "deny" "edit --body-file"
+  assert_eq "$(decision 'gh issue edit 172 -b "y"')" "deny" "edit -b"
+  assert_eq "$(decision 'gh issue edit 172 --add-label bug')" "silence" "edit sans corps"
+  assert_eq "$(decision 'gh issue create -t x -l bug')" "silence" "create sans corps"
+  assert_eq "$(decision 'gh issue list --search "body"')" "silence" "list"
+}
+
 test_humanizer_denies_api_comments() {
   transcript "$(t_prompt a)"
   assert_eq "$(decision 'gh api repos/o/r/pulls/12/comments -f body=x')" "deny" "pulls/N/comments"

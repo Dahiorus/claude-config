@@ -25,6 +25,9 @@
     tenu sur une ligne.
   - Règle changée en cours de PR (correctif de review compris) : relire aussi le titre de la PR, pas seulement la
     description (`gh pr edit --title`). `pr-risk` compte un titre resté sur l'ancienne règle comme écart d'intention.
+  - Liste fermée changée (points de publication du hook humanizer, par exemple) : grepper aussi les phrases de
+    l'ancienne décision (« hors », « inchangé », « reste hors ») dans la spec (tableau d'impact, Origine, cas de test),
+    `docs/domaine.md` et la description de la PR. Deux PR de suite ont laissé une phrase qui excluait le nouveau point.
   - Skill qui gagne un mode ou un état d'objet (draft d'une PR, par exemple) : avant le premier push, lister chaque
     action du skill (`global/skills/<skill>/*.md`) et chaque entrée ou sortie de cet état, et écrire ce que chacune
     fait : objet déjà dans l'état visé ou dans l'état inverse, travail restant à la sortie, vérification impossible
