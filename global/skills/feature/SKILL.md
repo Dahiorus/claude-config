@@ -121,8 +121,11 @@ la colonne « À ne pas dire » du glossaire, lecteur d'un contrat, copie d'un d
 dossiers. Il n'exclut que l'historique des features, par pathspec :
 `git grep -nw "<ancien>" -- . ':!docs/superpowers'`. L'exclusion l'emporte sur un chemin cité dans le même appel :
 un second grep couvre le texte de la spec (critères d'acceptation compris) et du plan de la branche,
-`git grep -nw "<ancien>" -- <spec> <plan>`. Les tâches
-s'enchaînent dans cet ordre, un commit chacune : tests de caractérisation (§5), refacto sans changement de
+`git grep -nw "<ancien>" -- <spec> <plan>`. Le grep d'un terme retiré vise un fragment propre à l'ancienne
+phrase, tenu sur une seule ligne (`git grep -nF`), pas un préfixe que la nouvelle formulation garde : si une tâche
+précédente réécrit cette phrase, « vide » n'est attendu que pour l'ancienne, et `git grep` ne voit pas une phrase
+coupée par un retour à la ligne. Les tâches s'enchaînent dans cet ordre, un commit chacune : tests de
+caractérisation (§5), refacto sans changement de
 comportement (écarts *corrigés* du §7), puis la feature. Tout code du plan (classe, test, commande, extrait de
 configuration) est présenté dans un bloc de code délimité par ```` ``` ```` et étiqueté avec son langage (`kotlin`,
 `typescript`, `php`, `sql`, `bash`, `yaml`…), jamais en ligne dans la prose ni dans un bloc sans langage ; le chemin

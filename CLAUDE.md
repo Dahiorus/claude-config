@@ -20,6 +20,11 @@
     qu'elle rend faux (« les deux reviews », « les trois »), et relire l'étape entière contre les phrases voisines :
     un ajout contredit souvent une phrase déjà là. Agent dont le rôle s'étend : mettre à jour sa description
     (frontmatter), que le skill appelant et la liste des agents recopient.
+  - Règle qui prescrit une commande (`git grep`, `git push`, `gh`) : la jouer sur un cas réel avant de l'écrire. Un
+    `git grep` lit ligne par ligne : une phrase coupée à 120 colonnes ne se trouve pas entière, il faut un fragment
+    tenu sur une ligne.
+  - Règle changée en cours de PR (correctif de review compris) : relire aussi le titre de la PR, pas seulement la
+    description (`gh pr edit --title`). `pr-risk` compte un titre resté sur l'ancienne règle comme écart d'intention.
 - `bin/claude-config install` lancé dans un worktree relie `~/.claude` à ce worktree (le `claude-config` du PATH pointe vers le dépôt principal) : le relancer depuis le dépôt principal une fois la branche mergée.
 - Skill, doc ou script qui fait écrire dans `~/.claude/` (jeton, réglage) : `install` génère `settings.json` depuis
   `settings/base.json` (+ `local.json`) et `capture` remonte toute clé absente de `local.json` dans `base.json`,
