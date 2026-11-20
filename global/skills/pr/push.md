@@ -3,6 +3,25 @@
 L'invocation vaut demande explicite de pousser et d'ouvrir la PR. Jamais de squash ni de réécriture : une PR peut
 porter plusieurs commits ; un historique désordonné se signale au plus dans le rapport.
 
+**Draft** (`/pr push draft`, « pousse en draft ») : travail interrompu, branche avec la spec et le plan seuls ou
+un plan entamé. Les étapes changent ainsi :
+- étape 1 : pas de grep des règles (il se fait au push final) ; vérification au vert seulement si du code a changé
+  depuis `origin/main`. Rouge → le dire et demander : pousser quand même sauve le travail, la description le note
+  (un hook pre-push qui lance les tests refuse ce push : le dire, `git push --no-verify` seulement sur accord) ;
+- étape 2 passée : reste à faire et issues attendent le push final ;
+- étape 4 : `gh pr create --draft`, description = objectif tiré de la spec, puis une section « État » : tâches du
+  plan faites (titre, SHA) et restantes, vérification (vert, rouge, sans code). Draft existant : mettre « État » à
+  jour. Pas de `pr-risk`. La relecture contre le diff (étape 4) ne vise que « État » : l'objectif décrit la cible ;
+- étape 5 : rapport sans le rappel de recette, avec la commande de reprise (`/feature implémente @<chemin du plan>`)
+  et le rappel que `/pr push` sans `draft` sortira la PR du draft.
+
+`/pr push draft` sur une PR déjà prête (`isDraft` faux) : ne rien pousser ni modifier, le dire et proposer
+`gh pr ready --undo` à l'utilisateur.
+
+`/pr push` sans `draft` sur une PR en draft (`gh pr view --json isDraft,body`) : tâches restantes dans « État » →
+les citer et demander avant de continuer. Sinon toutes les étapes, la description réécrite sans la section « État »
+(`update-desc`), puis `gh pr ready` et `pr-risk` (étape 4). `merge` refuse un draft.
+
 0. **Depuis `main`** — `git fetch origin main` ; ni modification en cours ni commit en avance sur `origin/main`
    (`git log origin/main..HEAD`) → rien à pousser, le dire et s'arrêter. Sinon `git switch -c <type>/<sujet>` depuis
    l'état courant (type d'après le contenu : `feat`, `fix`, `docs`, `chore` ; sujet court en kebab-case), qui emporte

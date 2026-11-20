@@ -1,6 +1,6 @@
 ---
 name: pr
-description: Use when the user invokes /pr, or asks to list the current repo's pull requests (or those awaiting my review) or act on one — show, check out, test, push and open, squash, rebase, recette, merge, rewrite its description, review it or address its review comments (« pousse et crée la PR », « squash et merge », « relis la PR 114 », « quelles PR dois-je relire ? », « traite les commentaires de alice »).
+description: Use when the user invokes /pr, or asks to list the current repo's pull requests (or those awaiting my review) or act on one — show, check out, test, push and open (draft included), squash, rebase, recette, merge, rewrite its description, review it or address its review comments (« pousse et crée la PR », « pousse en draft », « squash et merge », « relis la PR 114 », « quelles PR dois-je relire ? », « traite les commentaires de alice »).
 model: sonnet
 argument-hint: "list | <n°|branche> [action…] [consigne]"
 ---
@@ -66,7 +66,8 @@ existant pour ce sujet, daté (`2026-11-08-x`) ou non, se réutilise ; on n'en c
   approvals     compte les approbations (2 = prête pour la QA)
   switch        extrait la branche ici ; arbre pas propre → propose son worktree
   test          lance la vérification du projet dans l'arbre de la PR
-  push          pousse les commits tels quels, crée la PR ou met à jour sa description
+  push          pousse les commits tels quels, crée la PR ou met à jour sa description ;
+                « push draft » : travail interrompu, PR en draft avec l'état du plan
   squash        réécrit en un commit (un par pan fonctionnel si PR volumineuse), push forcé
   rebase        rebase sur origin/main, résout les conflits, push forcé
   recette       déroule la recette (env. de la PR, sinon local), corrige, pousse ; retours en
@@ -80,7 +81,7 @@ existant pour ce sujet, daté (`2026-11-08-x`) ou non, se réutilise ; on n'en c
   help          cette aide
 
 Exemples : /pr list · /pr list closed · /pr list à relire · /pr 42 · /pr 42 switch · /pr push recette · /pr 42 squash merge · /pr 42 review la partie front
-           /pr 42 comments de alice · /pr main switch
+           /pr 42 comments de alice · /pr main switch · /pr push draft
 ```
 
 ## Résoudre la PR

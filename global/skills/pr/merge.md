@@ -1,6 +1,8 @@
 # `merge`
 
 L'invocation vaut demande de squasher et de merger : c'est le merge qui impose l'historique final.
+PR en draft (`gh pr view <n°> --json isDraft,body`) → ne rien faire : le dire, avec les tâches restantes de
+sa section « État » s'il y en a, et proposer `/pr push` (qui la sort du draft, `push.md`), puis `merge`.
 
 1. **Reliquats** — avant d'envoyer quoi que ce soit au reste à faire, passer en revue les points qu'il recevrait (ceux
    de l'étape 2 de `push.md`, plus ceux déjà ajoutés par cette PR) et ceux qu'il contient déjà sur le périmètre de la
