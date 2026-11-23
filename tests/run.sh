@@ -22,7 +22,8 @@ if [[ "${1:-}" == "--one" ]]; then
   exit 0
 fi
 
-# Filtres : un test tourne si son nom contient l'un d'eux ; aucun filtre → tous les tests et shellcheck.
+# Filtres : un test tourne si son nom ou celui de son fichier (tests/test_*.sh) contient l'un d'eux ;
+# aucun filtre → tous les tests et shellcheck.
 filters=("$@")
 passed=0
 failed=0
@@ -32,8 +33,11 @@ trap 'rm -f "$out"' EXIT
 while IFS= read -r t; do
   if (($#)); then
     keep=0
+    # extdebug : declare -F donne « nom ligne fichier ».
+    src="$(shopt -s extdebug && declare -F "$t")"
+    src="${src##*/}"
     for f in "${filters[@]}"; do
-      if [[ "$t" == *"$f"* ]]; then keep=1; fi
+      if [[ "$t" == *"$f"* || "$src" == *"$f"* ]]; then keep=1; fi
     done
     ((keep)) || continue
   fi

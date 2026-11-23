@@ -11,9 +11,12 @@ sa section « État » s'il y en a, et proposer `/pr push` (qui la sort du draft
    vert ; sinon → reste à faire, avec sa raison en une ligne. Rien de faisable → passer.
 2. **Leçons** — avant le squash, pour qu'elles partent dans la PR et pas dans une PR à part. Sans attendre de demande, l'agent `lessons-extractor` (modèle `sonnet` passé explicitement ; brief :
    dossier de suivi, racine, arbre de la PR, description de la PR, projet `claude-config` ou non) lit le `lecons.md` et le
-   `final-review.md` du dossier de suivi, puis ceux des PR précédentes (`<racine>/.superpowers/sdd/*/`) : une friction
-   qu'une règle écrite aurait évitée, ou un même type de point vu deux fois, devient une règle proposée pour
-   l'`AGENTS.md` ou le `CLAUDE.md` du projet, pour la grille qualité de `feature` s'il vaut pour tous les projets, ou
+   `final-review.md` du dossier de suivi, puis ceux des PR précédentes (`<racine>/.superpowers/sdd/*/`), et trie les
+   leçons par étiquette (agent `lessons-extractor`, « Trier » et « Récidive ») : il propose une garde mécanique, une
+   règle, ou le déplacement ou le retrait d'une règle qui a récidivé ; un hook ou un script trop gros pour la PR
+   devient une issue ou un point du reste à faire, créé par la session après accord comme à l'étape **Issues** de
+   `push.md`. Cibles : l'`AGENTS.md`, le `CLAUDE.md` ou les tests du projet, la grille qualité de `feature` pour
+   une règle de tous les projets, ou les fichiers globaux quand la règle est
    pour le skill ou l'agent global en cause. Ses propositions arrivent ensemble, en diff, et ne s'appliquent qu'après accord, en un commit de la PR. Une règle pour un skill
    global (grille de `feature`, skills `pr`…) hors du projet `claude-config` ne s'écrit pas dans ses fichiers depuis
    cette session : après accord, `/notify claude-config` avec le diff proposé (skill `notify`), et la session

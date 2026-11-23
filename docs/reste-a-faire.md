@@ -1,6 +1,6 @@
 # Reste à faire
 
-Mis à jour le 2026-11-21.
+Mis à jour le 2026-11-23.
 
 ## Features
 
@@ -36,13 +36,23 @@ Mis à jour le 2026-11-21.
    intention d'ajout et met de côté un test déjà suivi. (leçon d'une session d'un autre projet, revenue sur
    plusieurs de ses PR)
    Le rouge par mutation de `bugfix` (issue de couverture) restaure déjà le code par `git checkout`, sans `git stash`.
-8. **Collecte des leçons sans règle qui grossit** (audit de `lecons.md` et du `CLAUDE.md`, 2026-11-21) : sur ~135
+8. ~~**Collecte des leçons sans règle qui grossit** (audit de `lecons.md` et du `CLAUDE.md`, 2026-11-21) : sur ~135
    leçons, ~35 % sont ponctuelles, ~20 % déjà couvertes, et 8 groupes de frictions sur 10 sont revenus malgré leur
    règle. À faire avec `/feature` (touche `merge.md` étape 2, `lessons-extractor`, `tests/`) : étiquette `méca`,
    `jugement` ou `ponctuel` sur chaque ligne de `lecons.md` (un `ponctuel` ne produit pas de règle) ; une friction
    mécanisable devient un test, un hook ou un script, jamais une phrase ; une récidive met la règle en cause au lieu de
    la reformuler ; budget de lignes du `CLAUDE.md` vérifié par un test ; règle citée dans `lecons.md` quand la
-   friction revient, pour retirer celles qu'on ne cite plus. (#180)
+   friction revient, pour retirer celles qu'on ne cite plus.~~ Fait : leçons étiquetées, tri et récidive dans
+   `lessons-extractor`, test `line_budget_overruns`. Hors périmètre (spec) : hook de format des leçons, nettoyage des
+   dossiers de suivi, budget d'un autre projet. Écarté (spec, R3) : retirer les règles qu'on ne cite plus, car une
+   règle qui marche n'est jamais citée ; la citation sert à repérer les récidives. (#180)
+9. **Récidive d'une règle globale entre projets** (question en revue de #184, 2026-11-23) : `lessons-extractor` ne
+   lit que les dossiers de suivi de son dépôt. Une règle d'un skill ou d'un agent global citée une fois dans android
+   et une fois dans gecco n'est jamais vue comme citée deux fois, alors que la deuxième citation impose de mécaniser
+   ou de retirer. Piste : pour une règle globale, l'extracteur de `claude-config` lit aussi les `lecons.md` des
+   autres dépôts (`~/IdeaProjects/*/.superpowers/sdd/*/`, liste à fixer). Écarté : demander aux sessions des projets
+   d'analyser leurs leçons à la main (le merge de chaque projet le fait déjà, réponses à fusionner sans règle).
+   À vérifier : que tous les projets vivent sous `~/IdeaProjects`.
 
 ## Corrections
 
