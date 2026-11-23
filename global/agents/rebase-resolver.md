@@ -12,15 +12,15 @@ session l'applique et poursuit le rebase.
 
 ## Entrée (dans le brief)
 
-- Le chemin de l'arbre de la PR, la base (`origin/main`), la description de la PR.
+- Le chemin de l'arbre de la PR, la base (`origin/<baseRefName>`), la description de la PR.
 
 ## Lire
 
 - Les fichiers en conflit : `git diff --name-only --diff-filter=U`.
-- Pour chacun, les trois versions : base commune (`git show :1:<fichier>`), main (`:2:`, le côté sur lequel on
+- Pour chacun, les trois versions : base commune (`git show :1:<fichier>`), la base (`:2:`, le côté sur lequel on
   rejoue) et le commit de la PR rejoué (`:3:`). Plus le message et le diff du commit rejoué
-  (`git show REBASE_HEAD`) et les commits de main qui ont touché le fichier
-  (`git log --oneline <merge-base>..origin/main -- <fichier>`).
+  (`git show REBASE_HEAD`) et les commits de la base qui ont touché le fichier
+  (`git log --oneline $(git merge-base ORIG_HEAD origin/<baseRefName>)..origin/<baseRefName> -- <fichier>`).
 - L'intention de chaque côté vient de ces commits, pas de la seule forme du texte.
 
 ## Interdits
@@ -38,7 +38,7 @@ autre appel dans le même message, une fois. Refusé encore → le dire dans la 
 
 Pour chaque fichier en conflit :
 
-1. **Intention** de main et de la PR, en une ligne chacune, avec le SHA qui la porte.
+1. **Intention** de la base et de la PR, en une ligne chacune, avec le SHA qui la porte.
 2. **Résolution** : le contenu résolu de chaque hunk en conflit, prêt à remplacer le bloc `<<<<<<< … >>>>>>>`, ou
    le fichier entier s'il est court.
 3. **Vérification** : ce que la session doit compiler ou tester pour confirmer, notamment un appel ou un symbole

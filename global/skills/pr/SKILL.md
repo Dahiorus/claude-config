@@ -73,7 +73,7 @@ existant pour ce sujet, daté (`2026-11-08-x`) ou non, se réutilise ; on n'en c
   push          pousse les commits tels quels, crée la PR ou met à jour sa description ;
                 « push draft » : travail interrompu, PR en draft avec l'état du plan
   squash        réécrit en un commit (un par pan fonctionnel si PR volumineuse), push forcé
-  rebase        rebase sur origin/main, résout les conflits, push forcé
+  rebase        rebase sur la base de la PR, résout les conflits, push forcé
   recette       déroule la recette (env. de la PR, sinon local), corrige, pousse ; retours en
                 liste numérotée écran + élément + observé + attendu + périmètre
   merge         reliquats faisables traités dans la PR, leçons, squash si besoin, merge en rebase,
