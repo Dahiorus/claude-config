@@ -105,6 +105,7 @@ Mis à jour le 2026-11-21.
     dépôt jetable). `jq … | hook` dans un test : `guard_raw` (`tests/test_main_guard.sh`) passe
     par un pipe vers un hook qui lit son entrée, donc le motif signalerait un cas sûr. Les règles restent en une ligne
     du `CLAUDE.md`. Le troisième, `fromjson?` sans `type == "object"`, est `test_jq_fromjson_selects_objects`. (#181)
-17. **`md_long_lines` compte les lignes longues d'un bloc de code** (`tests/test_rules.sh`) : `git diff -U0` ne dit
+17. ~~**`md_long_lines` compte les lignes longues d'un bloc de code** (`tests/test_rules.sh`) : `git diff -U0` ne dit
     pas si la ligne est dans un bloc. À lire le fichier entier si un cas réel gêne. Les tableaux et la ligne
-    `description:` du frontmatter sont exemptés : 8 des 15 derniers commits en ajoutaient. (#182)
+    `description:` du frontmatter sont exemptés : 8 des 15 derniers commits en ajoutaient.~~ Fait : diff à contexte
+    complet, clôtures ``` et ~~~ suivies. (#182)
