@@ -11,7 +11,8 @@ sa section « État » s'il y en a, et proposer `/pr push` (qui la sort du draft
    vert ; sinon → reste à faire, avec sa raison en une ligne. Rien de faisable → passer.
 2. **Leçons** — avant le squash, pour qu'elles partent dans la PR et pas dans une PR à part. Sans attendre de demande, l'agent `lessons-extractor` (modèle `sonnet` passé explicitement ; brief :
    dossier de suivi, racine, arbre de la PR, description de la PR, projet `claude-config` ou non) lit le `lecons.md` et le
-   `final-review.md` du dossier de suivi, puis ceux des PR précédentes (`<racine>/.superpowers/sdd/*/`), et trie les
+   `final-review.md` du dossier de suivi, puis ceux des PR précédentes (`<racine>/.superpowers/sdd/*/`) et, pour une
+   règle globale, les `lecons.md` des autres projets, et trie les
    leçons par étiquette (agent `lessons-extractor`, « Trier » et « Récidive ») : il propose une garde mécanique, une
    règle, ou le déplacement ou le retrait d'une règle qui a récidivé ; un hook ou un script trop gros pour la PR
    devient une issue ou un point du reste à faire, créé par la session après accord comme à l'étape **Issues** de
@@ -21,7 +22,10 @@ sa section « État » s'il y en a, et proposer `/pr push` (qui la sort du draft
    global (grille de `feature`, skills `pr`…) hors du projet `claude-config` ne s'écrit pas dans ses fichiers depuis
    cette session : après accord, `/notify claude-config` avec le diff proposé (skill `notify`), et la session
    `claude-config` l'applique dans sa propre PR. Si elle a quand même été écrite directement dans ses fichiers,
-   `/notify claude-config` au minimum : fichiers modifiés et diff, pour qu'elle passe dans une PR. Les frictions des étapes
+   `/notify claude-config` au minimum : fichiers modifiés et diff, pour qu'elle passe dans une PR. Une proposition qui
+   s'appuie sur un autre projet le dit : ni le nom de ce projet, ni le texte de ses leçons, ni les chemins de la
+   colonne « Source » ne vont dans le commit, la description ou une issue ; le message `notify` peut les citer, en
+   rappelant qu'ils restent hors de la PR. Les frictions des étapes
    suivantes (squash, merge, nettoyage) vont dans `lecons.md` à la fin : la PR suivante les lira.
 3. **Squash** — reste à faire à jour d'abord (étape 2 de `push.md`), puis étapes de `squash.md`, sauf si l'historique en
    est déjà le résultat (un commit, ou un par pan fonctionnel, sans commit de correctif depuis) et à jour avec
