@@ -25,6 +25,18 @@ plugins_without_bump() {  # <dépôt> <base>
   done
 }
 
+# Fichiers de consignes au-delà de leur budget de lignes. Le budget ne se relève pas pour faire passer une règle :
+# une règle ajoutée en retire ou en déplace une autre. Il se baisse à la main quand le fichier rétrécit.
+line_budget_overruns() {  # <dépôt>
+  local f budget lines
+  while read -r f budget; do
+    [[ -f "$1/$f" ]] || { echo "$f : absent"; continue; }
+    lines="$(wc -l <"$1/$f")"
+    (( lines <= budget )) || echo "$f : $lines lignes, budget $budget"
+  done <<<"CLAUDE.md 71
+global/CLAUDE.md 26"
+}
+
 rules_repo() {
   RULES_REPO="$SANDBOX/rules"
   mkdir -p "$RULES_REPO/global/skills/x" "$RULES_REPO/mods/p/.claude-plugin" "$RULES_REPO/mods/p/scripts"
@@ -85,6 +97,38 @@ test_branch_respects_rules() {
   base="$(git -C "$REPO_SRC" merge-base HEAD origin/main 2>/dev/null)" || return 0
   assert_eq "$(md_long_lines "$REPO_SRC" "$base")" "" "lignes Markdown de plus de 120 colonnes"
   assert_eq "$(plugins_without_bump "$REPO_SRC" "$base")" "" "plugin modifié sans montée de version"
+}
+
+test_line_budget_overruns_names_each_file() {
+  local repo="$SANDBOX/budget"
+  mkdir -p "$repo/global"
+  seq 71 >"$repo/CLAUDE.md"
+  seq 26 >"$repo/global/CLAUDE.md"
+  assert_eq "$(line_budget_overruns "$repo")" "" "fichiers au budget"
+  seq 72 >"$repo/CLAUDE.md"
+  assert_eq "$(line_budget_overruns "$repo")" "CLAUDE.md : 72 lignes, budget 71" "CLAUDE.md au-delà"
+  seq 27 >"$repo/global/CLAUDE.md"
+  assert_eq "$(line_budget_overruns "$repo")" \
+    "$(printf 'CLAUDE.md : 72 lignes, budget 71\nglobal/CLAUDE.md : 27 lignes, budget 26')" "les deux au-delà"
+  seq 71 >"$repo/CLAUDE.md"
+  assert_eq "$(line_budget_overruns "$repo")" "global/CLAUDE.md : 27 lignes, budget 26" "global/CLAUDE.md au-delà"
+  rm "$repo/CLAUDE.md"
+  assert_contains "$(line_budget_overruns "$repo")" "CLAUDE.md : absent" "fichier absent"
+}
+
+test_instruction_files_within_line_budget() {
+  assert_eq "$(line_budget_overruns "$REPO_SRC")" "" "budget de lignes des CLAUDE.md"
+}
+
+# Un agent qui nomme la racine (<racine>) ou l'arbre (<arbre>) de la PR lance git et gh depuis ce dossier : sans
+# `git -C <…>` ni `cd <…>`, la commande part du dossier de la session.
+# shortcut: une commande coupée sur deux lignes échappe au test, à revoir si un cas réel le demande.
+test_agents_with_root_run_git_from_it() {
+  local f bad
+  while IFS= read -r f; do
+    bad="$(grep -nE 'git (grep|diff|log|show)|gh pr' "$REPO_SRC/$f" | grep -vE 'git -C <|cd <' || true)"
+    assert_eq "$bad" "" "$f : commande git ou gh sans dossier"
+  done < <(git -C "$REPO_SRC" grep -lE '<racine>|<arbre>' -- 'global/agents/*.md')
 }
 
 # Un githook qui lance les tests ou crée des dépôts hérite de GIT_DIR quand il part d'un worktree.

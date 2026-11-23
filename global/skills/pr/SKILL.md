@@ -51,9 +51,11 @@ existant pour ce sujet, daté (`2026-11-08-x`) ou non, se réutilise ; on n'en c
   reviews ») ;
   `convergence-N.md` : sortie du tour N de convergence (`feature` étape 5b). Écrits par le contrôleur à partir de
   la réponse de l'agent, dont le brief interdit d'écrire dans le dossier de suivi ;
-- `lecons.md` : une ligne datée par friction (correction de l'utilisateur, commande refusée, piège, consigne
-  oubliée), ajoutée en fin de session de travail sur la branche (`feature` étape 7, `bugfix` étape 8, `push`, `squash`,
-  `recette`, `comments`, `rebase`, `merge` avant son étape 2, puis à la fin pour la PR suivante). Rien à noter → rien.
+- `lecons.md` : une ligne `- <date> (<action>) [<étiquette>] : <friction>` par friction (correction de l'utilisateur,
+  commande refusée, piège, consigne oubliée), action facultative. Étiquette : `méca` (un programme peut la vérifier),
+  `jugement` (seule une phrase lue l'évite), `ponctuel` (cas unique sans retour). Règle écrite qui la couvrait : finir
+  par `(récidive : <fichier> « <fragment d'une ligne> »)`. Ajoutée en fin de session sur la branche (`feature` étape 7,
+  `bugfix` étape 8, `push`, `squash`, `recette`, `comments`, `rebase`, `merge` avant l'étape 2, à la fin). Rien → rien.
 
 ## Aide
 
