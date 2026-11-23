@@ -2,12 +2,17 @@
 # shellcheck disable=SC2154
 # Règles du CLAUDE.md vérifiées sur la branche courante plutôt qu'écrites en prose.
 
-# Lignes Markdown ajoutées depuis <base> de plus de 120 colonnes, hors tableaux et description de frontmatter.
-# shortcut: une ligne de bloc de code longue est comptée aussi (le diff -U0 ne dit pas si elle est dans un bloc).
+# Lignes Markdown ajoutées depuis <base> de plus de 120 colonnes, hors tableaux, blocs de code et description de
+# frontmatter. Le diff à contexte complet montre tout le fichier, pour suivre les clôtures ``` et ~~~ : un bloc ne
+# se ferme que par le même caractère, au moins aussi long, sans texte après (CommonMark).
 md_long_lines() {  # <dépôt> <base>
-  git -C "$1" diff -U0 "$2" -- CLAUDE.md 'global/*.md' 'mods/*.md' docs/domaine.md docs/reste-a-faire.md \
-    | LC_ALL=C.UTF-8 awk '/^\+\+\+ /{f=substr($2,3)} /^\+/ && !/^\+\+\+ / && length>121 \
-        && !/^\+[[:space:]]*\|/ && !/^\+description:/ {print f": " length-1 " colonnes"}'
+  git -C "$1" diff -U1000000 "$2" -- CLAUDE.md 'global/*.md' 'mods/*.md' docs/domaine.md docs/reste-a-faire.md \
+    | LC_ALL=C.UTF-8 awk '/^\+\+\+ /{f=substr($0,7); sub(/\t$/, "", f); bloc=""; next}
+        /^[ +][[:space:]]*(```|~~~)/{match($0,/```+|~~~+/); m=substr($0,RSTART,RLENGTH)
+          if (bloc == "") bloc = m
+          else if (index(m, bloc) == 1 && substr($0, RSTART + RLENGTH) ~ /^[[:space:]]*$/) bloc = ""
+          next}
+        /^\+/ && bloc=="" && length>121 && !/^\+[[:space:]]*\|/ && !/^\+description:/ {print f": " length-1 " colonnes"}'
 }
 
 # Plugins de mods/ modifiés depuis <base> sans montée de version dans leur plugin.json.
@@ -41,6 +46,29 @@ test_md_long_lines_flags_prose_only() {
   printf '%s\n' "$long" >>"$RULES_REPO/mods/p/README.md"
   assert_eq "$(md_long_lines "$RULES_REPO" HEAD)" \
     "$(printf 'global/skills/x/SKILL.md: 121 colonnes\nmods/p/README.md: 121 colonnes')" "lignes signalées"
+}
+
+test_md_long_lines_skips_code_blocks() {
+  rules_repo
+  local long f="$RULES_REPO/global/skills/x/SKILL.md"
+  long="$(printf 'é%.0s' {1..121})"
+  printf '```bash\nx\n' >>"$f"
+  git -C "$RULES_REPO" -c user.name=t -c user.email=t@t commit -qam bloc
+  # Bloc ouvert hors du diff, puis bloc ~~~ ajouté, puis prose.
+  printf '%s\n```\n~~~\n%s\n~~~\n%s\n' "$long" "$long" "$long" >>"$f"
+  assert_eq "$(md_long_lines "$RULES_REPO" HEAD)" "global/skills/x/SKILL.md: 121 colonnes" "seule la prose est signalée"
+  # Bloc ```` qui contient ``` et ```bash : seule une clôture du même marqueur, sans texte, le ferme.
+  git -C "$RULES_REPO" -c user.name=t -c user.email=t@t commit -qam prose
+  # shellcheck disable=SC2016
+  printf '````md\n```\n%s\n```bash\n%s\n````\n%s\n' "$long" "$long" "$long" >>"$f"
+  assert_eq "$(md_long_lines "$RULES_REPO" HEAD)" "global/skills/x/SKILL.md: 121 colonnes" 'bloc à 4 accents qui en contient 3'
+}
+
+test_md_long_lines_keeps_path_with_space() {
+  rules_repo
+  printf '%s\n' "$(printf 'é%.0s' {1..121})" >"$RULES_REPO/global/sp ace.md"
+  git -C "$RULES_REPO" add -A
+  assert_eq "$(md_long_lines "$RULES_REPO" HEAD)" "global/sp ace.md: 121 colonnes" "chemin avec espace"
 }
 
 test_plugins_without_bump() {
