@@ -44,7 +44,7 @@ Une règle vérifiable par un programme va dans `tests/` ou un hook, pas ici.
   l'objet visé (`gh pr create`, `git commit`…), les décomptes qu'elle rend faux (« les deux reviews »), l'objet et les
   exemptions d'un seuil changé, et les phrases de l'ancienne décision (« hors », « inchangé »). Règle de `feature` :
   la reporter dans `bugfix`. Agent dont le rôle change : mettre à jour sa `description`.
-- `git grep` lit ligne par ligne : chercher par un fragment tenu sur une ligne. Une commande prescrite se joue d'abord.
+- `git grep` lit ligne par ligne : chercher par un fragment tenu sur une ligne.
 - Skill qui gagne un mode ou un état d'objet (draft…) : avant le premier push, écrire ce que fait chaque action du
   skill dans chaque état, entrée et sortie comprises.
 - Texte français ou Markdown : Edit/Write, jamais `sed -i`, `python3 -c`, `printf` ni `echo`. Édition en masse par

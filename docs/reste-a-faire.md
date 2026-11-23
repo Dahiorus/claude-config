@@ -46,13 +46,17 @@ Mis à jour le 2026-11-23.
    `lessons-extractor`, test `line_budget_overruns`. Hors périmètre (spec) : hook de format des leçons, nettoyage des
    dossiers de suivi, budget d'un autre projet. Écarté (spec, R3) : retirer les règles qu'on ne cite plus, car une
    règle qui marche n'est jamais citée ; la citation sert à repérer les récidives. (#180)
-9. **Récidive d'une règle globale entre projets** (question en revue de #184, 2026-11-23) : `lessons-extractor` ne
-   lit que les dossiers de suivi de son dépôt. Une règle d'un skill ou d'un agent global citée une fois dans android
-   et une fois dans gecco n'est jamais vue comme citée deux fois, alors que la deuxième citation impose de mécaniser
+9. ~~**Récidive d'une règle globale entre projets** (question en revue de #184, 2026-11-23) : `lessons-extractor` ne
+   lit que les dossiers de suivi de son dépôt. Une règle d'un skill ou d'un agent global citée une fois dans un projet
+   et une fois dans un autre n'est jamais vue comme citée deux fois, alors que la deuxième citation impose de mécaniser
    ou de retirer. Piste : pour une règle globale, l'extracteur de `claude-config` lit aussi les `lecons.md` des
    autres dépôts (`~/IdeaProjects/*/.superpowers/sdd/*/`, liste à fixer). Écarté : demander aux sessions des projets
    d'analyser leurs leçons à la main (le merge de chaque projet le fait déjà, réponses à fusionner sans règle).
-   À vérifier : que tous les projets vivent sous `~/IdeaProjects`.
+   À vérifier : que tous les projets vivent sous `~/IdeaProjects`.~~ Fait : tout extracteur cherche le fragment
+   d'une règle globale dans les `lecons.md` de tous les projets (`find ~`), sans rien d'un autre projet dans un texte
+   publié. Hors périmètre (spec `2026-11-23-recidive-entre-projets-design`) : dédoublonner deux
+   `notify` reçus pour la même règle, normaliser le chemin du format de citation, lire les `final-review.md` des
+   autres projets.
 
 ## Corrections
 

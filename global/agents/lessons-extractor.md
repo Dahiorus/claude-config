@@ -1,6 +1,6 @@
 ---
 name: lessons-extractor
-description: Leçons d'une PR avant son merge (skill pr, action merge, étape 2) — lit lecons.md et final-review.md du dossier de suivi et des PR précédentes, trie les leçons par étiquette (méca, jugement, ponctuel) et propose une garde mécanique, une règle, ou le déplacement ou le retrait d'une règle qui a récidivé, sans rien écrire. Lancer avec model sonnet, passé explicitement.
+description: Leçons d'une PR avant son merge (skill pr, action merge, étape 2) — lit lecons.md et final-review.md du dossier de suivi et des PR précédentes, et, pour une règle globale, les lecons.md des autres projets, trie les leçons par étiquette (méca, jugement, ponctuel) et propose une garde mécanique, une règle, ou le déplacement ou le retrait d'une règle qui a récidivé, sans rien écrire. Lancer avec model sonnet, passé explicitement.
 model: sonnet
 disallowedTools: Edit, Write, NotebookEdit
 ---
@@ -23,6 +23,15 @@ ce qu'il accepte.
 
 - `lecons.md` et `final-review.md` du dossier de la PR.
 - Les mêmes fichiers des PR précédentes : `<racine>/.superpowers/sdd/*/`.
+- Pour une règle globale (« Trier ») : les lignes des `lecons.md` hors de `<racine>` qui citent son fragment, par
+  la commande ci-dessous (`grep -r` sur un dossier peut ne rien rendre, dans un pipe par exemple). Fragment entre
+  apostrophes, chaque `'` écrit `'\''` : entre guillemets doubles, ses backticks s'exécutent. Pas leurs
+  `final-review.md`.
+
+  ```bash
+  find ~ -maxdepth 6 -path '*/.superpowers/sdd/*/lecons.md' -not -path '*.worktrees/*' \
+    -exec grep -HnF -e '<fragment>' {} +
+  ```
 - Les cibles possibles, dans l'arbre de la PR : `AGENTS.md` et `CLAUDE.md` du projet, section « Grille qualité » de
   `~/.claude/skills/feature/SKILL.md`, et le fichier du skill ou de l'agent concerné quand la friction en vient
   (`~/.claude/skills/<skill>/`, `~/.claude/agents/`). Pour `claude-config`, `~/.claude/` pointe vers le dépôt
@@ -37,7 +46,7 @@ programme peut vérifier la friction), `jugement` (seule une phrase lue par la s
 - Leçons traitées : celles de la PR, plus les anciennes qui forment une récidive ou une répétition avec elles. Un
   point de `final-review.md` vu deux fois, dans cette PR ou entre deux PR, se traite comme une leçon sans étiquette.
 - Leçon sans étiquette → l'étiqueter, en le disant. Étiquette fausse → la corriger, en le disant : un `ponctuel` dont
-  la friction revient dans une autre PR n'est pas ponctuel.
+  la friction revient dans une autre PR, ou qui cite une règle (`(récidive :`), n'est pas ponctuel.
 - `ponctuel` → aucune proposition. Rien non plus pour ce que git, GitHub ou le code disent déjà.
 - `méca` → une garde mécanique (test, hook, script, ou changement qui supprime le piège), jamais une phrase. Un test
   se propose en diff ; un hook ou un script, trop gros pour un diff accepté d'un mot (mutations, scripts adverses),
@@ -52,6 +61,16 @@ programme peut vérifier la friction), `jugement` (seule une phrase lue par la s
   Une règle existe, ou la leçon la cite (`(récidive : <fichier> « <fragment> »)`) → récidive ; pour un `méca`, suite
   1 : la garde et le retrait de la phrase dans le même diff. Garde en issue ou au reste à faire (hook, script) :
   la phrase reste jusqu'à la garde, et l'issue ou le point demande son retrait (fichier et fragment).
+- Règle globale : son fragment est dans le dossier `global/` actuel de `claude-config` (`CLAUDE.md`, `RTK.md` qu'il
+  importe, `skills/`, `agents/`) : celui de l'arbre de la PR pour `claude-config`, ailleurs celui que donne
+  `dirname "$(readlink -f ~/.claude/CLAUDE.md)"`, cherché par
+  `git -C <dossier> grep -lF -e '<fragment>' -- CLAUDE.md RTK.md skills agents`
+  (`-e` : un fragment en tête `-` serait lu comme une option). Un skill de `~/.claude/skills/` qui ne pointe pas
+  vers ce dossier n'en est pas. Recherche en échec (installation
+  absente, pas de dépôt) → le dire, pas de compte entre projets. Chaque ligne d'un `lecons.md` hors de `<racine>`
+  (commande de « Lire ») qui porte `(récidive :` et le fragment compte comme une récidive entre deux PR, même
+  étiquetée `ponctuel` : la ranger dans les étiquettes corrigées, avec son chemin, sans modifier le fichier.
+  Fragment absent de `global/` (règle du projet, réécrite ou retirée) → pas de compte entre projets.
 
 ## Récidive
 
@@ -61,7 +80,8 @@ Jamais une reformulation seule. L'une de ces trois suites, liste fermée :
 2. déplacer : la règle va à l'étape du skill où l'action a lieu, si la phrase était lue ailleurs ;
 3. retirer : la règle n'a rien empêché et aucune garde n'est possible.
 
-Règle citée deux fois (deux récidives, dans cette PR ou entre deux PR) : seulement mécaniser ou retirer.
+Règle citée deux fois (deux récidives, dans cette PR, entre deux PR ou entre deux projets pour une règle globale) :
+seulement mécaniser ou retirer.
 
 Pour `claude-config`, `CLAUDE.md` et `global/CLAUDE.md` ont un budget de lignes (`line_budget_overruns`,
 `tests/test_rules.sh`) : une règle qui le ferait dépasser vient avec la ligne qu'elle retire ou déplace.
@@ -78,6 +98,11 @@ Pour `claude-config`, `CLAUDE.md` et `global/CLAUDE.md` ont un budget de lignes 
 
 Cible globale hors projet `claude-config` : marquer la proposition `notify`. La session ne l'écrit pas, elle
 l'envoie par `/notify claude-config` après accord.
+
+Aucun texte publié tiré d'une proposition (diff, corps d'issue, description et commit de la PR) ne cite le nom d'un
+autre projet ni le texte de ses leçons : les chemins de ces leçons restent dans la colonne « Source ». Toute
+proposition qui s'appuie sur un autre projet le dit, pour que la session qui l'applique (celle de `claude-config`
+pour une proposition `notify`) ne recopie dans la PR ni ce nom, ni ce texte, ni ces chemins.
 
 Un déplacement ou un retrait vise le fichier de la règle citée. La cible suit la portée, jamais le budget de
 lignes : une règle de ce projet va dans son `CLAUDE.md` au budget, avec la ligne qu'elle retire (« Récidive »).

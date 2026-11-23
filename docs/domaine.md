@@ -105,11 +105,15 @@ projet, grille qualité de `feature`, skills et agents globaux, `tests/` et hook
 | Récidive | Friction revenue alors qu'une règle écrite la couvrait déjà | — | rappel, doublon |
 | Règle citée | Règle nommée dans la leçon d'une récidive, pour la retrouver et compter ses échecs | `(récidive : <fichier> « <fragment> »)` en fin de ligne de `lecons.md` | référence |
 | Budget de lignes | Nombre maximal de lignes du `CLAUDE.md` de `claude-config` et de `global/CLAUDE.md`, vérifié par un test | `line_budget_overruns`, `tests/test_rules.sh` | limite de taille |
+| Règle globale | Règle lue par les sessions de tous les projets : `CLAUDE.md` global et `RTK.md` qu'il importe, grille qualité de `feature`, skills et agents globaux | `global/` de `claude-config`, relié à `~/.claude/` | règle partagée, règle commune |
+| Dossier de suivi | Ce qui reste d'une branche une fois la conversation effacée, dans le dépôt principal, non versionné | `<racine>/.superpowers/sdd/<sujet>/` | dossier SDD, dossier de travail |
 
 Invariants : une leçon `ponctuel` ne produit ni règle ni garde ; une friction qu'un programme peut vérifier devient
 une garde mécanique, jamais une règle ; une récidive met en cause sa règle (la mécaniser, la déplacer ou la retirer)
 au lieu de la reformuler ; aucune proposition ne s'applique sans accord ; le `CLAUDE.md` de `claude-config` et
 `global/CLAUDE.md` ne dépassent pas leur budget de lignes.
+Les citations d'une règle globale se comptent sur les leçons de tous les projets, pas du seul dépôt qui merge ; une
+citation d'un autre projet compte même étiquetée `ponctuel` (l'étiquette est fausse si la friction revient).
 
 ## Contexte : Réglages
 
