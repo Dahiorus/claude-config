@@ -29,8 +29,9 @@ sa section « État » s'il y en a, et proposer `/pr push` (qui la sort du draft
    suivantes (squash, merge, nettoyage) vont dans `lecons.md` à la fin : la PR suivante les lira.
 3. **Squash** — reste à faire à jour d'abord (étape 2 de `push.md`), puis étapes de `squash.md`, sauf si l'historique en
    est déjà le résultat (un commit, ou un par pan fonctionnel, sans commit de correctif depuis) et à jour avec
-   `origin/main`. Squash sauté : marque « livrée » en PR multiples (étape 1 de `squash.md`) et message du commit passé
-   par `humanizer:humanizer` quand même, push forcé avec bail comme dans `squash.md` si le message change.
+   `origin/<base>` (`baseRefName` de la PR). Squash sauté : marque « livrée » en PR multiples (étape 1 de
+   `squash.md`) et message du commit passé par `humanizer:humanizer` quand même, push forcé avec bail comme dans
+   `squash.md` si le message change.
 4. **Merge** — fichier de `src/` supprimé ou déplacé alors que le déploiement ne supprime pas (rsync sans
    `--delete`) → le signaler avant de merger. Issues réglées entièrement par la PR (spec, commits, branche) absentes de
    `gh pr view --json closingIssuesReferences` → ajouter leur `Closes #n` à la description avant de merger, relue contre le diff comme à l'étape 4 de `push.md` ; après le merge,
