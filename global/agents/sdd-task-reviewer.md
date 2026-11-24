@@ -56,3 +56,6 @@ Verdict : OK | KO | BLOQUÉ
 ```
 
 `KO` → dire précisément ce qui manque, test par test.
+
+Dernière ligne, toujours : la ligne `Verdict : OK | KO | BLOQUÉ` répétée. Sans elle, le contrôleur tient la réponse
+pour coupée et la relance (`feature`, « Exécution »).

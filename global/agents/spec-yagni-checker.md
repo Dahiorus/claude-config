@@ -60,4 +60,6 @@ autre appel dans le même message, une fois. Refusé encore → le dire dans la 
 
 Trois parties, dans cet ordre : **À corriger**, **À trancher**, **Écarté** ; un écart n'est que dans l'une d'elles.
 Chaque écart donne sa sorte (utilitaire existant, option spéculative, optimisation prématurée), le § de la spec et
-sa preuve. Rien à signaler : la seule ligne « rien à signaler ».
+sa preuve. Rien à signaler : la seule ligne `Verdict : rien à signaler`.
+Sinon, dernière ligne : `Verdict : <c> à corriger, <t> à trancher, <e> écartés`. Sans elle, le contrôleur tient la
+réponse pour coupée et la relance (`feature`, « Exécution »).

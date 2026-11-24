@@ -172,8 +172,12 @@ passe.
 ## Contexte : Conception de feature
 
 Responsabilité : faire contrôler une spec ou un plan avant qu'ils s'ouvrent dans Plannotator, pour que l'utilisateur
-n'y tranche que ce qui reste · Dans le code : `global/skills/feature/SKILL.md` (§ « Validation fonctionnelle »,
-étapes 1 et 2), `global/skills/ddd/SKILL.md` (§ `revue`), `global/agents/spec-yagni-checker.md` · Dépend de :
+n'y tranche que ce qui reste ; nommer le contrôle qui n'a rendu aucun verdict (validation fonctionnelle, contrôle de
+tâche, convergence, reviews) · Dans le code : `global/skills/feature/SKILL.md` (§ « Validation fonctionnelle »,
+étapes 1 et 2, § « Exécution »), `global/skills/bugfix/SKILL.md` (étape 8), `global/skills/ddd/SKILL.md`
+(§ `revue`), `global/agents/spec-yagni-checker.md`, `global/agents/sdd-task-reviewer.md`,
+`global/agents/convergence-checker.md`, `global/agents/sdd-final-reviewer.md`, `global/agents/frontend-reviewer.md`
+· Dépend de :
 Plannotator (en aval : « à trancher » → blocs `:::question`)
 
 | Terme | Définition métier | Dans le code | À ne pas dire |
@@ -186,7 +190,10 @@ Plannotator (en aval : « à trancher » → blocs `:::question`)
 | Option spéculative | Option, mode, réglage ou cas que la spec ajoute sans que la demande initiale le demande | — | évolutivité |
 | Optimisation prématurée | Cache, parallélisme ou détour écrit pour la vitesse sans lenteur constatée ni volume qui l'exige | — | performance |
 | Review finale | Relecture du code de la branche à l'étape 7 (`ponytail-review` et `sdd-final-reviewer`, Opus), après l'implémentation | `final-review.md` | revue métier |
+| Contrôle non lancé | Contrôle (validation fonctionnelle, contrôle de tâche, convergence, review finale, review de `bugfix`) qui n'a rendu aucun verdict deux fois de suite (erreur, délai, réponse vide ou coupée, ou sans la ligne de verdict que son agent ou son skill définit) : on ne sait rien du document ou du code relu | « non lancé » dans le rapport du contrôleur | aucun défaut, aucun point, rien à signaler, conforme, convergé (ce sont des verdicts) |
+| Verdict | Mot qui conclut un contrôle rendu, défini par son agent ou son skill : « rien à signaler » ou le décompte à corriger / à trancher / écartés (`ddd revue`, `spec-yagni-checker`), `OK`, `KO` ou `BLOQUÉ` (`sdd-task-reviewer`), « convergé » ou « N écarts » (`convergence-checker`), « conforme » ou le décompte C/I/M (`sdd-final-reviewer`, `frontend-reviewer`), « Ship » ou ses points (`ponytail-review`), niveau Faible, Moyen ou Élevé (`pr-risk`) | ligne `Verdict :` finale (`ddd revue`, `spec-yagni-checker`, `sdd-final-reviewer`, `frontend-reviewer`, `sdd-task-reviewer`, `convergence-checker`), `Verdict:` ou `Looks good. Ship.` (`ponytail-review`), niveau de la première ligne, réponse close par `Not read:` (`pr-risk`) | — |
 
 Invariants : la validation fonctionnelle ne reçoit pas l'avis de l'auteur et ne modifie pas le document ; un
 élément cité dans la demande initiale n'est jamais une option spéculative ; ses « à trancher » deviennent des blocs
-`:::question`.
+`:::question`. Un contrôle sans verdict n'est jamais compté comme rendu sans défaut : relancé une fois, puis « non
+lancé ».

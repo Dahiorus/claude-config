@@ -94,8 +94,9 @@ contredit est un écart, trié comme les autres, pas une correction de la paraph
   d'abord et cite ce qu'elle y a lu.
 
 Rapport : la paraphrase en tête pour une spec, puis les trois catégories. Rien à signaler : pour une spec, la
-paraphrase puis « rien à signaler » en une ligne ; pour un plan, « rien à signaler » en une ligne. Le document
-lui-même n'est pas modifié : l'appelant applique.
+paraphrase puis la ligne `Verdict : rien à signaler` ; pour un plan, cette seule ligne. Sinon, dernière ligne :
+`Verdict : <c> à corriger, <t> à trancher, <e> écartés`. Sans elle, l'appelant tient le rapport pour coupé et relance
+la revue (`feature`, « Exécution »). Le document lui-même n'est pas modifié : l'appelant applique.
 
 ## Erreurs courantes
 

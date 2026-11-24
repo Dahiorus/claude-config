@@ -131,6 +131,19 @@ test_agents_with_root_run_git_from_it() {
   done < <(git -C "$REPO_SRC" grep -lE '<racine>|<arbre>' -- 'global/agents/*.md')
 }
 
+# Un contrôle finit sa réponse par une ligne `Verdict :` : sans elle, le contrôleur la tient pour coupée, la relance
+# puis l'écrit « non lancé » (feature, « Exécution »).
+# shortcut: vérifie la présence de « dernière ligne » et de `Verdict : `, pas leur lien, à revoir sur un cas réel.
+test_controls_define_final_verdict_line() {
+  local f
+  for f in global/agents/sdd-final-reviewer.md global/agents/frontend-reviewer.md \
+    global/agents/spec-yagni-checker.md global/agents/sdd-task-reviewer.md \
+    global/agents/convergence-checker.md global/skills/ddd/SKILL.md; do
+    { grep -qi 'dernière ligne' "$REPO_SRC/$f" && grep -q '`Verdict : ' "$REPO_SRC/$f"; } ||
+      fail "$f : pas de ligne Verdict finale"
+  done
+}
+
 # Un githook qui lance les tests ou crée des dépôts hérite de GIT_DIR quand il part d'un worktree.
 test_githooks_unset_git_env() {
   local f
