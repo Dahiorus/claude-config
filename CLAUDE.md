@@ -45,6 +45,8 @@ Une règle vérifiable par un programme va dans `tests/` ou un hook, pas ici.
   exemptions d'un seuil changé, et les phrases de l'ancienne décision (« hors », « inchangé »). Règle de `feature` :
   la reporter dans `bugfix`. Agent dont le rôle change : mettre à jour sa `description`.
 - `git grep` lit ligne par ligne : chercher par un fragment tenu sur une ligne.
+- Règle de cas (pile, draft, état…) : rejouer sa condition sur le cas réel visé avant le premier push (la PR du bas
+  d'une pile a main pour base).
 - Skill qui gagne un mode ou un état d'objet (draft…) : avant le premier push, écrire ce que fait chaque action du
   skill dans chaque état, entrée et sortie comprises.
 - Texte français ou Markdown : Edit/Write, jamais `sed -i`, `python3 -c`, `printf` ni `echo`. Édition en masse par
@@ -57,9 +59,6 @@ Une règle vérifiable par un programme va dans `tests/` ou un hook, pas ici.
 - Texte ou diff reçu par `/notify claude-config` : l'appliquer tel quel, sauf contre les 120 colonnes ; une
   reformulation se propose à part. Avant d'ouvrir la PR, le relire contre la grille de `feature`, écarts dans la
   description.
-- Affirmation reçue sur un hook, un skill, un agent ou Claude Code, ou remède de code prescrit : le rejouer ou le
-  relire ici (dépôt jetable, `tests/`, commande réelle, chaque langage du dépôt) avant de l'écrire. Faux : le dire à
-  la session d'origine.
 
 ## Installation et réglages
 

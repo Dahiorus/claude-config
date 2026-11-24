@@ -37,6 +37,17 @@ sa section « État » s'il y en a, et proposer `/pr push` (qui la sort du draft
    `gh pr view --json closingIssuesReferences` → ajouter leur `Closes #n` à la description avant de merger, relue contre le diff comme à l'étape 4 de `push.md` ; après le merge,
    vérifier que chacune est `CLOSED` (`gh issue view <n> --json state`), sinon la fermer avec un commentaire qui cite la
    PR et le SHA de merge, passé par `humanizer:humanizer`.
+   PR empilée (base ≠ main, ou visée par une PR ouverte : `gh pr list --base <headRefName> --state open` non vide) :
+   merger de bas en haut. `gh pr merge` et l'API synchrone refusent une PR de pile (« part of a stack ») :
+   `gh api -X PUT repos/<owner/repo>/pulls/<n°>/merge-async -f merge_method=rebase -f merge_action=direct_merge
+   -f sha=<headRefOid complet>`, sur la PR du bas seulement, à la place de `gh pr merge --rebase` ci-dessous.
+   Toujours « enqueued » après quelques minutes : renvoyer la même requête. Merge fini quand
+   `gh pr view <n°> --json state,mergeCommit` donne `MERGED` (revérifier toutes les 10 s) : le SHA de merge est
+   `mergeCommit.oid`. Issues, déploiement et nettoyage (étape 5) ne partent qu'ensuite, le nettoyage une fois la
+   suivante repointée sur main (`gh pr view <suivante> --json baseRefName`). GitHub rebase et repointe lui-même la
+   suivante, sans `gh pr edit --base` ni rebase local (le push forcé échouerait en « stale info ») : dans son arbre,
+   `git fetch` puis `git reset --hard origin/<branche>`, attendre sa CI sur le nouveau SHA, puis la merger de même
+   (merge-async tant qu'une PR ouverte la vise, sinon `gh pr merge --rebase`).
    CI de la PR au vert si le dépôt en a une (`.github/workflows/` non vide) : revérifier toutes
    les 10 s `gh pr view --json headRefOid,statusCheckRollup` jusqu'à ce que `headRefOid` soit égal à `git rev-parse HEAD`
    et qu'au moins un check apparaisse, puis lancer `gh pr checks --watch`. Lancé juste après un push, `gh pr checks

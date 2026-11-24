@@ -92,6 +92,8 @@ test_humanizer_denies_force_push_and_merge() {
   assert_eq "$(decision 'git push --force-with-lease=b:abc origin b')" "deny" "push forcé"
   assert_eq "$(decision 'git -C ../wt push --force-with-lease=b:abc origin b')" "deny" "git -C"
   assert_eq "$(decision 'gh pr merge 12 --rebase')" "deny" "merge"
+  assert_eq "$(decision 'gh api -X PUT repos/o/r/pulls/12/merge-async -f merge_method=rebase')" "deny" "merge-async"
+  assert_eq "$(decision 'gh api -X PUT repos/o/r/pulls/12/merge')" "deny" "merge synchrone"
 }
 
 test_humanizer_silent_on_non_publication() {
@@ -100,6 +102,7 @@ test_humanizer_silent_on_non_publication() {
   assert_eq "$(decision 'git commit -m wip')" "silence" "commit"
   assert_eq "$(decision 'gh pr view 12')" "silence" "view"
   assert_eq "$(decision 'gh api repos/o/r/pulls/12/comments')" "silence" "lecture comments"
+  assert_eq "$(decision 'gh api repos/o/r/pulls/12/merge')" "silence" "lecture merge"
   assert_eq "$(decision 'gh api repos/o/r/pulls/12/reviews --paginate')" "silence" "lecture reviews"
   assert_eq "$(decision "gh api graphql -f query='{ reviewThreads }'")" "silence" "graphql"
   assert_eq "$(decision 'gh api repos/o/r/issues/12/comments --paginate')" "silence" "lecture issues/comments"

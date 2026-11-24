@@ -57,10 +57,20 @@ Mis à jour le 2026-11-23.
    publié. Hors périmètre (spec `2026-11-23-recidive-entre-projets-design`) : dédoublonner deux
    `notify` reçus pour la même règle, normaliser le chemin du format de citation, lire les `final-review.md` des
    autres projets.
-10. **Repointer les PR empilées au merge de leur base** : `/pr merge` (étape 5, `merge.md`) supprime la branche
+10. **Repointer une PR posée sur une branche sans être une pile GitHub** (une pile, GitHub la repointe au
+    merge-async, `merge.md` étape 4) : `/pr merge` (étape 5, `merge.md`) supprime la branche
     distante sans toucher aux PR ouvertes qui la visent ; `gh pr edit --base main` reste à la main. `rebase.md`
     (étape 2) sait déjà rebaser une PR repointée. Plusieurs façons (repointer avant la suppression, ou seulement
     avertir), et une écriture sur la PR d'un autre auteur. (« Limites » de la PR #186)
+    Cas voisin (review de #187) : la condition « visée par une PR ouverte » de `merge.md` étape 4 envoie en
+    merge-async une PR visée hors pile GitHub, et le nettoyage attendrait un repointage qui n'arrive pas. À trancher
+    par un essai GitHub (`merge-async` accepte-t-il ce cas ?). Il ajoute un garde (toujours sur `<headRefName>` une
+    minute après `MERGED` : ne pas supprimer la branche, signaler la PR suivante) ou restreint la condition, avec
+    l'item corrigé.
+11. **Hook humanizer : deux écritures d'API de relecture non vues** (`global/humanizer-hook.sh`) : `gh api -X put`
+    en minuscules (`API_WRITE` ne lit que `POST|PUT`, à vérifier : `gh` accepte-t-il la casse ?) et
+    `-X PUT …/reviews/<id>/dismissals -f message=…`, qui publie du texte sans contrôle (`API_PATH` ne connaît pas
+    `/dismissals`). Chaque garde reçoit son test qui échoue avant le correctif. (Hors périmètre de #187, relecture)
 
 ## Corrections
 
