@@ -17,7 +17,8 @@ BODY_OPTS="${SP}(--body|--body-file)${END}|${SHORT}[bF]"
 EDIT_OPTS="${SP}(--body|--body-file|--title)${END}|${SHORT}[bFt]"
 CLOSE_OPTS="${SP}--comment${END}|${SHORT}c"
 API_PATH='/(reviews|replies|comments)(/[^/[:space:]"'"'"'?]+)?([?[:space:]"'"'"']|$)'
-API_WRITE="${SP}(--field|--raw-field|--input)${END}|${SHORT}[fF]|${SP}(-X|--method)(${SP}+|=)?POST"
+MERGE_PATH='/pulls/[^/[:space:]]+/merge(-async)?([?[:space:]"'"'"']|$)'  # merge d'une pile par l'API
+API_WRITE="${SP}(--field|--raw-field|--input)${END}|${SHORT}[fF]|${SP}(-X|--method)(${SP}+|=)?(POST|PUT)"
 
 # line_is_publication <ligne> : la ligne (continuations déjà jointes) est un point de publication.
 line_is_publication() {
@@ -29,6 +30,7 @@ line_is_publication() {
   [[ "$l" =~ ${W}gh${SP}+issue${SP}+(create|edit)${END} && "$l" =~ $BODY_OPTS ]] && return 0
   [[ "$l" =~ ${W}gh${SP}+(pr|issue)${SP}+close${END} && "$l" =~ $CLOSE_OPTS ]] && return 0
   [[ "$l" =~ ${W}gh${SP}+api${END} && "$l" =~ $API_PATH && "$l" =~ $API_WRITE ]] && return 0
+  [[ "$l" =~ ${W}gh${SP}+api${END} && "$l" =~ $MERGE_PATH && "$l" =~ $API_WRITE ]] && return 0
   [[ "$l" =~ ${W}git${SP}+(.*${SP})?push${SP}.*--force-with-lease ]] && return 0
   return 1
 }
