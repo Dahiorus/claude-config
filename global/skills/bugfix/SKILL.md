@@ -39,6 +39,10 @@ Comportement attendu absent ou ambigu → le demander, ne pas le choisir.
 Les étapes 1 à 8 s'enchaînent sans demander. Rapport à la fin de l'étape 8 : cause, correctif (`fichier:ligne`),
 sortie du test rouge puis verte, vérification, reviews (seuls les « à trancher » détaillés), ce qui reste.
 
+Une review de l'étape 8 sans verdict, `pr-risk` compris, se relance une fois, puis s'écrit « non lancé » en « à
+trancher » `N1…` de `final-review.md`, jamais un verdict, comme dans `feature`, « Exécution » ; un `pr-risk`
+« non lancé » vaut le niveau Moyen, donc Opus part.
+
 **Issue de couverture** (la règle est juste, aucun test ne la protège) → rouge par mutation, à l'étape 4 : casser la
 règle en production, lancer le test, le voir échouer pour la bonne raison, puis restaurer le code par
 `git checkout -- <fichier de prod>` (jamais `git stash`, qui emporte le test non commité ; `git diff` vide hors

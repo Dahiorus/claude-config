@@ -77,3 +77,6 @@ Le rapport complet, dans la réponse :
    enfreint, ce qui peut mal tourner, correctif attendu.
 
 Rien à signaler → « conforme », avec le périmètre relu.
+
+Dernière ligne, toujours : `Verdict : conforme` ou `Verdict : <n> écarts (C<c>, I<i>, M<m>)`. Sans elle, le
+contrôleur tient la réponse pour coupée et la relance (`feature`, « Exécution »).

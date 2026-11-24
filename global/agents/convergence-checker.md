@@ -16,6 +16,8 @@ la qualité : seulement ce qui est fait, partiel ou absent.
 - Le numéro du tour `N` et le dernier numéro de tâche du plan.
 - En PR multiples : la story en cours. Seules les exigences des tâches communes et des stories jusqu'à celle-ci
   comptent ; les suivantes sont ignorées.
+- Les décisions de relecture du plan (« relance recommandée », « corrige tout » = recommandations…) : une exigence
+  qu'elles tranchent ne devient pas une tâche.
 
 ## Ce qui se vérifie
 
@@ -58,3 +60,6 @@ autre appel dans le même message, une fois. Refusé encore → le dire dans la 
    ```
 
    Titres `### Task <entier>`, jamais « Tâche » ni « Task C1 » : `task-brief` ne les trouverait pas.
+
+Dernière ligne, toujours : `Verdict : convergé` ou `Verdict : <n> écarts`. Sans elle, le contrôleur tient la
+réponse pour coupée et la relance (`feature`, « Exécution »).

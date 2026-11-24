@@ -1,6 +1,6 @@
 # Reste à faire
 
-Mis à jour le 2026-11-23.
+Mis à jour le 2026-11-24.
 
 ## Features
 
@@ -15,10 +15,12 @@ Mis à jour le 2026-11-23.
    (`ponytail-review`).~~ Fait : agent `spec-yagni-checker`, à l'étape 1 de `feature`. Hors périmètre (spec
    `2026-11-20-yagni-spec-design`) : les autres axes d'EGM (contexte insuffisant, détail d'implémentation, impasse
    d'architecture) et le contrôle du plan.
-3. **Relecteur en échec = « non lancé »** (EGM, `agents/synthesizer.md`) : un agent de review, de convergence,
+3. ~~**Relecteur en échec = « non lancé »** (EGM, `agents/synthesizer.md`) : un agent de review, de convergence,
    `spec-yagni-checker` ou `ddd revue` qui expire ou ne rend rien est relancé une fois. S'il échoue encore, son
    rapport l'affiche « non lancé », jamais « aucun défaut ». Une phrase dans « Exécution » de `feature`,
-   à reporter dans `bugfix`.
+   à reporter dans `bugfix`.~~ Fait : paragraphe « non lancé » dans « Exécution » de `feature`, renvoi dans
+   `bugfix`. Hors périmètre (spec `2026-11-24-relecteur-non-lance-design`) : les autres agents (`pr-reviewer` de
+   `/pr review`, `recette-runner`, `feedback-triager`, `lessons-extractor`, `todo-verifier`, `bug-worker`).
 4. **Rapport de dérive doc/code** (EGM, `skills/egm-drift-report`) : confronter `CLAUDE.md`, `docs/domaine.md` et les
    `AGENTS.md` au code, et ne lister que les écarts (champ absent, valeur codée en dur, autre bibliothèque que
    prévu). Un mode de `todo` ou un petit skill, lancé à la demande.
@@ -137,3 +139,9 @@ Mis à jour le 2026-11-23.
     pas si la ligne est dans un bloc. À lire le fichier entier si un cas réel gêne. Les tableaux et la ligne
     `description:` du frontmatter sont exemptés : 8 des 15 derniers commits en ajoutaient.~~ Fait : diff à contexte
     complet, clôtures ``` et ~~~ suivies. (#182)
+18. **Écritures git réécrites par `bash-rewrite-hook.sh`** : le mode auto refuse `git add` devenu `rtk git add`. Le
+    hook laisserait les écritures git intactes, puis les phrases « Refus du mode auto » partiraient. (leçons de #188,
+    #189)
+19. **Marques de fin de `ponytail-review` et `pr-risk` en dur dans `feature`** (`Verdict:`, `Looks good. Ship.`,
+    `Not read:`) : à revérifier à chaque montée de version du plugin, sinon faux « non lancé ». (reliquat de #188,
+    #190)

@@ -73,7 +73,7 @@ autre appel dans le même message, une fois. Refusé encore → le dire dans la 
 
 ## Réponse
 
-Trois sections, rien d'autre (pas de « détail », « convention » ni « points vérifiés » à part) :
+Trois sections et la ligne de verdict, rien d'autre (pas de « détail », « convention » ni « points vérifiés ») :
 
 1. **Périmètre** : plage relue (SHA courts), version d'Angular, chemins exacts des références ouvertes, fichiers lus
    en entier, fichiers lus en partie (avec la raison), ce qui n'a pas pu être vérifié, et en une seule ligne, sans
@@ -85,3 +85,6 @@ Trois sections, rien d'autre (pas de « détail », « convention » ni « point
    comme hors périmètre (reste à faire).
 
 Rien à signaler → « conforme », avec le périmètre relu.
+
+Dernière ligne, toujours : `Verdict : conforme` ou `Verdict : <n> écarts (C<c>, I<i>, M<m>)`. Sans elle, le
+contrôleur tient la réponse pour coupée et la relance (`feature`, « Exécution »).

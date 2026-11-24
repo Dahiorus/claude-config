@@ -178,6 +178,23 @@ du rouge, qu'on redemande à l'implémenteur avant le contrôle. Le brief des ag
 changer de branche dans le dépôt de travail (compiler et lancer les tests y restent permis), et d'écrire dans le
 dossier de suivi : il demande le rapport complet dans la réponse, et le contrôleur écrit le fichier.
 `spec-yagni-checker` obéit aux mêmes interdits et rend aussi son rapport dans sa réponse.
+Un contrôle sans verdict (erreur, délai, réponse vide ou coupée, sans la ligne de verdict que son agent ou son skill
+définit ; `pr-risk` : sans sa ligne `Not read:` ; `ponytail-review` : sans `Verdict:` ni `Looks good. Ship.` ;
+pour `code-review` et `security-review`, sans ligne de verdict, seuls l'erreur, le délai et la réponse vide
+comptent) est relancé une fois, par un nouvel appel `Agent` ou `Skill` avec le même brief et le même modèle.
+Contrôles visés : `ddd revue` (spec et plan), `spec-yagni-checker`, `sdd-task-reviewer`, `convergence-checker`, et
+chaque review lancée à l'étape 7, `pr-risk` compris.
+Toujours sans verdict, le contrôle est « non lancé » : le contrôleur l'écrit avec la cause vue là où le verdict
+serait allé, jamais un verdict (« aucun défaut », « aucun point », « rien à signaler », « conforme », « convergé »…).
+Validation fonctionnelle : dans le message du contrôleur avant Plannotator, et le contrôle compte comme revenu.
+Contrôle de tâche : dans `progress.md`, face à la tâche, puis s'arrêter et rapporter.
+Convergence : dans `convergence-N.md`, puis s'arrêter et rapporter, comme sans convergence après 3 tours.
+Review : dans son rapport et en tête de `final-review.md`, en « à trancher » numéroté `N1…` (relancer plus tard,
+recommandé, ou livrer sans cet angle) ; « corrige N1 » relance cette review, et elle compte comme rendue pour le tri.
+Une review coupée deux fois garde les points déjà lus : sa ligne `N…` les recopie, « à vérifier », et le tri les
+vérifie comme les autres.
+Un `pr-risk` « non lancé » vaut le niveau Moyen pour le dosage des reviews : le risque n'est jamais supposé faible
+sans preuve. Ses dangers restent inconnus : sa ligne `N…` dit que `security-review` ne part pas faute de danger cité.
 Le brief de chaque sous-agent, implémenteur compris, dit qu'un refus du mode auto « a hook changed this call's
 input » n'est pas un jugement : relancer l'appel seul, à l'identique, sans autre appel dans le même message, une
 fois ; refusé encore → BLOCKED, avec la commande. Le contrôleur lance chaque appel `Agent` seul dans son message,
