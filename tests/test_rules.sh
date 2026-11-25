@@ -95,7 +95,7 @@ test_plugins_without_bump() {
 test_branch_respects_rules() {
   local base
   base="$(git -C "$REPO_SRC" merge-base HEAD origin/main 2>/dev/null)" || return 0
-  assert_eq "$(md_long_lines "$REPO_SRC" "$base")" "" "lignes Markdown de plus de 120 colonnes"
+  assert_eq "$(md_long_lines "$REPO_SRC" "$base")" "" "lignes Markdown de plus de 120 colonnes (ligne déjà longue : ne pas la réécrire, écrire dessous ; tableaux, blocs de code et description: exemptés)"
   assert_eq "$(plugins_without_bump "$REPO_SRC" "$base")" "" "plugin modifié sans montée de version"
 }
 

@@ -1,6 +1,6 @@
 ---
 name: lessons-extractor
-description: Leçons d'une PR avant son merge (skill pr, action merge, étape 2) — lit lecons.md et final-review.md du dossier de suivi et des PR précédentes, et, pour une règle globale, les lecons.md des autres projets, trie les leçons par étiquette (méca, jugement, ponctuel) et propose une garde mécanique, une règle, ou le déplacement ou le retrait d'une règle qui a récidivé, sans rien écrire. Lancer avec model sonnet, passé explicitement.
+description: Leçons d'une PR avant son merge (skill pr, action merge, étape 2) — lit lecons.md et final-review.md du dossier de suivi et des PR précédentes, et, pour une règle globale, les lecons.md des autres projets, trie les leçons (frictions et découvertes) par étiquette (méca, jugement, ponctuel) et propose une garde mécanique, une règle, ou le déplacement ou le retrait d'une règle qui a récidivé, sans rien écrire. Lancer avec model sonnet, passé explicitement.
 model: sonnet
 disallowedTools: Edit, Write, NotebookEdit
 ---
@@ -8,9 +8,9 @@ disallowedTools: Edit, Write, NotebookEdit
 # Leçons d'une PR
 
 La PR va être squashée puis mergée. Tu cherches dans son historique de travail ce qui empêchera les PR suivantes de
-buter sur les mêmes frictions : une garde mécanique quand un programme peut vérifier, une règle sinon, et la remise
-en cause d'une règle qui n'a pas suffi. Tu proposes ; la session montre tes diffs à l'utilisateur et n'applique que
-ce qu'il accepte.
+buter sur les mêmes frictions ni de refaire les mêmes découvertes : une garde mécanique quand un programme peut
+vérifier, une règle sinon, et la remise en cause d'une règle qui n'a pas suffi. Tu proposes ; la session montre tes
+diffs à l'utilisateur et n'applique que ce qu'il accepte.
 
 ## Entrée (dans le brief)
 
@@ -33,20 +33,20 @@ ce qu'il accepte.
     -exec grep -HnF -e '<fragment>' {} +
   ```
 - Les cibles possibles, dans l'arbre de la PR : `AGENTS.md` et `CLAUDE.md` du projet, section « Grille qualité » de
-  `~/.claude/skills/feature/SKILL.md`, et le fichier du skill ou de l'agent concerné quand la friction en vient
+  `~/.claude/skills/feature/SKILL.md`, et le fichier du skill ou de l'agent concerné quand la leçon en vient
   (`~/.claude/skills/<skill>/`, `~/.claude/agents/`). Pour `claude-config`, `~/.claude/` pointe vers le dépôt
   principal : lire `global/skills/…` et `global/agents/…` de l'arbre de la PR.
 
 ## Trier
 
 Étiquettes, posées par la session qui écrit la leçon (format : `pr/SKILL.md`, « Dossier de suivi ») : `méca` (un
-programme peut vérifier la friction), `jugement` (seule une phrase lue par la session peut l'éviter), `ponctuel`
-(cas unique sans chance de revenir).
+programme peut vérifier la friction ; une découverte n'est jamais `méca`), `jugement` (seule une phrase lue par la
+session peut l'éviter ou la transmettre), `ponctuel` (cas unique sans chance de revenir).
 
 - Leçons traitées : celles de la PR, plus les anciennes qui forment une récidive ou une répétition avec elles. Un
   point de `final-review.md` vu deux fois, dans cette PR ou entre deux PR, se traite comme une leçon sans étiquette.
 - Leçon sans étiquette → l'étiqueter, en le disant. Étiquette fausse → la corriger, en le disant : un `ponctuel` dont
-  la friction revient dans une autre PR, ou qui cite une règle (`(récidive :`), n'est pas ponctuel.
+  la leçon revient dans une autre PR, ou qui cite une règle (`(récidive :`), n'est pas ponctuel.
 - `ponctuel` → aucune proposition. Rien non plus pour ce que git, GitHub ou le code disent déjà.
 - `méca` → une garde mécanique (test, hook, script, ou changement qui supprime le piège), jamais une phrase. Un test
   se propose en diff ; un hook ou un script, trop gros pour un diff accepté d'un mot (mutations, scripts adverses),

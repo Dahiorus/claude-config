@@ -51,10 +51,17 @@ existant pour ce sujet, daté (`2026-11-08-x`) ou non, se réutilise ; on n'en c
   reviews ») ;
   `convergence-N.md` : sortie du tour N de convergence (`feature` étape 5b). Écrits par le contrôleur à partir de
   la réponse de l'agent, dont le brief interdit d'écrire dans le dossier de suivi ;
-- `lecons.md` : une ligne `- <date> (<action>) [<étiquette>] : <friction>` par friction (correction de l'utilisateur,
-  commande refusée, piège, consigne oubliée), action facultative. Étiquette : `méca` (un programme peut la vérifier),
-  `jugement` (seule une phrase lue l'évite), `ponctuel` (cas unique sans retour). Règle écrite qui la couvrait : finir
-  par `(récidive : <fichier> « <fragment d'une ligne> »)`. Ajoutée en fin de session sur la branche (`feature` étape 7,
+- `lecons.md` : une ligne `- <date> (<action>) [<étiquette>] : <friction ou découverte>` par friction (correction de
+  l'utilisateur, commande refusée, piège, consigne oubliée) ou découverte (savoir acquis en route qui aurait fait
+  gagner du temps : par exemple commande trouvée, manière de tester qui a marché, convention du code suivie,
+  particularité de l'environnement), action facultative. Pas de découverte que la session a reçue du code, de git ou
+  d'un fichier lu à chaque session ; refaite sans l'avoir trouvée dans une règle écrite qui la donnait : récidive
+  (ci-dessous). Une particularité propre à la machine (chemin local, compte, outil installé ici seulement) est un
+  piège : l'écrire tout de suite dans la mémoire du projet (format de `merge.md`, étape 6), pas dans `lecons.md`.
+  Étiquette : `méca` (un programme peut vérifier la friction ; une découverte n'est jamais `méca`), `jugement`
+  (seule une phrase lue l'évite ou la transmet), `ponctuel` (cas unique sans retour).
+  Règle écrite qui couvrait la friction revenue ou la découverte refaite : finir par
+  `(récidive : <fichier> « <fragment d'une ligne> »)`. Ajoutée en fin de session sur la branche (`feature` étape 7,
   `bugfix` étape 8, `push`, `squash`, `recette`, `comments`, `rebase`, `merge` avant l'étape 2, à la fin). Rien → rien.
 
 ## Aide
@@ -183,18 +190,5 @@ elles, l'utilisateur voit que la lecture a sauté. Action hors table (`help`, `v
 | `review` | `review.md` |
 | `comments` | `comments.md` |
 
-## Nettoyage des branches
-
-Après un merge, ou une PR fermée sans merge. Branche d'une PR fermée sans merge dont le contenu n'est pas dans main
-(ni intégré dans une autre PR) : demander avant de la supprimer, ses commits seraient perdus. Branche gardée pour
-une nouvelle PR : retirer la marque « livrée » de la story dans son plan.
-
-1. **Worktrees** — chaque worktree où la branche est extraite (`git worktree list --porcelain`), `pr-<n°>` compris.
-   Dépôt principal : `git switch main && git pull --ff-only`. Autre worktree propre : `git worktree remove <chemin>`
-   (session dedans : `ExitWorktree` avec `action: "keep"` d'abord). Pas propre → le laisser et le dire. Puis
-   `git worktree prune`.
-2. **Branche locale** — `git branch -D` une fois vérifié que main contient son contenu (`git diff --quiet origin/main
-   <branche> -- $(git diff --name-only origin/main...<branche>)`) : un merge en rebase change les SHA, `-d` refuse. Écart → le montrer et demander.
-3. **Branche distante** — sauf si le dépôt la supprime au merge (`gh api repos/<owner/repo> --jq
-   .delete_branch_on_merge`) : `git push origin --delete <branche>…`, toutes les branches en un appel, dans un appel
-   seul (ni squash, ni autre push, ni switch). Refusé (permissions ou hook) → donner la commande prête à lancer avec `!`.
+Nettoyage d'une branche, après un merge ou une PR fermée sans merge : section « Nettoyage des branches » de
+`merge.md`, lue avant la première commande, avec sa ligne « Lu ».

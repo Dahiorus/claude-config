@@ -25,7 +25,7 @@ sa section « État » s'il y en a, et proposer `/pr push` (qui la sort du draft
    `/notify claude-config` au minimum : fichiers modifiés et diff, pour qu'elle passe dans une PR. Une proposition qui
    s'appuie sur un autre projet le dit : ni le nom de ce projet, ni le texte de ses leçons, ni les chemins de la
    colonne « Source » ne vont dans le commit, la description ou une issue ; le message `notify` peut les citer, en
-   rappelant qu'ils restent hors de la PR. Les frictions des étapes
+   rappelant qu'ils restent hors de la PR. Les leçons des étapes
    suivantes (squash, merge, nettoyage) vont dans `lecons.md` à la fin : la PR suivante les lira.
 3. **Squash** — reste à faire à jour d'abord (étape 2 de `push.md`), puis étapes de `squash.md`, sauf si l'historique en
    est déjà le résultat (un commit, ou un par pan fonctionnel, sans commit de correctif depuis) et à jour avec
@@ -64,11 +64,30 @@ sa section « État » s'il y en a, et proposer `/pr push` (qui la sort du draft
    scénarios de recette sur l'environnement déployé (agent `recette-runner`, modèle `sonnet` passé explicitement, comme l'action `recette` (`recette.md` du skill `pr`)). Écart → le rapporter, sans
    revenir en arrière seul.
 5. **Nettoyage** — de la branche de la PR et de celles des PR qu'elle a intégrées puis fermées (citées dans la
-   description ou les commits) : section « Nettoyage des branches » de `SKILL.md`, sans redemander, main contenant leur contenu.
+   description ou les commits) : section « Nettoyage des branches » ci-dessous, sans redemander, main contenant leur
+   contenu.
 6. **Mémoire** — n'y écrire qu'un piège (comportement inattendu et son contournement) ou une décision de
    l'utilisateur (choix à ne pas reproposer, avec sa raison) apparus dans la PR ; jamais n° de PR, SHA, date ou état
    du déploiement, que git et GitHub gardent. Rien de nouveau → rien. Ce qui reste à faire va dans le reste à faire
    versionné s'il existe ; sinon un bug ou un point hors périmètre devient une issue, proposée puis créée après accord
    comme à l'étape **Issues** de `push.md` (label `hors-perimetre`, ou `bug` pour un bug). Jamais dans la mémoire.
-7. Frictions du squash, du merge et du nettoyage dans `lecons.md`, pour les leçons de la PR suivante. Rapport : une
+7. Leçons du squash, du merge et du nettoyage dans `lecons.md` : la PR suivante les lira. Rapport : une
    ligne par étape faite (SHA, lien de PR, état du déploiement) et ce qui n'a pas été fait, avec la raison.
+
+## Nettoyage des branches
+
+Après un merge, ou une PR fermée sans merge. Branche d'une PR fermée sans merge dont le contenu n'est pas dans main
+(ni intégré dans une autre PR) : demander avant de la supprimer, ses commits seraient perdus. Branche gardée pour
+une nouvelle PR : retirer la marque « livrée » de la story dans son plan.
+
+1. **Worktrees** — chaque worktree où la branche est extraite (`git worktree list --porcelain`), `pr-<n°>` compris.
+   Dépôt principal : `git switch main && git pull --ff-only`. Autre worktree propre : `git worktree remove <chemin>`
+   (session dedans : `ExitWorktree` avec `action: "keep"` d'abord). Pas propre → le laisser et le dire. Puis
+   `git worktree prune`.
+2. **Branche locale** — `git branch -D` une fois vérifié que main contient son contenu (`git diff --quiet origin/main
+   <branche> -- $(git diff --name-only origin/main...<branche>)`) : un merge en rebase change les SHA, `-d` refuse.
+   Écart → le montrer et demander.
+3. **Branche distante** — sauf si le dépôt la supprime au merge (`gh api repos/<owner/repo> --jq
+   .delete_branch_on_merge`) : `git push origin --delete <branche>…`, toutes les branches en un appel, dans un appel
+   seul (ni squash, ni autre push, ni switch). Refusé (permissions ou hook) → donner la commande prête à lancer
+   avec `!`.
