@@ -173,3 +173,29 @@ test_jq_fromjson_selects_objects() {
     | grep -v 'type == "object"' || true)"
   assert_eq "$bad" "" "fromjson? sans select(type == \"object\" …)"
 }
+
+# Un test donne son entrée à un script en here-string (<<<"$json"), pas par un pipe : un hook qui sort sans la lire
+# tue le producteur (SIGPIPE, 141 sous pipefail).
+# shortcut: une fonction d'aide qui lance le script (sauf profile) échappe au test, à ajouter si un cas réel le demande.
+# Lignes où un pipe alimente un script ; une ligne finie par « \ » ou « | » se joint à la suivante.
+pipes_to_script() {
+  awk '
+    /\\$/ { if (!buf) start = FNR; buf = buf substr($0, 1, length($0) - 1) " "; next }
+    /\|[[:space:]]*$/ { if (!buf) start = FNR; buf = buf $0 " "; next }
+    { line = buf $0; n = buf ? start : FNR; buf = ""
+      if (line ~ /(^|[[:space:]])\|[[:space:]]*([A-Za-z_][A-Za-z0-9_]*=[^[:space:]]*[[:space:]]+)*("\$BASH"|bash|sh|python3|profile)[[:space:]]/)
+        print FILENAME ":" n }' "$@"
+}
+
+test_tests_feed_scripts_by_here_string() {
+  local bad
+  bad="$(cd "$REPO_SRC" && pipes_to_script tests/*.sh)"
+  assert_eq "$bad" "" "pipe vers un script dans un test"
+}
+
+test_pipes_to_script_reports_each_form() {
+  local p='|' f="$SANDBOX/t.sh"   # pipe en variable : ce fichier ne se signale pas lui-même
+  printf '%s\n' "jq x $p bash h.sh" "jq x \\" "  $p PATH=y \"\$BASH\" h.sh" "jq x $p" "  python3 h.py" \
+    "x $p$p bash h.sh" > "$f"
+  assert_eq "$(pipes_to_script "$f")" "$(printf '%s\n' "$f:1" "$f:2" "$f:4")" "pipes vers un script"
+}

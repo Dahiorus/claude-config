@@ -23,8 +23,8 @@ EOF
 
 run_hook() {
   # cwd hors de tout dépôt : sinon le hook prend $PWD, et un lancement depuis un worktree lié fausse les tests.
-  jq -nc --arg c "$1" --arg d "$SANDBOX" '{tool_name:"Bash",cwd:$d,tool_input:{command:$c,description:"d"}}' \
-    | PATH="$STUBS:/usr/bin:/bin" bash "$REPO/global/bash-rewrite-hook.sh"
+  PATH="$STUBS:/usr/bin:/bin" bash "$REPO/global/bash-rewrite-hook.sh" \
+    <<<"$(jq -nc --arg c "$1" --arg d "$SANDBOX" '{tool_name:"Bash",cwd:$d,tool_input:{command:$c,description:"d"}}')"
 }
 
 hook_command() {
@@ -81,8 +81,8 @@ EOF
 }
 
 run_hook_in_mode() {
-  jq -nc --arg c "$1" --arg m "$2" --arg d "$SANDBOX" '{tool_name:"Bash",cwd:$d,permission_mode:$m,tool_input:{command:$c}}' \
-    | PATH="$STUBS:/usr/bin:/bin" bash "$REPO/global/bash-rewrite-hook.sh"
+  PATH="$STUBS:/usr/bin:/bin" bash "$REPO/global/bash-rewrite-hook.sh" <<<"$(jq -nc --arg c "$1" --arg m "$2" \
+    --arg d "$SANDBOX" '{tool_name:"Bash",cwd:$d,permission_mode:$m,tool_input:{command:$c}}')"
 }
 
 # Mode auto : le classifieur refuse un appel que le hook a réécrit, donc rien n'est réécrit (rtk comme build-brief).
@@ -99,8 +99,8 @@ test_hook_other_modes_still_rewrite() {
 }
 
 hook_command_in() {
-  jq -nc --arg c "$1" --arg d "$2" '{tool_name:"Bash",cwd:$d,tool_input:{command:$c}}' \
-    | PATH="$STUBS:/usr/bin:/bin" bash "$REPO/global/bash-rewrite-hook.sh" | jq -r '.hookSpecificOutput.updatedInput.command'
+  PATH="$STUBS:/usr/bin:/bin" bash "$REPO/global/bash-rewrite-hook.sh" \
+    <<<"$(jq -nc --arg c "$1" --arg d "$2" '{tool_name:"Bash",cwd:$d,tool_input:{command:$c}}')" | jq -r '.hookSpecificOutput.updatedInput.command'
 }
 
 test_hook_git_in_subdirectory_goes_to_rtk() {

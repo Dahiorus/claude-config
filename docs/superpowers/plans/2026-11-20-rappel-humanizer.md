@@ -71,7 +71,8 @@ Usages vérifiés (étape 1b) et ce qu'ils deviennent :
   absent ou égal à `"human"` (une notification a `origin.kind: "task-notification"`), et pas `isCompactSummary`
   (résumé écrit après une compaction). Entrées `isSidechain: true` ignorées.
 - Passage = entrée `type: "assistant"` dont un bloc `tool_use` a `name: "Skill"` et `input.skill: "humanizer:humanizer"`.
-- Tests shell : here-string (`<<<"$json"`) pour alimenter le hook, jamais `jq … | hook` (`CLAUDE.md` du projet).
+- Tests shell : here-string (`<<<"$json"`) pour alimenter le hook, jamais `jq … | hook`
+  (`test_tests_feed_scripts_by_here_string`, `tests/test_rules.sh`).
 - `shellcheck` sur chaque script et test modifié avant de commiter.
 - Texte des skills : lignes de 120 colonnes au plus, édition par Edit, jamais `sed -i`.
 - Commits : gitmoji, sujet en français comme l'historique récent, fin par

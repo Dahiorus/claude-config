@@ -129,12 +129,14 @@ Mis à jour le 2026-11-24.
     première puce) : dire comment lui passer l'information ; la vérification des dangers avant de les relayer
     manque aussi à `pr/push.md` (étape 4) et à `pr/review.md` (étape 3), qui lancent aussi `pr-risk`. (relecture
     de cette PR)
-16. **Règles de l'audit du `CLAUDE.md` restées en prose** (2026-11-21) : deux contrôles proposés n'ont pas été écrits.
-    Agents qui citent `git grep` sans `git -C <racine>` : trois exceptions (`todo-verifier` et `sdd-task-reviewer`
-    cherchent dans une révision ; le brief de `sdd-final-reviewer` ne donne pas de racine, sa review rejoue dans un
-    dépôt jetable). `jq … | hook` dans un test : `guard_raw` (`tests/test_main_guard.sh`) passe
+16. ~~**Règles de l'audit du `CLAUDE.md` restées en prose** (2026-11-21) : deux contrôles proposés n'ont pas été
+    écrits. Agents qui citent `git grep` sans `git -C <racine>` : trois exceptions (`todo-verifier` et
+    `sdd-task-reviewer` cherchent dans une révision ; le brief de `sdd-final-reviewer` ne donne pas de racine, sa
+    review rejoue dans un dépôt jetable). `jq … | hook` dans un test : `guard_raw` (`tests/test_main_guard.sh`) passe
     par un pipe vers un hook qui lit son entrée, donc le motif signalerait un cas sûr. Les règles restent en une ligne
-    du `CLAUDE.md`. Le troisième, `fromjson?` sans `type == "object"`, est `test_jq_fromjson_selects_objects`. (#181)
+    du `CLAUDE.md`. Le troisième, `fromjson?` sans `type == "object"`, est `test_jq_fromjson_selects_objects`.~~
+    Fait : `test_agents_with_root_run_git_from_it` (#180) ; les tests passent leur entrée à un script en here-string,
+    `test_tests_feed_scripts_by_here_string`. (#181)
 17. ~~**`md_long_lines` compte les lignes longues d'un bloc de code** (`tests/test_rules.sh`) : `git diff -U0` ne dit
     pas si la ligne est dans un bloc. À lire le fichier entier si un cas réel gêne. Les tableaux et la ligne
     `description:` du frontmatter sont exemptés : 8 des 15 derniers commits en ajoutaient.~~ Fait : diff à contexte

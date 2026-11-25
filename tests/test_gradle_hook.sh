@@ -3,9 +3,8 @@
 
 # Décision du hook Gradle du template android (vide quand il laisse passer).
 gradle_hook() {
-  jq -nc --arg c "$1" '{tool_input:{command:$c}}' \
-    | python3 "$REPO/templates/android/.claude/hooks/exiger-build-brief.py" \
-    | jq -r '.hookSpecificOutput.permissionDecision // empty'
+  python3 "$REPO/templates/android/.claude/hooks/exiger-build-brief.py" \
+    <<<"$(jq -nc --arg c "$1" '{tool_input:{command:$c}}')" | jq -r '.hookSpecificOutput.permissionDecision // empty'
 }
 
 test_gradle_hook_denies_raw_gradle() {
@@ -22,8 +21,7 @@ test_gradle_hook_allows_build_brief() {
 
 test_gradle_hook_points_to_shipped_doc() {
   local reason
-  reason="$(jq -nc '{tool_input:{command:"./gradlew build"}}' \
-    | python3 "$REPO/templates/android/.claude/hooks/exiger-build-brief.py" \
-    | jq -r '.hookSpecificOutput.permissionDecisionReason')"
+  reason="$(python3 "$REPO/templates/android/.claude/hooks/exiger-build-brief.py" \
+    <<<'{"tool_input":{"command":"./gradlew build"}}' | jq -r '.hookSpecificOutput.permissionDecisionReason')"
   assert_contains "$reason" "CLAUDE.md"
 }
