@@ -21,6 +21,8 @@ hors de la session, qui ne reçoit que les remarques.
    contexte (description, spec ou issue liée). Il reçoit aussi le périmètre de l'étape 0 et les remarques déjà
    faites ; les fichiers touchés hors périmètre servent de contexte, sans remarque. Il reçoit enfin les remarques
    bloquantes de soi encore ouvertes et dit pour chacune, vérifié dans le code, si elle est corrigée ou toujours là.
+   - **Issues Sonar** : le brief interdit à l'agent de les lire (MCP `sonarqube`, tableau de bord Sonar) et de les
+     citer : `comments` les lit, sur sa propre PR seulement (étape 1 de `comments.md`), et les compterait deux fois.
    - **Ticket Jira**, lu par la session avant de lancer l'agent : première clé `[A-Za-z][A-Za-z0-9]+-[0-9]+` (casse
      ignorée, mise en majuscules) trouvée dans le titre de la PR, puis le nom de la branche, puis les messages de
      commit. Une clé que Jira ne connaît pas (`UTF-8` dans un titre) passe à la source suivante. Outils du connecteur

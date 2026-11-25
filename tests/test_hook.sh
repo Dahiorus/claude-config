@@ -80,6 +80,24 @@ EOF
     "build-brief ./gradlew build && case x in a) echo;; esac; git status" "commande"
 }
 
+run_hook_in_mode() {
+  jq -nc --arg c "$1" --arg m "$2" --arg d "$SANDBOX" '{tool_name:"Bash",cwd:$d,permission_mode:$m,tool_input:{command:$c}}' \
+    | PATH="$STUBS:/usr/bin:/bin" bash "$REPO/global/bash-rewrite-hook.sh"
+}
+
+# Mode auto : le classifieur refuse un appel que le hook a réécrit, donc rien n'est réécrit (rtk comme build-brief).
+test_hook_auto_mode_rewrites_nothing() {
+  stub_rewriters
+  assert_eq "$(run_hook_in_mode 'git status' auto)" "" "rtk"
+  assert_eq "$(run_hook_in_mode './gradlew test' auto)" "" "build-brief"
+}
+
+test_hook_other_modes_still_rewrite() {
+  stub_rewriters
+  assert_eq "$(run_hook_in_mode 'git status' default | jq -r '.hookSpecificOutput.updatedInput.command')" "rtk git status" "default"
+  assert_eq "$(run_hook_in_mode 'git status' acceptEdits | jq -r '.hookSpecificOutput.updatedInput.command')" "rtk git status" "acceptEdits"
+}
+
 hook_command_in() {
   jq -nc --arg c "$1" --arg d "$2" '{tool_name:"Bash",cwd:$d,tool_input:{command:$c}}' \
     | PATH="$STUBS:/usr/bin:/bin" bash "$REPO/global/bash-rewrite-hook.sh" | jq -r '.hookSpecificOutput.updatedInput.command'

@@ -15,6 +15,8 @@ ton tri.
 - Le mode : `retours` (commentaires de PR) ou `reliquats` (points du reste à faire, avant un merge).
 - Les points : id, `path`, `line`, texte ; pour un point hors fil, son origine (commentaire ou review, id) et son
   rattachement (fichier, ligne, ou toute la PR).
+- Une issue Sonar arrive avec sa `key` pour id, l'origine « issue Sonar », son rattachement (fichier, et ligne
+  quand l'issue en a une) et son texte `<rule> (<severity>) : <message>`.
 - Le chemin de la grille du projet, la description de la PR et la spec liée.
 
 ## Vérifier avant de classer

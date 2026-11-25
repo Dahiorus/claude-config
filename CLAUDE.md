@@ -11,7 +11,7 @@ Une règle vérifiable par un programme va dans `tests/` ou un hook, pas ici.
   (`test_shell_scripts_in_shellcheck_scope`).
 - `git commit`, `git push` et `bash tests/run.sh` partent seuls dans leur message, sans autre appel Bash : sinon le
   classifieur répond « no verdict ». Le mode auto refuse aussi une écriture qu'un hook a réécrite :
-  `bash-rewrite-hook.sh` ne réécrit que pour build-brief et rtk, jamais pour un compte ou un jeton.
+  `bash-rewrite-hook.sh` ne réécrit que pour build-brief et rtk (jamais en mode auto, ni pour un compte ou un jeton).
 - Session `EnterWorktree` : Claude Code refuse `git -c`, `VAR=$(…) git/gh`, les heredocs qui citent git et les longs
   `gh api -f body=…`. Passer par un fichier (`--input`, `--body-file`) ou sortir du worktree (`ExitWorktree` `keep`).
 - `gh` et `git` se lancent depuis l'arbre du dépôt, jamais après un `cd` vers le scratchpad : fichier par chemin absolu.
@@ -45,6 +45,7 @@ Une règle vérifiable par un programme va dans `tests/` ou un hook, pas ici.
   exemptions d'un seuil changé, et les phrases de l'ancienne décision (« hors », « inchangé »). Règle de `feature` :
   la reporter dans `bugfix`. Agent dont le rôle change : mettre à jour sa `description`.
 - `git grep` lit ligne par ligne : chercher par un fragment tenu sur une ligne.
+- Spec ou plan à commiter : `bash tests/run.sh` avant (120 colonnes, plafonds de lignes de `test_skills.sh`).
 - Règle de cas (pile, draft, état…) : rejouer sa condition sur le cas réel visé avant le premier push (la PR du bas
   d'une pile a main pour base).
 - Skill qui gagne un mode ou un état d'objet (draft…) : avant le premier push, écrire ce que fait chaque action du
