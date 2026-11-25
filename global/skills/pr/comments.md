@@ -57,7 +57,8 @@ L'invocation vaut demande de corriger, pousser et répondre.
    non-régression absent d'un correctif). Sinon pas de demande, le rapport le dit.
    Échec (un login non collaborateur fait refuser toute la liste, 422) : un appel par login, le rapport cite l'erreur
    de chaque échec. Réponse publiée plus tard, après accord : même demande pour son auteur, même règle d'approbation.
-5. Tri, SHA et, pour chaque point hors fil, origine et rattachement dans `final-review.md`, frictions dans `lecons.md`. Rapport : décompte corrigés (SHA) / écartés, puis seuls les « à trancher » détaillés, lien de la PR.
+5. Tri, SHA et, pour chaque point hors fil, origine et rattachement dans `final-review.md`, leçons dans `lecons.md`.
+   Rapport : décompte corrigés (SHA) / écartés, puis seuls les « à trancher » détaillés, lien de la PR.
    Le rapport et `final-review.md` ajoutent « relecture redemandée à <logins> » (ou l'erreur de la demande),
    et « non redemandée à <logins> (approuvé, aucun bloquant répondu publié depuis) ».
 6. **Boucle**, sur sa propre PR seulement (sur celle d'un autre, c'est l'auteur qui corrige : une seule paire). Un

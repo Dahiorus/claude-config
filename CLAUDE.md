@@ -51,8 +51,8 @@ Une règle vérifiable par un programme va dans `tests/` ou un hook, pas ici.
   skill dans chaque état, entrée et sortie comprises.
 - Texte français ou Markdown : Edit/Write, jamais `sed -i`, `python3 -c`, `printf` ni `echo`. Édition en masse par
   script : `assert` du motif, puis `git diff --stat`.
-- Markdown : la prose ajoutée tient en 120 colonnes (`test_branch_respects_rules`). Ligne ou cellule déjà plus longue :
-  ne pas la réécrire, écrire dessous. Morceau de phrase retiré : relire la phrase entière.
+- Markdown : la prose ajoutée tient en 120 colonnes (`test_branch_respects_rules`, qui dit quoi faire d'une ligne déjà
+  longue). Morceau de phrase retiré : relire la phrase entière.
 
 ## Textes reçus d'autres sessions
 

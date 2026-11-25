@@ -15,4 +15,5 @@ L'invocation vaut demande de réécrire la branche et de la pousser.
 5. Approbations existantes (`approvals`, `SKILL.md`) → prévenir qu'un push forcé peut les invalider, puis pousser :
    `git push --force-with-lease=<headRefName>:<SHA distant noté> origin <headRefName> # humanizer: sans objet`
    (aucun texte publié : sans le marqueur, le hook `humanizer-hook.sh` refuse ce push forcé), jamais `--force` seul.
-6. Frictions dans `lecons.md`. Rapport : commits rejoués, fichiers en conflit et résolution choisie, résultat des tests, nouveau SHA.
+6. Leçons dans `lecons.md`. Rapport : commits rejoués, fichiers en conflit et résolution choisie, résultat des tests,
+   nouveau SHA.

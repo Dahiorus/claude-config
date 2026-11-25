@@ -87,7 +87,8 @@ Invariants : la mémoire ne recopie pas ce que git ou GitHub savent déjà (n° 
 
 ## Contexte : Leçons
 
-Responsabilité : noter les frictions d'une branche et en tirer, au merge, ce qui évite qu'elles reviennent ·
+Responsabilité : noter les frictions et les découvertes d'une branche et en tirer, au merge, ce qui évite que les
+frictions reviennent et ce qui épargne aux sessions suivantes de refaire les découvertes ·
 Dans le code : `lecons.md` du dossier de suivi (skill `pr`, « Dossier de suivi »), étape 2 de
 `global/skills/pr/merge.md`, agent `global/agents/lessons-extractor.md` · Dépend de : `feature` (étape 7), `bugfix`
 (étape 8) et les actions de `pr`, en amont, qui écrivent les leçons ; cibles en aval : `CLAUDE.md` ou `AGENTS.md` du
@@ -96,13 +97,14 @@ projet, grille qualité de `feature`, skills et agents globaux, `tests/` et hook
 | Terme | Définition métier | Dans le code | À ne pas dire |
 |---|---|---|---|
 | Friction | Moment où le travail a buté : correction de l'utilisateur, commande refusée, piège, consigne oubliée | — | erreur, incident |
-| Leçon | Ligne datée de `lecons.md` qui décrit une friction de la branche | ligne `- <date> (<action>) [<étiquette>] : …` de `lecons.md` | piège (celui-ci va dans la mémoire), règle |
-| Étiquette | Sort que mérite une leçon : `méca` (un programme peut la vérifier), `jugement` (seule une phrase lue par la session peut l'éviter), `ponctuel` (cas unique sans chance de revenir) | `[méca]`, `[jugement]`, `[ponctuel]` dans la ligne de `lecons.md` | catégorie, type |
+| Découverte | Savoir acquis en route qui aurait fait gagner du temps s'il avait été écrit avant : commande, manière de tester qui a marché, convention du code suivie, particularité de l'environnement | — | astuce, tip, apprentissage |
+| Leçon | Ligne datée de `lecons.md` qui décrit une friction ou une découverte de la branche | ligne `- <date> (<action>) [<étiquette>] : …` de `lecons.md` | piège (celui-ci va dans la mémoire), règle |
+| Étiquette | Sort que mérite une leçon : `méca` (un programme peut vérifier la friction ; une découverte n'est jamais `méca`), `jugement` (seule une phrase lue par la session peut l'éviter ou la transmettre), `ponctuel` (cas unique sans chance de revenir) | `[méca]`, `[jugement]`, `[ponctuel]` dans la ligne de `lecons.md` | catégorie, type |
 | Règle | Phrase écrite qu'une session doit lire et suivre | ligne de `CLAUDE.md`, `AGENTS.md`, d'un skill ou d'un agent | leçon, consigne (seule) |
 | Garde mécanique | Contrôle exécuté sans lecture : test, hook ou script, ou changement qui supprime le piège | `tests/test_*.sh`, `global/*-hook.sh` | règle |
 | Proposition | Règle, garde mécanique, déplacement, retrait, ou issue ou point du reste à faire pour une garde trop grosse, que `lessons-extractor` soumet, appliquée après accord seulement | tableau de la réponse de `lessons-extractor` | leçon |
 | Couverte par la PR | Proposition pour une leçon dont la PR a elle-même ajouté la règle : fichier et fragment, sans diff | tableau de la réponse de `lessons-extractor` | récidive |
-| Récidive | Friction revenue alors qu'une règle écrite la couvrait déjà | — | rappel, doublon |
+| Récidive | Friction revenue, ou découverte refaite, alors qu'une règle écrite la couvrait déjà | — | rappel, doublon |
 | Règle citée | Règle nommée dans la leçon d'une récidive, pour la retrouver et compter ses échecs | `(récidive : <fichier> « <fragment> »)` en fin de ligne de `lecons.md` | référence |
 | Budget de lignes | Nombre maximal de lignes du `CLAUDE.md` de `claude-config` et de `global/CLAUDE.md`, vérifié par un test | `line_budget_overruns`, `tests/test_rules.sh` | limite de taille |
 | Règle globale | Règle lue par les sessions de tous les projets : `CLAUDE.md` global et `RTK.md` qu'il importe, grille qualité de `feature`, skills et agents globaux | `global/` de `claude-config`, relié à `~/.claude/` | règle partagée, règle commune |
@@ -113,7 +115,7 @@ une garde mécanique, jamais une règle ; une récidive met en cause sa règle (
 au lieu de la reformuler ; aucune proposition ne s'applique sans accord ; le `CLAUDE.md` de `claude-config` et
 `global/CLAUDE.md` ne dépassent pas leur budget de lignes.
 Les citations d'une règle globale se comptent sur les leçons de tous les projets, pas du seul dépôt qui merge ; une
-citation d'un autre projet compte même étiquetée `ponctuel` (l'étiquette est fausse si la friction revient).
+citation d'un autre projet compte même étiquetée `ponctuel` (l'étiquette est fausse si la leçon revient).
 
 ## Contexte : Réglages
 
