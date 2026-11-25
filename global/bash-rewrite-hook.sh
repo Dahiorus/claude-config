@@ -8,6 +8,10 @@ input="$(cat)"
 cmd="$(jq -r '.tool_input.command // empty' <<<"$input" 2>/dev/null)"
 [[ -n "$cmd" ]] || exit 0
 
+# Mode auto : le classifieur relit la commande écrite par Claude, pas la réécriture, et refuse l'appel
+# (« a hook changed this call's input »). Sans réécriture, rien à refuser : Claude écrit « rtk » lui-même.
+[[ "$(jq -r '.permission_mode // empty' <<<"$input" 2>/dev/null)" != "auto" ]] || exit 0
+
 rewritten="$cmd"
 if command -v build-brief >/dev/null 2>&1; then
   rewritten="$(build-brief rewrite "$cmd" 2>/dev/null)" || rewritten="$cmd"

@@ -145,3 +145,15 @@ Mis à jour le 2026-11-24.
 19. **Marques de fin de `ponytail-review` et `pr-risk` en dur dans `feature`** (`Verdict:`, `Looks good. Ship.`,
     `Not read:`) : à revérifier à chaque montée de version du plugin, sinon faux « non lancé ». (reliquat de #188,
     #190)
+20. **Issues Sonar : suites hors périmètre** de `/pr comments` : security hotspots ;
+    SonarQube Server (autre que Cloud) ; compteur de la statusline. (hors périmètre de la spec
+    `2026-11-24-pr-comments-sonar-design.md`)
+21. **Recette réelle des issues Sonar : correctif poussé sans réponse, statut `accept` posé dans Sonar.** Jouée en
+    partie sur renoshield PR 324 (lecture des issues, doublon review/comments trouvé et corrigé) ; ces deux étapes
+    n'ont pas été confirmées. À rejouer au premier `/pr <n°> comments` sur une PR de soi analysée par Sonar. (recette
+    de la PR des issues Sonar)
+22. **`Recommended:` désigné par sa lettre dans les `:::question`** : Plannotator ne reconnaît que le libellé entier
+    du choix (skill `plannotator`, « Asking the reviewer questions ») ; « Recommended: A. » s'affiche comme une
+    option de plus « A. » marquée Recommended, et « Accept recommended » choisit cette option vide. Règle à ajouter
+    dans `feature` (étape 1, ligne 20) : recopier le libellé, jamais la lettre ; garde possible (test ou hook) sur un
+    `Recommended:` qui ne reprend aucun `- [ ]` du bloc. (défaut ancien, vu en recette Plannotator le 2026-11-24)

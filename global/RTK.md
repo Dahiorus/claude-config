@@ -1,6 +1,8 @@
 # RTK - Rust Token Killer
 
 A Claude Code hook rewrites plain commands (`git status` → `rtk git status`) to compact their output.
+In auto mode the hook rewrites nothing, because auto mode refuses a call the hook changed
+(« a hook changed this call's input »): there, type `rtk` yourself on every command whose output is read.
 
 ## Pipes: write `rtk` yourself
 
@@ -24,6 +26,6 @@ patches (`git diff | git apply`). RTK compacts headers and may drop lines.
 
 ## Write commands: write `rtk` yourself
 
-Auto mode refuses a write command the hook rewrote (« a hook changed this call's input »). For `gh` commands
+Outside auto mode, a write command the hook rewrote can still be refused. For `gh` commands
 that write (`gh issue close --comment …`, `gh pr edit`) and for `git push`, type the `rtk` prefix yourself so
 the hook has nothing to change. Inside a worktree session, keep plain `git …` (see Pipes).

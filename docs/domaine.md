@@ -63,15 +63,21 @@ Invariants : une relecture publie au plus une review, jamais `REQUEST_CHANGES` ;
 ## Contexte : Retours de PR
 
 Responsabilité : traiter ce que les relecteurs ont écrit sur une PR (corriger, écarter, faire trancher) et leur répondre · Dans le code : `global/skills/pr/comments.md` · Dépend de : Relecture de PR (en amont : ses remarques hors diff arrivent dans le `body` de sa review, préfixées de `fichier:ligne`), tri de `feature` (§ « Tri des retours »), Profils (soi = compte du profil)
+· Dépend aussi de : SonarQube Cloud (issues Sonar, par le MCP `sonarqube`)
 
 | Terme | Définition métier | Dans le code | À ne pas dire |
 |---|---|---|---|
 | Fil | Discussion attachée à une ligne du diff, que seul le relecteur résout | `reviewThreads`, `isResolved` | commentaire (seul) |
 | Fil en attente de soi | Fil non résolu, pas ouvert par un bot, dont le dernier commentaire n'est pas de soi, ou, sur sa propre PR, fil de soi seul, sans aucune réponse | `comments(first: 1)`, `comments(last: 1)`, `totalCount` | fil non résolu (plus large) |
 | Retour hors fil | Remarque écrite ailleurs que dans un fil : commentaire de la conversation de la PR ou `body` d'une review, dont les remarques hors diff de `/pr review` ; un commentaire de conversation de soi est une réponse, pas un retour | `issues/<n°>/comments`, `reviews[].body` | commentaire général |
-| Retour | Fil en attente de soi ou retour hors fil, à trier | — | feedback |
+| Retour | Fil en attente de soi, retour hors fil ou issue Sonar ouverte, à trier | — | feedback |
+| Analyse Sonar | Passage de SonarQube Cloud sur un commit de la PR, visible par son check run, qui donne la clé du projet et le n° de PR ; son résumé en commentaire de conversation, auteur `Bot`, n'est pas un retour | check run `SonarCloud Code Analysis` (app `sonarqubecloud`), `details_url` `?id=<clé>&pullRequest=<n°>` | commentaire Sonar |
+| Issue Sonar | Problème qu'une analyse SonarQube Cloud signale dans le nouveau code d'une PR (règle, fichier, ligne, sévérité, message), ouvert tant que son statut est `OPEN` ou `CONFIRMED` | `search_sonar_issues_in_projects`, `key`, `rule`, `component`, `textRange` | commentaire Sonar, code smell (un seul de ses types) |
 
 Invariants : un fil n'est jamais résolu par soi ; un retour hors fil se rattache à `fichier:ligne` quand son texte le permet, sinon il vaut pour toute la PR ; le commentaire de criticité (`<!-- pr-risk -->`) et ceux des bots ne sont pas des retours ; sur sa propre PR, `review comments` reprend la paire tant que la review du tour publie une remarque bloquante nouvelle et que `comments` pousse un correctif, au plus 3 tours, le premier compris (étape 6 de `comments.md`).
+Une issue Sonar ne vit pas sur GitHub : elle se ferme par l'analyse d'un commit qui la corrige, ou par son statut Sonar
+(`accept`, `falsepositive`), jamais par une réponse sur la PR. Elle n'est un retour que sur sa propre PR : sur celle
+d'un autre, son auteur la traite.
 
 ## Contexte : Livraison
 
