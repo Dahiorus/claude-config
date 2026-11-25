@@ -141,9 +141,10 @@ Mis à jour le 2026-11-24.
     pas si la ligne est dans un bloc. À lire le fichier entier si un cas réel gêne. Les tableaux et la ligne
     `description:` du frontmatter sont exemptés : 8 des 15 derniers commits en ajoutaient.~~ Fait : diff à contexte
     complet, clôtures ``` et ~~~ suivies. (#182)
-18. **Écritures git réécrites par `bash-rewrite-hook.sh`** : le mode auto refuse `git add` devenu `rtk git add`. Le
+18. ~~**Écritures git réécrites par `bash-rewrite-hook.sh`** : le mode auto refuse `git add` devenu `rtk git add`. Le
     hook laisserait les écritures git intactes, puis les phrases « Refus du mode auto » partiraient. (leçons de #188,
-    #189)
+    #189)~~ Fait : le hook ne réécrit plus rien en mode auto (76e6070), les phrases « Refus du mode auto » sont
+    retirées des agents et de `feature`. (#189)
 19. ~~**Marques de fin de `ponytail-review` et `pr-risk` en dur dans `feature`** (`Verdict:`, `Looks good. Ship.`,
     `Not read:`) : à revérifier à chaque montée de version du plugin, sinon faux « non lancé ». (reliquat de #188)~~
     Fait : `test_external_controls_keep_end_markers` lit le skill `pr-risk` et le cache de ponytail, vérifié au

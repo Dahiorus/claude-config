@@ -29,11 +29,6 @@ session l'applique et poursuit le rebase.
   `git checkout --ours`/`--theirs`.
 - Résoudre en bloc d'un côté. Chaque hunk garde l'intention des deux côtés.
 
-## Refus du mode auto
-
-Un refus « a hook changed this call's input » n'est pas un jugement : relancer l'appel seul, à l'identique, sans
-autre appel dans le même message, une fois. Refusé encore → le dire dans la réponse, avec la commande.
-
 ## Réponse
 
 Pour chaque fichier en conflit :

@@ -195,11 +195,6 @@ Une review coupée deux fois garde les points déjà lus : sa ligne `N…` les r
 vérifie comme les autres.
 Un `pr-risk` « non lancé » vaut le niveau Moyen pour le dosage des reviews : le risque n'est jamais supposé faible
 sans preuve. Ses dangers restent inconnus : sa ligne `N…` dit que `security-review` ne part pas faute de danger cité.
-Le brief de chaque sous-agent, implémenteur compris, dit qu'un refus du mode auto « a hook changed this call's
-input » n'est pas un jugement : relancer l'appel seul, à l'identique, sans autre appel dans le même message, une
-fois ; refusé encore → BLOCKED, avec la commande. Le contrôleur lance chaque appel `Agent` seul dans son message,
-sans Bash ni autre appel : le classifieur le refuse sinon (« another call in this response was changed »), sauf
-lot parallélisable, où les Agent partent ensemble mais sans autre outil.
 
 **PHP : outil `LSP` (plugin `php-lsp`, Intelephense)** — dans un projet PHP, l'outil `LSP` sert à chaque étape qui
 cherche ou modifie un symbole : portée de la spec et usages de l'étape 1b (`findReferences`, `incomingCalls`,

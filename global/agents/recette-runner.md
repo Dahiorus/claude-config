@@ -31,11 +31,6 @@ l'application : la session s'en charge.
 La session peut te renvoyer des scénarios après correction (`SendMessage`) : les rejouer de la même façon et rendre
 le même tableau pour eux seuls.
 
-## Refus du mode auto
-
-Un refus « a hook changed this call's input » n'est pas un jugement : relancer l'appel seul, à l'identique, sans
-autre appel dans le même message, une fois. Refusé encore → le dire dans la réponse, avec la commande.
-
 ## Réponse
 
 ```

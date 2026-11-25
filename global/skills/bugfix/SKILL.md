@@ -26,7 +26,7 @@ Comportement attendu absent ou ambigu → le demander, ne pas le choisir.
 
 | # | Étape | Comment |
 |---|---|---|
-| 1 | Constat | Citer la demande telle quelle (ticket, trace, retour de recette) : observé, attendu, périmètre |
+| 1 | Constat | Citer la demande telle quelle (ticket, trace, retour de recette) : observé, attendu, périmètre. Issue ou ticket ancien : `git log --since=<date de création> -- <fichiers visés>` avant de reproduire, un commit postérieur peut l'avoir déjà réglé |
 | 2 | Branche | `fix/<sujet>` depuis `origin/main` à jour (`git fetch origin main`, avec le compte du profil, voir `profile`), jamais sur `main` ni sur la branche d'une autre PR. Arbre pas propre → le dire et s'arrêter |
 | 3 | Cause | `superpowers:systematic-debugging` : reproduire (test, commande, Playwright) avant de corriger, remonter à la cause racine, puis chercher (grep, LSP) tous les appelants du code fautif et les autres occurrences du même défaut. Non reproductible → rapporter ce qui a été essayé, ne rien corriger à l'aveugle |
 | 4 | Rouge | Un test qui reproduit le bug au plus près de la cause, lancé et vu échouer pour la bonne raison ; sortie gardée pour le rapport. Bug impossible à tester automatiquement → le dire et décrire la vérification manuelle |
@@ -59,9 +59,7 @@ dans un worktree → session lancée depuis le worktree.
 
 Un agent `bug-worker` par bug (`~/.claude/agents`, sauf agent du projet de même nom, qui prime ; modèle `sonnet`
 passé explicitement), lancé avec `isolation: "worktree"` (il part de `main`, ce qui convient à `fix/<sujet>`). Claude
-Code refuse dans ce worktree toute commande dont il ne peut pas vérifier qu'elle y reste : son brief l'impose donc, avec la règle du refus de hook (`feature`, « Exécution »).
-Le contrôleur lance chaque appel `Agent` seul dans son message, sans Bash ni autre appel, sauf lot de
-`bug-worker` ou de reviews parallèles (Agent seulement) : même règle que `feature`, « Exécution ».
+Code refuse dans ce worktree toute commande dont il ne peut pas vérifier qu'elle y reste : son brief l'impose donc.
 Le brief demande aussi de copier `assets/vendor/` et `vendor/` dans le worktree avant de lancer les tests (git les
 ignore, et sans eux la suite est incomplète). Il cite aussi les tests déjà écrits qui figent le comportement voisin
 du bug (contrats d'autres PR), pour que le correctif ne les casse pas.

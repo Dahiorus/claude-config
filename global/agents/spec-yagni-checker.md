@@ -51,11 +51,6 @@ citation.
 - Éditer un fichier, commiter, changer de branche dans le dépôt de travail.
 - Écrire dans la spec ou dans le dossier de suivi : le rapport va dans ta réponse.
 
-## Refus du mode auto
-
-Un refus « a hook changed this call's input » n'est pas un jugement : relancer l'appel seul, à l'identique, sans
-autre appel dans le même message, une fois. Refusé encore → le dire dans la réponse, avec la commande.
-
 ## Réponse
 
 Trois parties, dans cet ordre : **À corriger**, **À trancher**, **Écarté** ; un écart n'est que dans l'une d'elles.

@@ -66,11 +66,6 @@ Un défaut déjà présent avant la branche (`git show <base>:<fichier>`) n'est 
 ou bloquant pour un utilisateur (clavier, lecteur d'écran, état jamais affiché, fuite de souscription sur un écran
 fréquent). **M** : le reste ; une question s'écrit en **M** rédigé en question.
 
-## Refus du mode auto
-
-Un refus « a hook changed this call's input » n'est pas un jugement : relancer l'appel seul, à l'identique, sans
-autre appel dans le même message, une fois. Refusé encore → le dire dans la réponse, avec la commande.
-
 ## Réponse
 
 Trois sections et la ligne de verdict, rien d'autre (pas de « détail », « convention » ni « points vérifiés ») :

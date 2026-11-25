@@ -39,11 +39,6 @@ Pour chacun :
 - Écrire dans le dossier de suivi (`.superpowers/sdd/…`) ou dans le plan : le contrôleur écrit `convergence-N.md`
   et commite le plan à partir de ta réponse.
 
-## Refus du mode auto
-
-Un refus « a hook changed this call's input » n'est pas un jugement : relancer l'appel seul, à l'identique, sans
-autre appel dans le même message, une fois. Refusé encore → le dire dans la réponse, avec la commande.
-
 ## Réponse
 
 1. **Verdict** : `convergé` ou `N écarts`.

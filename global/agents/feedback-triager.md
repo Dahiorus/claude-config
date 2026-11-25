@@ -42,11 +42,6 @@ Critères de la section « Tri des retours » de `~/.claude/skills/feature/SKILL
   `<!-- pr-risk -->`) et cite ce qu'elle y a lu.
 - Dans le doute entre deux classes : à trancher (ou reste à faire).
 
-## Refus du mode auto
-
-Un refus « a hook changed this call's input » n'est pas un jugement : relancer l'appel seul, à l'identique, sans
-autre appel dans le même message, une fois. Refusé encore → le dire dans la réponse, avec la commande.
-
 ## Réponse
 
 | id | Classe | Preuve | Correction envisagée ou raison |
