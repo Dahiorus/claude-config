@@ -42,11 +42,6 @@ travail : ajouter les fichiers un par un (jamais `git add -A`) et commiter sur `
 `WIP: <sujet>`, refait par le contrôleur à la livraison. Statut `NEEDS_CONTEXT` ou `BLOCKED` sans rien d'écrit : pas
 de commit.
 
-## Refus du mode auto
-
-Un refus « a hook changed this call's input » n'est pas un jugement : relancer l'appel seul, à l'identique, sans
-autre appel dans le même message, une fois. Refusé encore → statut `BLOCKED`, avec la commande.
-
 ## Réponse
 
 - **Statut** : `DONE` | `DONE_WITH_CONCERNS` | `NEEDS_CONTEXT` | `BLOCKED`

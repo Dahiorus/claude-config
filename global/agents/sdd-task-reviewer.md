@@ -38,11 +38,6 @@ Hors contrôle : nommage, style, structure, longueur, architecture, choix de con
   permis.
 - Écrire dans le dossier de suivi (`.superpowers/sdd/…`) : le contrôleur écrit le fichier à partir de ta réponse.
 
-## Refus du mode auto
-
-Un refus « a hook changed this call's input » n'est pas un jugement : relancer l'appel seul, à l'identique, sans
-autre appel dans le même message, une fois. Refusé encore → verdict `BLOQUÉ`, avec la commande.
-
 ## Réponse
 
 ```

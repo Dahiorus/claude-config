@@ -50,11 +50,6 @@ Un test existant modifié se signale dans le rapport, avec sa raison.
   Stimulus échouent en masse.
 - Jamais : changer de branche, pousser, rebaser, réécrire un commit existant.
 
-## Refus du mode auto
-
-Un refus « a hook changed this call's input » n'est pas un jugement : relancer l'appel seul, à l'identique, sans
-autre appel dans le même message, une fois. Refusé encore → statut `BLOCKED`, avec la commande.
-
 ## Rapport
 
 Fichier de sortie : le chemin absolu que donne le brief, **écrit avant de répondre**. Exception : en lot

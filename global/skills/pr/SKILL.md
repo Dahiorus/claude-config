@@ -32,8 +32,6 @@ découpage au squash), qui rend sa décision : la session l'applique. Agents nom
 projet de même nom, qui prime) : `pr-reviewer` (`review`), `feedback-triager` (`comments`, reliquats de `merge`),
 `recette-runner` (`recette`, scénarios rejoués après `merge`), `rebase-resolver` (`rebase`), `lessons-extractor`
 (leçons de `merge`) ; `general-purpose` pour les autres.
-La session lance chaque appel `Agent` seul dans son message, sans Bash ni autre appel : le classifieur le refuse
-sinon (`feature`, « Exécution »).
 
 ## Dossier de suivi
 

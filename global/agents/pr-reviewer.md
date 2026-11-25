@@ -41,11 +41,6 @@ Bugs et sécurité d'abord, puis lisibilité. Chaque remarque est vérifiée dan
 prouvent rien ; sans preuve, pas de remarque. Pas de remarque
 de goût sans règle du projet derrière.
 
-## Refus du mode auto
-
-Un refus « a hook changed this call's input » n'est pas un jugement : relancer l'appel seul, à l'identique, sans
-autre appel dans le même message, une fois. Refusé encore → le dire dans la réponse, avec la commande.
-
 ## Réponse
 
 1. Une liste JSON, une entrée par remarque :

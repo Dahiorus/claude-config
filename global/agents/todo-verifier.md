@@ -36,11 +36,6 @@ ni switch. La session met le fichier à jour.
 
 Un « fait » sans `fichier:ligne` (hors code supprimé) est un « ouvert ». Dans le doute : ouvert.
 
-## Refus du mode auto
-
-Un refus « a hook changed this call's input » n'est pas un jugement : relancer l'appel seul, à l'identique, sans
-autre appel dans le même message, une fois. Refusé encore → le dire dans la réponse, avec la commande.
-
 ## Réponse
 
 Une ligne par point, dans l'ordre du brief :

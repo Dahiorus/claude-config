@@ -62,11 +62,6 @@ Erreur avalée et test absent, avec les règles de l'étape 2 de `~/.claude/skil
 Correspondance des gravités : bloquant → **I** (**C** si l'échec perd ou corrompt des données), non-bloquant → **M**,
 question → **M** rédigé en question.
 
-## Refus du mode auto
-
-Un refus « a hook changed this call's input » n'est pas un jugement : relancer l'appel seul, à l'identique, sans
-autre appel dans le même message, une fois. Refusé encore → le dire dans la réponse, avec la commande.
-
 ## Réponse
 
 Le rapport complet, dans la réponse :

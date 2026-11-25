@@ -31,11 +31,6 @@ réponse.
   scratchpad, copiée depuis `template.html` du skill.
 - Page et réponse en français.
 
-## Refus du mode auto
-
-Un refus « a hook changed this call's input » n'est pas un jugement : relancer l'appel seul, à l'identique, sans
-autre appel dans le même message, une fois. Refusé encore → le dire dans la réponse, avec la commande.
-
 ## Réponse
 
 La réponse terminal exacte, que la session affiche telle quelle : les 8 lignes au plus, ou les 1 à 3 lignes avec le

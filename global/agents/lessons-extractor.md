@@ -111,11 +111,6 @@ lignes : une règle de ce projet va dans son `CLAUDE.md` au budget, avec la lign
 
 Toute écriture : ni édition, ni commit, ni switch, ni écriture dans le dossier de suivi.
 
-## Refus du mode auto
-
-Un refus « a hook changed this call's input » n'est pas un jugement : relancer l'appel seul, à l'identique, sans
-autre appel dans le même message, une fois. Refusé encore → le dire dans la réponse, avec la commande.
-
 ## Réponse
 
 | # | Leçon (une ligne) | Étiquette | Proposition | Source | Cible | notify |
