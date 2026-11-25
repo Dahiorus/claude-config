@@ -14,6 +14,7 @@ setup_sandbox() {
   REPO="$SANDBOX/repo"
   mkdir -p "$REPO" "$SANDBOX/home"
   tar -C "$REPO_SRC" --exclude=./.git --exclude=./settings/local.json -cf - . | tar -C "$REPO" -xf -
+  REAL_HOME="$HOME"  # lecture seule : plugins installés sur le poste
   export HOME="$SANDBOX/home"
   export CLAUDE_HOME="$HOME/.claude"
   export CALLS_LOG="$SANDBOX/calls.log"

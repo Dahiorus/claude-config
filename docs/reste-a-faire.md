@@ -144,9 +144,10 @@ Mis à jour le 2026-11-24.
 18. **Écritures git réécrites par `bash-rewrite-hook.sh`** : le mode auto refuse `git add` devenu `rtk git add`. Le
     hook laisserait les écritures git intactes, puis les phrases « Refus du mode auto » partiraient. (leçons de #188,
     #189)
-19. **Marques de fin de `ponytail-review` et `pr-risk` en dur dans `feature`** (`Verdict:`, `Looks good. Ship.`,
-    `Not read:`) : à revérifier à chaque montée de version du plugin, sinon faux « non lancé ». (reliquat de #188,
-    #190)
+19. ~~**Marques de fin de `ponytail-review` et `pr-risk` en dur dans `feature`** (`Verdict:`, `Looks good. Ship.`,
+    `Not read:`) : à revérifier à chaque montée de version du plugin, sinon faux « non lancé ». (reliquat de #188)~~
+    Fait : `test_external_controls_keep_end_markers` lit le skill `pr-risk` et le cache de ponytail, vérifié au
+    lancement des tests. (#190)
 20. **Issues Sonar : suites hors périmètre** de `/pr comments` : security hotspots ;
     SonarQube Server (autre que Cloud) ; compteur de la statusline. (hors périmètre de la spec
     `2026-11-24-pr-comments-sonar-design.md`)

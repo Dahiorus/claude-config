@@ -144,6 +144,24 @@ test_controls_define_final_verdict_line() {
   done
 }
 
+# feature (« Exécution ») tient pour coupée une réponse de pr-risk sans `Not read:`, et de ponytail-review sans
+# `Verdict:` ni `Looks good. Ship.` : un skill qui change sa formule de fin donnerait des « non lancé » à tort (#190).
+# shortcut: ponytail se lit dans le cache du plugin installé, au lancement des tests (pre-push) et non à
+# `claude plugin update` ; plugin absent du poste, seul pr-risk est vérifié. Vérif dans `update` si un cas le demande.
+test_external_controls_keep_end_markers() {
+  local dir dirs f json="$REAL_HOME/.claude/plugins/installed_plugins.json"
+  grep -q '^Not read:' "$REPO_SRC/global/skills/pr-risk/SKILL.md" || fail "pr-risk : ligne Not read: absente"
+  [[ -f "$json" ]] || return 0
+  # Affectation, pas < <(…) : un JSON illisible doit faire échouer le test. Une entrée par portée (user, local…).
+  dirs="$(jq -r '.plugins["ponytail@ponytail"][]?.installPath' "$json" | sort -u)"
+  while IFS= read -r dir; do
+    [[ -n "$dir" ]] || continue
+    f="$dir/skills/ponytail-review/SKILL.md"
+    { grep -qF 'Verdict:' "$f" && grep -qF 'Looks good. Ship.' "$f"; } ||
+      fail "$f : Verdict: ou Looks good. Ship. absent, revoir feature (« Exécution ») et docs/domaine.md"
+  done <<<"$dirs"
+}
+
 # Un githook qui lance les tests ou crée des dépôts hérite de GIT_DIR quand il part d'un worktree.
 test_githooks_unset_git_env() {
   local f
