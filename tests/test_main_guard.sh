@@ -19,8 +19,9 @@ guard() {
 # Un code de retour non nul du hook sort « exit <code> » : un plantage ne passe pas pour un allow.
 guard_raw() {
   local out
-  out="$(jq -nc --arg c "$1" --arg d "$GUARD_REPO" '{tool_name:"Bash",cwd:$d,tool_input:{command:$c}}' \
-    | bash "$REPO/global/main-guard-hook.sh")" || { echo "exit $?"; return; }
+  out="$(bash "$REPO/global/main-guard-hook.sh" \
+    <<<"$(jq -nc --arg c "$1" --arg d "$GUARD_REPO" '{tool_name:"Bash",cwd:$d,tool_input:{command:$c}}')")" \
+    || { echo "exit $?"; return; }
   jq -r '.hookSpecificOutput.permissionDecision' <<<"$out"
 }
 
@@ -210,7 +211,7 @@ test_guard_caps_forks_not_lines() {
 test_guard_refuses_unreadable_input() {
   make_repo
   local code=0
-  echo 'pas du json' | bash "$REPO/global/main-guard-hook.sh" 2>/dev/null || code=$?
+  bash "$REPO/global/main-guard-hook.sh" <<<'pas du json' 2>/dev/null || code=$?
   assert_eq "$code" 2 "JSON invalide : refus (exit 2)"
 }
 

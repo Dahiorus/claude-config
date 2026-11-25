@@ -92,7 +92,6 @@ test_profile_apply_local_project_without_git() {
   assert_eq "$(profile current "$SANDBOX/local")" "vidal" "profil"
 }
 
-# Entrée en here-string, pas en pipe : un hook qui sort sans la lire tuerait jq (SIGPIPE, 141 sous pipefail).
 session_start_in() { profile session-start <<<"$(jq -nc --arg d "$1" '{cwd:$d}')"; }
 
 test_profile_session_start_applies_once() {
@@ -320,7 +319,7 @@ test_profile_without_profiles_file_is_silent() {   # HOME du bac à sable : pas 
   local p="$REPO/global/profile.sh"
   assert_eq "$(bash "$p" detect "$SANDBOX/p" 2>&1)" "" "detect"
   assert_eq "$(bash "$p" account "$SANDBOX/p" 2>&1)" "" "account"
-  assert_eq "$(jq -nc --arg d "$SANDBOX/p" '{cwd:$d}' | bash "$p" session-start 2>&1)" "" "session-start"
+  assert_eq "$(bash "$p" session-start <<<"$(jq -nc --arg d "$SANDBOX/p" '{cwd:$d}')" 2>&1)" "" "session-start"
   [[ ! -e "$SANDBOX/p/.claude" ]] || fail "profil appliqué sans profiles.json"
 }
 
@@ -344,7 +343,7 @@ test_profile_rejects_malformed_profiles() {
     assert_not_contains "$err" "jq: error"
   done
   bad_profiles '.perso.env = "x"'
-  local out; out=$(jq -nc --arg d "$SANDBOX/p" '{cwd:$d}' | PROFILES_FILE="$SANDBOX/bad.json" profile session-start)
+  local out; out=$(PROFILES_FILE="$SANDBOX/bad.json" profile session-start <<<"$(jq -nc --arg d "$SANDBOX/p" '{cwd:$d}')")
   assert_contains "$(jq -r .systemMessage <<<"$out")" "perso"
   [[ ! -e "$SANDBOX/p/.claude" ]] || fail "profil appliqué malgré l'erreur"
   local rc=0; PROFILES_FILE="$SANDBOX/bad.json" profile apply vidal "$SANDBOX/p" 2>/dev/null || rc=$?
@@ -369,8 +368,8 @@ test_profile_git_failure_is_reported() {
   err=$(PROFILES_FILE="$REPO/global/profiles.json" PATH="$SANDBOX/empty" "$BASH" "$p" detect "$SANDBOX/p" 2>&1) || rc=$?
   assert_eq "$rc" "1" "code" ; assert_contains "$err" "git"
   local out
-  out=$(jq -nc --arg d "$SANDBOX/p" '{cwd:$d}' \
-    | PROFILES_FILE="$REPO/global/profiles.json" PATH="$SANDBOX/empty" "$BASH" "$p" session-start)
+  out=$(PROFILES_FILE="$REPO/global/profiles.json" PATH="$SANDBOX/empty" "$BASH" "$p" session-start \
+    <<<"$(jq -nc --arg d "$SANDBOX/p" '{cwd:$d}')")
   assert_contains "$(jq -r .systemMessage <<<"$out")" "git"
 }
 
@@ -418,8 +417,8 @@ test_profile_session_start_without_gh() {   # review P3
   repo_with_origin "$SANDBOX/v" https://github.com/softwarevidal/y.git
   mkdir -p "$SANDBOX/nogh" "$SANDBOX/session-env"
   local tool; for tool in jq git dirname chmod; do ln -s "$(command -v "$tool")" "$SANDBOX/nogh/$tool"; done
-  local out; out=$(jq -nc --arg d "$SANDBOX/v" '{cwd:$d}' | PROFILES_FILE="$REPO/global/profiles.json" \
-    PATH="$SANDBOX/nogh" CLAUDE_ENV_FILE="$(ss_file)" "$BASH" "$REPO/global/profile.sh" session-start)
+  local out; out=$(PROFILES_FILE="$REPO/global/profiles.json" PATH="$SANDBOX/nogh" CLAUDE_ENV_FILE="$(ss_file)" \
+    "$BASH" "$REPO/global/profile.sh" session-start <<<"$(jq -nc --arg d "$SANDBOX/v" '{cwd:$d}')")
   assert_contains "$(jq -r .systemMessage <<<"$out")" "gh introuvable"
 }
 test_profile_session_start_rejects_bad_token() {   # Review Focus 3
@@ -440,7 +439,8 @@ test_profile_session_start_token_follows_detected() {   # profil appliqué perso
 test_profile_session_start_without_env_file() {   # Review Focus 1
   repo_with_origin "$SANDBOX/v" https://github.com/softwarevidal/y.git
   make_gh_stub
-  local out; out=$(jq -nc --arg d "$SANDBOX/v" '{cwd:$d}' | PATH="$STUBS:$PATH" profile session-start 2>&1) || fail "code"
+  local out; out=$(PATH="$STUBS:$PATH" profile session-start <<<"$(jq -nc --arg d "$SANDBOX/v" '{cwd:$d}')" 2>&1) \
+    || fail "code"
   assert_not_contains "$out" "jeton"; assert_not_contains "$out" "CLAUDE_ENV_FILE"
 }
 test_profile_session_start_no_profile_writes_nothing() {
@@ -474,8 +474,8 @@ test_profile_session_start_clears_stale_token_on_gh_failure() {
 cwd_to() {  # <dossier> [ancien dossier] : cwd-changed avec le fichier cwdchanged de la même session
   [[ -x "$STUBS/gh" ]] || make_gh_stub
   mkdir -p "$SANDBOX/session-env"; : > "$(cd_file)"
-  jq -nc --arg d "$1" --arg o "${2:-/}" '{old_cwd:$o, new_cwd:$d}' \
-    | PATH="$STUBS:$PATH" CLAUDE_ENV_FILE="$(cd_file)" profile cwd-changed
+  PATH="$STUBS:$PATH" CLAUDE_ENV_FILE="$(cd_file)" profile cwd-changed \
+    <<<"$(jq -nc --arg d "$1" --arg o "${2:-/}" '{old_cwd:$o, new_cwd:$d}')"
 }
 test_profile_cwd_changed_switches_account() {
   repo_with_origin "$SANDBOX/v" https://github.com/softwarevidal/y.git
@@ -568,9 +568,9 @@ test_profile_cwd_changed_account_without_token() {
 test_profile_cwd_changed_bad_input() {   # Review Focus 2
   repo_with_origin "$SANDBOX/v" https://github.com/softwarevidal/y.git
   start_with_env "$SANDBOX/v" >/dev/null   # marqueur posé : seul le garde d'entrée évite le vidage
-  echo '{}' | CLAUDE_ENV_FILE="$SANDBOX/session-env/cwdchanged-hook-0.sh" profile cwd-changed || fail "sans new_cwd"
-  jq -nc '{new_cwd:"/nulle/part"}' | CLAUDE_ENV_FILE="$SANDBOX/session-env/cwdchanged-hook-0.sh" \
-    profile cwd-changed || fail "dossier absent"
+  CLAUDE_ENV_FILE="$SANDBOX/session-env/cwdchanged-hook-0.sh" profile cwd-changed <<<'{}' || fail "sans new_cwd"
+  CLAUDE_ENV_FILE="$SANDBOX/session-env/cwdchanged-hook-0.sh" profile cwd-changed <<<'{"new_cwd":"/nulle/part"}' \
+    || fail "dossier absent"
   [[ ! -s "$SANDBOX/session-env/cwdchanged-hook-0.sh" ]] || fail "écrit"
 }
 test_profile_cwd_changed_without_profiles_file() {   # spec : sans profiles.json, les hooks ne font rien

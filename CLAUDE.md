@@ -33,8 +33,7 @@ Une règle vérifiable par un programme va dans `tests/` ou un hook, pas ici.
 - Hook ajouté ou corrigé : il est actif dans toutes les sessions dès la branche extraite. Rejouer les scripts
   adverses de la relecture, puis une mutation par garde : `assert` du motif avant d'écrire, échecs non nuls après
   (« 0 FAIL » veut dire que rien n'a été muté). Une garde sans test qui échoue reçoit le sien avant le push.
-- Test shell : alimenter un hook qui peut sortir sans lire par here-string (`<<<"$json"`), pas par un pipe (SIGPIPE,
-  code 141). Une aide `jq` se lance sur une sortie vide et sur une ligne non objet (`select(type == "object" and …)`).
+- Test shell : une aide `jq` se lance sur une sortie vide et sur une ligne non objet (`select(type == "object" and …)`).
   Un test instable se mesure en boucle (`for i in $(seq 60)`).
 
 ## Règles et skills

@@ -14,8 +14,7 @@ hook_repo() {
 }
 
 pre_push() {  # <dossier> <sha poussé>
-  (cd "$1" && printf 'refs/heads/x %s refs/heads/x 0000000000000000000000000000000000000000\n' "$2" \
-    | bash githooks/pre-push)
+  (cd "$1" && bash githooks/pre-push <<<"refs/heads/x $2 refs/heads/x 0000000000000000000000000000000000000000")
 }
 
 test_pre_push_clears_git_env_from_worktree() {

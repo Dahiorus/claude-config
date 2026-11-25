@@ -235,10 +235,12 @@ test_guard_ast_fails_closed_without_shfmt() {
   local bin="$SANDBOX/bin" t out
   mkdir -p "$bin"
   for t in cat jq git; do ln -s "$(command -v "$t")" "$bin/$t"; done
-  out="$(jq -nc --arg d "$GUARD_REPO" '{cwd:$d,tool_input:{command:"git push origin feat/x"}}' | PATH="$bin" "$BASH" "$REPO/global/main-guard-hook.sh")"
+  out="$(PATH="$bin" "$BASH" "$REPO/global/main-guard-hook.sh" \
+    <<<"$(jq -nc --arg d "$GUARD_REPO" '{cwd:$d,tool_input:{command:"git push origin feat/x"}}')")"
   assert_eq "$(jq -r .hookSpecificOutput.permissionDecision <<<"$out")" deny "push sans shfmt"
   assert_contains "$out" "claude-config install"
-  out="$(jq -nc --arg d "$GUARD_REPO" '{cwd:$d,tool_input:{command:"git status"}}' | PATH="$bin" "$BASH" "$REPO/global/main-guard-hook.sh")"
+  out="$(PATH="$bin" "$BASH" "$REPO/global/main-guard-hook.sh" \
+    <<<"$(jq -nc --arg d "$GUARD_REPO" '{cwd:$d,tool_input:{command:"git status"}}')")"
   assert_eq "$out" "" "autre commande sans shfmt"
   assert_eq "$(guard 'git push origin feat/x (')" deny "commande illisible qui cite push"
   assert_eq "$(guard 'ls (')" allow "commande illisible sans push"
