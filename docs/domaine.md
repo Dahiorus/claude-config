@@ -34,13 +34,17 @@ Invariants : la statusline ne lit pas `profiles.json` elle-même, elle demande l
 
 ## Contexte : Relecture de PR
 
-Responsabilité : relire une PR (la sienne ou celle d'un autre) et publier une seule review : ses remarques, ou une approbation quand rien n'est nouveau sur une PR où sa relecture est demandée ; jamais un refus · Dans le code : `global/skills/pr/review.md` · Dépend de : Criticité (`pr-risk`, en parallèle, publie son propre commentaire), grille qualité de `feature` (en aval, recopiée dans le brief faute de grille du projet)
+Responsabilité : relire une PR (la sienne ou celle d'un autre) et publier une seule review :
+ses remarques, ou une approbation quand rien n'est nouveau sur une PR où sa relecture est demandée ; jamais un refus
+· Dans le code : `global/skills/pr/review.md` · Dépend de : Criticité (`pr-risk`, en parallèle, publie son propre
+commentaire), grille qualité `~/.claude/grille-qualite.md` (en aval, lue par l'agent faute de grille du projet)
 
 | Terme | Définition métier | Dans le code | À ne pas dire |
 |---|---|---|---|
 | Relecture | Lecture critique du diff d'une PR contre sa base, du code touché et de son contexte (description, spec, issue) | `/pr review` | revue de code (ambigu avec la review finale de `/feature`) |
 | Agent de relecture | Le relecteur unique qui produit les remarques, hors de la session | agent `general-purpose`, `opus` | reviewer Opus (c'est celui de `/feature`) |
-| Grille | Règles contre lesquelles une remarque se justifie : celle du projet (dont un `AGENTS.md` qui en tient une complète), sinon la grille qualité de `feature` amendée par les conventions de l'`AGENTS.md` du projet | `WORKFLOW.md`, `AGENTS.md`, `CONTRIBUTING.md`, § « Grille qualité » | checklist, bonnes pratiques |
+| Grille | Règles contre lesquelles une remarque se justifie : celle du projet (dont un `AGENTS.md` qui en tient une complète), sinon la grille qualité amendée par les conventions de l'`AGENTS.md` du projet | `WORKFLOW.md`, `AGENTS.md`, `CONTRIBUTING.md`, `global/grille-qualite.md` | checklist, bonnes pratiques |
+| Grille qualité | Grille par défaut, commune à tous les projets, que plan, implémentation et reviews appliquent faute de grille du projet : principes SOLID, KISS, DRY, object calisthenics (neuf points numérotés, adaptés au script shell), règles du texte (skills, spec, docs), liste « Ne pas signaler » et forme de la sortie | `global/grille-qualite.md` (`~/.claude/grille-qualite.md`) | bonnes pratiques, checklist |
 | Remarque | Écart vérifié dans le code, avec sa nature et sa gravité, publié comme commentaire de ligne ou dans la synthèse | `{path, line, side, inDiff, nature, gravite, texte}`, `startLine` et `suggestion` en option | finding, suggestion (c'est la Correction proposée) |
 | Correction proposée | Code de remplacement joint à une remarque, que l'auteur de la PR applique d'un clic ou ignore ; la relecture ne l'applique jamais | champ `suggestion`, bloc ` ```suggestion ` de GitHub | correctif, patch |
 | Nature | Ce que la remarque touche : bug, sécurité, performance, test, lisibilité, doc, conformité, question | `nature`, gitmoji | catégorie, aspect |
@@ -98,7 +102,7 @@ frictions reviennent et ce qui épargne aux sessions suivantes de refaire les d�
 Dans le code : `lecons.md` du dossier de suivi (skill `pr`, « Dossier de suivi »), étape 2 de
 `global/skills/pr/merge.md`, agent `global/agents/lessons-extractor.md` · Dépend de : `feature` (étape 7), `bugfix`
 (étape 8) et les actions de `pr`, en amont, qui écrivent les leçons ; cibles en aval : `CLAUDE.md` ou `AGENTS.md` du
-projet, grille qualité de `feature`, skills et agents globaux, `tests/` et hooks
+projet, grille qualité (`global/grille-qualite.md`), skills et agents globaux, `tests/` et hooks
 
 | Terme | Définition métier | Dans le code | À ne pas dire |
 |---|---|---|---|
@@ -113,7 +117,7 @@ projet, grille qualité de `feature`, skills et agents globaux, `tests/` et hook
 | Récidive | Friction revenue, ou découverte refaite, alors qu'une règle écrite la couvrait déjà | — | rappel, doublon |
 | Règle citée | Règle nommée dans la leçon d'une récidive, pour la retrouver et compter ses échecs | `(récidive : <fichier> « <fragment> »)` en fin de ligne de `lecons.md` | référence |
 | Budget de lignes | Nombre maximal de lignes du `CLAUDE.md` de `claude-config` et de `global/CLAUDE.md`, vérifié par un test | `line_budget_overruns`, `tests/test_rules.sh` | limite de taille |
-| Règle globale | Règle lue par les sessions de tous les projets : `CLAUDE.md` global et `RTK.md` qu'il importe, grille qualité de `feature`, skills et agents globaux | `global/` de `claude-config`, relié à `~/.claude/` | règle partagée, règle commune |
+| Règle globale | Règle lue par les sessions de tous les projets : `CLAUDE.md` global et `RTK.md` qu'il importe, grille qualité (`global/grille-qualite.md`), skills et agents globaux | `global/` de `claude-config`, relié à `~/.claude/` | règle partagée, règle commune |
 | Dossier de suivi | Ce qui reste d'une branche une fois la conversation effacée, dans le dépôt principal, non versionné | `<racine>/.superpowers/sdd/<sujet>/` | dossier SDD, dossier de travail |
 
 Invariants : une leçon `ponctuel` ne produit ni règle ni garde ; une friction qu'un programme peut vérifier devient

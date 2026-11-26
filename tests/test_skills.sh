@@ -38,3 +38,35 @@ test_skills_call_require_token() {
       || fail "$skill ne lance pas require-token"
   done
 }
+
+# Fichiers qui citent la grille qualité par son ancien emplacement.
+quality_grid_old_citations() {  # <chemin>…
+  # -z : un fichier par enregistrement, [[:space:]]+ attrape aussi une citation repliée sur deux lignes.
+  # shellcheck disable=SC2016 # les accents graves sont ceux du Markdown
+  grep -rlzE -e '«[[:space:]]+Grille[[:space:]]+qualité[[:space:]]+»[[:space:]]+de' \
+    -e 'grille[[:space:]]+(qualité[[:space:]]+)?de[[:space:]]+`feature`' \
+    -e 'grille[[:space:]]+qualité[[:space:]]+du[[:space:]]+skill' \
+    -e 'grille[[:space:]]+qualité[[:space:]]+\(ci-dessous\)' \
+    -e 'tri[[:space:]]+des[[:space:]]+retours[[:space:]]+et[[:space:]]+la[[:space:]]+grille[[:space:]]+qualité' \
+    -e '§ « Grille qualité » \|' "$@"
+}
+
+test_quality_grid_cited_by_path() {
+  local hits
+  [[ -f "$REPO_SRC/global/grille-qualite.md" ]] || fail "global/grille-qualite.md absent"
+  hits="$(quality_grid_old_citations "$REPO_SRC/global" "$REPO_SRC/CLAUDE.md" "$REPO_SRC/docs/domaine.md")" \
+    || [[ $? -eq 1 ]] || fail "grep en erreur"
+  assert_eq "$hits" "" "grille qualité citée par l'ancien emplacement"
+}
+
+test_quality_grid_guard_catches_folded_citation() {
+  local dir
+  dir="$(mktemp -d)"
+  # shellcheck disable=SC2016 # les accents graves sont ceux du Markdown
+  printf 'la grille\nde `feature`\n' >"$dir/a.md"
+  printf 'la « Grille\nqualité » de feature\n' >"$dir/b.md"
+  printf 'a|b § « Grille qualité » b\n' >"$dir/c.md"
+  assert_eq "$(quality_grid_old_citations "$dir" | sort)" "$(printf '%s\n' "$dir/a.md" "$dir/b.md")" \
+    "citations repliées détectées, | hors tableau ignoré"
+  rm -rf "$dir"
+}

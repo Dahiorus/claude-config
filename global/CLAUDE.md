@@ -21,6 +21,6 @@ So does an issue body you wrote (`gh issue create`, `gh issue edit` with `--body
 
 # Skills globaux
 
-Les skills de `~/.claude/skills` viennent du dépôt `claude-config`. Depuis un autre projet, ne pas modifier leurs
-fichiers : envoyer le diff proposé par `/notify claude-config`, la session `claude-config` l'applique dans sa PR.
-Modification déjà faite : `/notify claude-config` au minimum, avec les fichiers et le diff.
+Les skills de `~/.claude/skills` et la grille `~/.claude/grille-qualite.md` viennent du dépôt `claude-config`. Depuis un
+autre projet, ne pas les modifier : envoyer le diff proposé par `/notify claude-config`, la session `claude-config`
+l'applique dans sa PR. Modification déjà faite : `/notify claude-config` au minimum, avec les fichiers et le diff.
