@@ -38,7 +38,7 @@ hors de la session, qui ne reçoit que les remarques.
      qu'on ne juge pas depuis le code (déploiement, étape manuelle) n'est pas une remarque : il la rend à part,
      « non vérifiable ». Ni description ni ticket ni spec : pas de contrôle de conformité, le rapport le dit.
 2. Grille, lue par l'agent (le brief cite la grille du projet si elle existe) : celle du projet (WORKFLOW.md, CONTRIBUTING.md, ou un AGENTS.md qui en tient
-   une complète), sinon la section « Grille qualité » de `~/.claude/skills/feature/SKILL.md`, amendée par les
+   une complète), sinon `~/.claude/grille-qualite.md`, amendée par les
    conventions de l'`AGENTS.md` du projet. Diff qui touche une API Angular → skill `angular-developer` aussi, comme
    dans `feature`. Bugs et sécurité d'abord, puis lisibilité ; chaque remarque est vérifiée dans le code, pas supposée :
    version de la base (`git show origin/<baseRefName>:<fichier>`), schéma SQL ou migrations, appelants. Un docblock,

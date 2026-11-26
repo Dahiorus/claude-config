@@ -43,7 +43,6 @@ Une règle vérifiable par un programme va dans `tests/` ou un hook, pas ici.
   l'objet visé (`gh pr create`, `git commit`…), les décomptes qu'elle rend faux (« les deux reviews »), l'objet et les
   exemptions d'un seuil changé, et les phrases de l'ancienne décision (« hors », « inchangé »). Règle de `feature` :
   la reporter dans `bugfix`. Agent dont le rôle change : mettre à jour sa `description`.
-- `git grep` lit ligne par ligne : chercher par un fragment tenu sur une ligne.
 - Spec ou plan à commiter : `bash tests/run.sh` avant (120 colonnes, plafonds de lignes de `test_skills.sh`).
 - Règle de cas (pile, draft, état…) : rejouer sa condition sur le cas réel visé avant le premier push (la PR du bas
   d'une pile a main pour base).
@@ -57,7 +56,7 @@ Une règle vérifiable par un programme va dans `tests/` ou un hook, pas ici.
 ## Textes reçus d'autres sessions
 
 - Texte ou diff reçu par `/notify claude-config` : l'appliquer tel quel, sauf contre les 120 colonnes ; une
-  reformulation se propose à part. Avant d'ouvrir la PR, le relire contre la grille de `feature`, écarts dans la
+  reformulation se propose à part. Avant d'ouvrir la PR, le relire contre la grille qualité, écarts dans la
   description.
 
 ## Installation et réglages

@@ -28,8 +28,8 @@ Tu relis une PR et rends des remarques. Tu ne publies rien : la session publie l
 
 ## Grille
 
-1. Celle du projet (WORKFLOW.md, CONTRIBUTING.md, ou un AGENTS.md qui en tient une complète), sinon la section
-   « Grille qualité » de `~/.claude/skills/feature/SKILL.md`, amendée par les conventions de l'`AGENTS.md` du projet.
+1. Celle du projet (WORKFLOW.md, CONTRIBUTING.md, ou un AGENTS.md qui en tient une complète), sinon
+   `~/.claude/grille-qualite.md`, amendée par les conventions de l'`AGENTS.md` du projet.
 2. Les règles des étapes 1 et 2 de `~/.claude/skills/pr/review.md` : conformité à la demande (demandé mais absent,
    fait sans être demandé, fait autrement), erreur avalée, test absent, dédoublonnage avec les remarques déjà
    faites. Les lire là-bas, elles priment sur ce résumé.

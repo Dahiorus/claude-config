@@ -25,11 +25,12 @@ Le classifieur du mode auto peut refuser `gh pr merge` et le push forcé de `reb
 d'emblée la commande à lancer avec `!`. Seul `switch` change la branche de l'arbre
 courant, et seulement s'il est propre : les autres actions travaillent dans l'arbre de la PR, le travail en cours n'est
 pas touché. Ce skill porte toutes les étapes d'une PR, qu'elle vienne de `feature`, de `bugfix` ou de `release` ;
-`feature` reste la référence pour le tri des retours et la grille qualité. Les étapes qui demandent du jugement
-(tri des reliquats, découpage d'une PR volumineuse, conflits de rebase, leçons, tri de plus de 3 retours de
-`comments`) passent par un agent (modèle `sonnet` passé explicitement ; `opus` pour les conflits de rebase et le
-découpage au squash), qui rend sa décision : la session l'applique. Agents nommés de `~/.claude/agents` (sauf agent du
-projet de même nom, qui prime) : `pr-reviewer` (`review`), `feedback-triager` (`comments`, reliquats de `merge`),
+`feature` reste la référence pour le tri des retours ; la grille qualité est `~/.claude/grille-qualite.md`. Les étapes
+qui demandent du jugement (tri des reliquats, découpage d'une PR volumineuse, conflits de rebase, leçons, tri de
+plus de 3 retours de `comments`) passent par un agent (modèle `sonnet` passé explicitement ; `opus` pour les
+conflits de rebase et le découpage au squash), qui rend sa décision : la session l'applique. Agents nommés de
+`~/.claude/agents` (sauf agent du projet de même nom, qui prime) : `pr-reviewer` (`review`), `feedback-triager`
+(`comments`, reliquats de `merge`),
 `recette-runner` (`recette`, scénarios rejoués après `merge`), `rebase-resolver` (`rebase`), `lessons-extractor`
 (leçons de `merge`) ; `general-purpose` pour les autres.
 

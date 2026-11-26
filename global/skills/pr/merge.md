@@ -16,10 +16,11 @@ sa section « État » s'il y en a, et proposer `/pr push` (qui la sort du draft
    leçons par étiquette (agent `lessons-extractor`, « Trier » et « Récidive ») : il propose une garde mécanique, une
    règle, ou le déplacement ou le retrait d'une règle qui a récidivé ; un hook ou un script trop gros pour la PR
    devient une issue ou un point du reste à faire, créé par la session après accord comme à l'étape **Issues** de
-   `push.md`. Cibles : l'`AGENTS.md`, le `CLAUDE.md` ou les tests du projet, la grille qualité de `feature` pour
-   une règle de tous les projets, ou les fichiers globaux quand la règle est
-   pour le skill ou l'agent global en cause. Ses propositions arrivent ensemble, en diff, et ne s'appliquent qu'après accord, en un commit de la PR. Une règle pour un skill
-   global (grille de `feature`, skills `pr`…) hors du projet `claude-config` ne s'écrit pas dans ses fichiers depuis
+   `push.md`. Cibles : l'`AGENTS.md`, le `CLAUDE.md` ou les tests du projet, la grille qualité
+   (`~/.claude/grille-qualite.md`) pour une règle de tous les projets, ou les fichiers globaux quand la règle est
+   pour le skill ou l'agent global en cause. Ses propositions arrivent ensemble, en diff, et ne s'appliquent qu'après
+   accord, en un commit de la PR. Une règle
+   globale (grille qualité, skills `pr`…) hors du projet `claude-config` ne s'écrit pas dans ses fichiers depuis
    cette session : après accord, `/notify claude-config` avec le diff proposé (skill `notify`), et la session
    `claude-config` l'applique dans sa propre PR. Si elle a quand même été écrite directement dans ses fichiers,
    `/notify claude-config` au minimum : fichiers modifiés et diff, pour qu'elle passe dans une PR. Une proposition qui

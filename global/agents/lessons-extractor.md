@@ -32,8 +32,8 @@ diffs à l'utilisateur et n'applique que ce qu'il accepte.
   find ~ -maxdepth 6 -path '*/.superpowers/sdd/*/lecons.md' -not -path '*.worktrees/*' \
     -exec grep -HnF -e '<fragment>' {} +
   ```
-- Les cibles possibles, dans l'arbre de la PR : `AGENTS.md` et `CLAUDE.md` du projet, section « Grille qualité » de
-  `~/.claude/skills/feature/SKILL.md`, et le fichier du skill ou de l'agent concerné quand la leçon en vient
+- Les cibles possibles, dans l'arbre de la PR : `AGENTS.md` et `CLAUDE.md` du projet, grille qualité
+  `~/.claude/grille-qualite.md`, et le fichier du skill ou de l'agent concerné quand la leçon en vient
   (`~/.claude/skills/<skill>/`, `~/.claude/agents/`). Pour `claude-config`, `~/.claude/` pointe vers le dépôt
   principal : lire `global/skills/…` et `global/agents/…` de l'arbre de la PR.
 
@@ -91,7 +91,7 @@ Pour `claude-config`, `CLAUDE.md` et `global/CLAUDE.md` ont un budget de lignes 
 | Portée de la règle | Cible |
 |---|---|
 | ce projet seulement | `AGENTS.md` du projet s'il existe, sinon son `CLAUDE.md` |
-| tous les projets, qualité du code | grille qualité de `feature` |
+| tous les projets, qualité du code | grille qualité (`~/.claude/grille-qualite.md`) |
 | un skill ou un agent global | son fichier dans `~/.claude/skills/` ou `~/.claude/agents/` |
 | une garde mécanique (test, changement qui supprime le piège) | `tests/` du projet (pour `claude-config` : `tests/test_*.sh`) ou le fichier du piège |
 | un hook ou un script trop gros pour la PR | issue, ou point du reste à faire versionné s'il existe ; le fichier visé (pour `claude-config` : `global/*-hook.sh`) va dans son corps |

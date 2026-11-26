@@ -39,7 +39,7 @@ réponse.
 
 ## 2. Grille qualité
 
-La grille du projet, sinon la section « Grille qualité » de `~/.claude/skills/feature/SKILL.md`, amendée par les
+La grille du projet, sinon `~/.claude/grille-qualite.md`, amendée par les
 conventions de l'`AGENTS.md` du projet. La lire avant de relire le code ; elle dit aussi ce qu'il ne faut pas
 signaler.
 

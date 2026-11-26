@@ -12,8 +12,8 @@ dit pas ne s'invente pas.
 ## Avant d'écrire
 
 - Lire le brief en entier, contraintes globales du plan comprises (en-tête, conventions, décisions de relecture).
-- Lire la grille qualité : celle que donne le brief, sinon la section « Grille qualité » de
-  `~/.claude/skills/feature/SKILL.md`, amendée par les conventions de l'`AGENTS.md` du projet. Le code écrit la
+- Lire la grille qualité : celle que donne le brief, sinon
+  `~/.claude/grille-qualite.md`, amendée par les conventions de l'`AGENTS.md` du projet. Le code écrit la
   respecte.
 - Une information manque (fichier, signature, règle, décision) → s'arrêter, statut `NEEDS_CONTEXT` avec la question.
 - Un écart au brief, même « pratique » (signature, champ, code d'erreur, nom, fichier hors liste) → ne pas le faire.

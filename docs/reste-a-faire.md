@@ -1,6 +1,6 @@
 # Reste à faire
 
-Mis à jour le 2026-11-24.
+Mis à jour le 2026-11-26.
 
 ## Features
 
@@ -161,3 +161,6 @@ Mis à jour le 2026-11-24.
     option de plus « A. » marquée Recommended, et « Accept recommended » choisit cette option vide. Règle à ajouter
     dans `feature` (étape 1, ligne 20) : recopier le libellé, jamais la lettre ; garde possible (test ou hook) sur un
     `Recommended:` qui ne reprend aucun `- [ ]` du bloc. (défaut ancien, vu en recette Plannotator le 2026-11-24)
+23. **`install` ne retire pas les liens orphelins de `~/.claude`** : après un revert ou la suppression d'un fichier de
+    `global/`, le lien mort se retire à la main. Vu pour le skill `profile` et pour le retour arrière de la grille
+    qualité. (#197, leçons de la PR de la grille qualité)
