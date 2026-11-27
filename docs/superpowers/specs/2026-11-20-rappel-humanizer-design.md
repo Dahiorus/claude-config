@@ -65,7 +65,9 @@ que la consigne les cite.
 de l'outil `Skill` avec `skill: "humanizer:humanizer"` postérieur au dernier message tapé par l'utilisateur. Ne
 comptent pas comme message de l'utilisateur : les retours d'outil (`tool_result`), les messages méta (`isMeta`,
 contenu de skill chargé), les notifications système et les messages d'un plugin (`origin.kind` autre que
-`human`), le résumé écrit après une compaction (`isCompactSummary`).
+`human`), le résumé écrit après une compaction (`isCompactSummary`). Claude Code écrit le transcript en différé : le
+hook, déclaré aussi sur le matcher `Skill`, note l'heure de chaque appel `humanizer:humanizer` de la session
+principale, et ce passage compte s'il est postérieur à l'horodatage du dernier message tapé (PR #198).
 
 **Refus** : `hookSpecificOutput.permissionDecision: "deny"`, raison en français qui cite la consigne : passer le texte
 par `humanizer:humanizer`, reprendre le texte réécrit, relancer l'appel ; elle cite aussi les deux marqueurs et leur sens.
@@ -79,7 +81,7 @@ Endroits touchés :
 | Endroit | Ce qu'il devient |
 |---|---|
 | `global/humanizer-hook.sh` | nouveau : lit l'appel et le transcript, refuse ou se tait |
-| `settings/base.json`, `PreToolUse` | nouvelle entrée `matcher: "Bash"`, `bash ~/.claude/humanizer-hook.sh`, après main-guard |
+| `settings/base.json`, `PreToolUse` | nouvelle entrée `matcher: "Bash"` et `matcher: "Skill"`, `bash ~/.claude/humanizer-hook.sh`, après main-guard |
 | `lib/links.sh` (`install_links`) | inchangé : il relie déjà tout `global/*` dans `~/.claude` |
 | `global/bash-rewrite-hook.sh`, `global/main-guard-hook.sh` | inchangés : hooks indépendants ; un push vers main refusé par main-guard l'est quel que soit le rappel |
 | `global/CLAUDE.md` § Humanizer | la consigne reste la référence, la raison du refus la cite ; phrases ajoutées pour les commentaires d'issue (#167) et le corps d'une issue (#172) |

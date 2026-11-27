@@ -172,7 +172,7 @@ Responsabilité : refuser, avant qu'il ne parte vers GitHub, un texte publié qu
 | Commit final | Commit qui reste sur main après le merge : celui d'un squash, ou le commit unique d'une PR mergée tel quel | push forcé de `squash.md`, `gh pr merge` de `merge.md` | commit de squash (un cas seulement) |
 | Point de publication | Appel Bash qui envoie un texte publié (liste fermée : spec `2026-11-20-rappel-humanizer-design.md`, R1) | — | commande d'écriture (plus large) |
 | Passage humanizer | Réécriture d'un texte publié par le skill `humanizer:humanizer` avant de l'envoyer, code, commandes, identifiants et citations gardés tels quels | skill `humanizer:humanizer` | relecture, correction |
-| Passage récent | Appel de l'outil `Skill` à `humanizer:humanizer` postérieur au dernier message tapé par l'utilisateur (retours d'outil, messages méta, notifications, messages d'un plugin et résumé de compaction exclus) | transcript | — |
+| Passage récent | Appel de l'outil `Skill` à `humanizer:humanizer` postérieur au dernier message tapé par l'utilisateur (retours d'outil, messages méta, notifications, messages d'un plugin et résumé de compaction exclus). Claude Code écrit le transcript en différé : le hook note l'heure de chaque appel du skill par la session principale dans `$XDG_RUNTIME_DIR/claude-humanizer/<session_id>`, et ce passage noté compte aussi | transcript, `mark_file` | — |
 | Refus | Réponse `deny` du hook à un point de publication sans passage récent ni marqueur ; sa raison cite la consigne | `permissionDecision` | rappel, blocage |
 | Marqueur | Commentaire présent n'importe où dans l'appel qui dispense du passage récent : texte qui n'est pas de la prose, ou déjà relu | `# humanizer: …` | contournement |
 

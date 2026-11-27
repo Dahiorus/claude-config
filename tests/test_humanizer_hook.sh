@@ -12,13 +12,23 @@ t_compact() { jq -nc '{type:"user",isCompactSummary:true,message:{content:"This 
 # Écrit les lignes données (sorties de t_*) dans le transcript du bac à sable.
 transcript() { printf '%s\n' "$@" >"$SANDBOX/t.jsonl"; }
 
-# run_humanizer <commande> : sortie du hook, transcript du bac à sable.
+# run_humanizer <commande> : sortie du hook, transcript du bac à sable, session s1.
 run_humanizer() {
   local json
   json="$(jq -nc --arg c "$1" --arg t "$SANDBOX/t.jsonl" \
-    '{tool_name:"Bash",transcript_path:$t,tool_input:{command:$c}}')"
-  bash "$REPO/global/humanizer-hook.sh" <<<"$json"
+    '{session_id:"s1",tool_name:"Bash",transcript_path:$t,tool_input:{command:$c}}')"
+  XDG_RUNTIME_DIR="$SANDBOX" bash "$REPO/global/humanizer-hook.sh" <<<"$json"
 }
+
+# run_skill <skill> [champs jq ajoutés] : appel du hook sur l'outil Skill, session s1 ; affiche sa sortie.
+run_skill() {
+  local json
+  json="$(jq -nc --arg s "$1" "{session_id:\"s1\",tool_name:\"Skill\",tool_input:{skill:\$s}} ${2:-}")"
+  XDG_RUNTIME_DIR="$SANDBOX" bash "$REPO/global/humanizer-hook.sh" <<<"$json"
+}
+
+# Message tapé horodaté.
+t_prompt_at() { t_prompt "$2" | jq -c --arg ts "$1" '.timestamp = $ts'; }
 
 # Silence = sortie vide : jq n'imprime rien sur une entrée vide, d'où le repli sur {}.
 decision() {
@@ -195,12 +205,37 @@ test_humanizer_marker_inside_script() {
   assert_eq "$(decision "$head"$'# humanizer: sans objet\n'"$script")" "silence" "marqueur en 2e ligne"
 }
 
+test_humanizer_skill_call_noted_before_transcript() {
+  transcript "$(t_prompt_at 2000-01-01T00:00:00.000Z a)"
+  assert_eq "$(decision 'gh pr review 12 --approve --body "x"')" "deny" "rien de noté"
+  assert_eq "$(run_skill humanizer:humanizer)" "" "Skill laissé passer"
+  assert_eq "$(decision 'gh pr review 12 --approve --body "x"')" "silence" "passage noté, transcript en retard"
+  transcript "$(t_prompt_at 2999-01-01T00:00:00.000Z b)"
+  assert_eq "$(decision 'gh pr review 12 --approve --body "x"')" "deny" "message tapé après le passage noté"
+  transcript "$(t_prompt b)"
+  assert_eq "$(decision 'gh pr review 12 --approve --body "x"')" "deny" "message sans horodatage"
+}
+
+test_humanizer_skill_call_not_noted() {
+  transcript "$(t_prompt_at 2000-01-01T00:00:00.000Z a)"
+  run_skill superpowers:brainstorming >/dev/null
+  run_skill humanizer:humanizer '| .agent_id = "a1"' >/dev/null
+  run_skill humanizer:humanizer '| .session_id = "../x"' >/dev/null
+  assert_eq "$(decision 'gh pr review 12 --approve --body "x"')" "deny" "autre skill, sous-agent, session invalide"
+  assert_eq "$(find "$SANDBOX" -name x | wc -l)" "0" "rien écrit hors du dossier"
+}
+
 test_humanizer_fail_open() {
   local out code=0
   out="$(bash "$REPO/global/humanizer-hook.sh" <<<'pas du json')" || code=$?
   assert_eq "$out|$code" "|0" "entrée invalide"
   out="$(bash "$REPO/global/humanizer-hook.sh" <<<'{"tool_input":{"command":"gh pr create --body-file f"}}')" || code=$?
   assert_eq "$out|$code" "|0" "sans transcript_path"
+  mkdir -m 500 "$SANDBOX/ro"
+  out="$(XDG_RUNTIME_DIR="$SANDBOX/ro" bash "$REPO/global/humanizer-hook.sh" 2>/dev/null \
+    <<<'{"session_id":"s1","tool_name":"Skill","tool_input":{"skill":"humanizer:humanizer"}}')" || code=$?
+  assert_eq "$out|$code" "|0" "Skill, dossier non inscriptible"
+  chmod 700 "$SANDBOX/ro"
   rm -f "$SANDBOX/t.jsonl"
   assert_eq "$(decision 'gh pr create --body-file f')" "silence" "transcript absent"
   transcript "$(t_prompt a)" 'ligne {cassée' "$(t_humanizer)"

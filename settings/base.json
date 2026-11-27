@@ -41,6 +41,15 @@
         ]
       },
       {
+        "matcher": "Skill",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.claude/humanizer-hook.sh"
+          }
+        ]
+      },
+      {
         "matcher": "Read",
         "hooks": [
           {

@@ -1,6 +1,6 @@
 # Reste à faire
 
-Mis à jour le 2026-11-26.
+Mis à jour le 2026-11-27.
 
 ## Features
 
@@ -164,3 +164,8 @@ Mis à jour le 2026-11-26.
 23. **`install` ne retire pas les liens orphelins de `~/.claude`** : après un revert ou la suppression d'un fichier de
     `global/`, le lien mort se retire à la main. Vu pour le skill `profile` et pour le retour arrière de la grille
     qualité. (#197, leçons de la PR de la grille qualité)
+24. **Hook humanizer : `agent_id` d'un appel `Skill` de sous-agent non vérifié** (`global/humanizer-hook.sh`) : le
+    hook ne note que les passages sans `agent_id`, supposé présent dans l'entrée d'un sous-agent. À confirmer par un
+    appel `Skill` lancé dans un agent, une fois `install` rejoué ; sans `agent_id`, un passage de sous-agent compterait
+    pour la session principale. Le fichier de passage vit aussi dans `$XDG_RUNTIME_DIR` : une déconnexion l'efface,
+    le transcript prend alors le relais. (PR du passage noté à l'appel du skill)
