@@ -6,6 +6,7 @@
 #   un corps de texte qui cite un point de publication fait un faux refus. Passer à l'arbre shfmt de main-guard si
 #   un cas réel le demande.
 #   Un | ; & entre guillemets coupe la commande (option d'écriture après un --jq '…|…' non vue).
+# Appelé aussi sur l'outil Skill : il y note le passage par humanizer (voir mark_file).
 # shortcut: /humanizer:humanizer tapé par l'utilisateur ne compte pas, seul l'outil Skill est lu.
 set -uo pipefail
 
@@ -47,9 +48,16 @@ has_marker() {
   [[ "$1" =~ '#'${SP}*humanizer:${SP}*(sans\ objet|déjà\ relu) ]]
 }
 
-# recent_passage <transcript> : 0 si la dernière entrée retenue est un passage, 1 sinon, 2 si jq échoue.
+# Claude Code écrit le transcript en différé : un appel Skill fait quelques secondes avant n'y est pas encore. Le hook,
+# appelé aussi sur Skill, horodate donc chaque passage dans ce fichier, propre à la session.
+# Dossier propre à l'utilisateur (XDG_RUNTIME_DIR en 700) : un /tmp partagé laisserait un autre compte le piéger.
+# shortcut: XDG_RUNTIME_DIR s'efface à la déconnexion ; le transcript prend alors le relais.
+mark_file() { printf '%s/claude-humanizer/%s' "${XDG_RUNTIME_DIR:-$HOME/.cache}" "$1"; }
+
+# recent_passage <transcript> <session> : 0 si la dernière entrée retenue est un passage, ou si le passage noté par
+# le hook suit le dernier message tapé ; 1 sinon, 2 si jq échoue.
 recent_passage() {
-  local last
+  local last mark=""
   last="$(jq -Rr 'fromjson? | select(type == "object" and .isSidechain != true)
     | if .type == "assistant"
          and any(.message.content[]?; .type == "tool_use" and .name == "Skill"
@@ -58,9 +66,13 @@ recent_passage() {
       elif .type == "user" and (.isMeta != true)
          and ((.origin.kind // "human") == "human") and (.isCompactSummary != true)
          and (.message.content | type == "string" or all(.[]; .type != "tool_result"))
-      then "H"
+      then "H \(.timestamp // "")"
       else empty end' "$1")" || return 2
-  [[ "${last##*$'\n'}" == "S" ]]
+  last="${last##*$'\n'}"
+  [[ "$last" == "S" ]] && return 0
+  [[ -n "$2" && -r "$(mark_file "$2")" ]] && mark="$(<"$(mark_file "$2")")"
+  # horodatages ISO 8601 en UTC, même format : l'ordre des chaînes est celui du temps
+  [[ "$last" == H\ ?* && -n "$mark" && "$mark" > "${last#H }" ]]
 }
 
 deny() {
@@ -71,13 +83,24 @@ deny() {
 
 command -v jq >/dev/null 2>&1 || exit 0
 input="$(cat)"
+session="$(jq -r '.session_id // empty' <<<"$input" 2>/dev/null)"
+[[ "$session" =~ ^[[:alnum:]_-]+$ ]] || session=""
+if [[ "$(jq -r '.tool_name // empty' <<<"$input" 2>/dev/null)" == "Skill" ]]; then
+  # un sous-agent (agent_id) ne relit pas le texte de la session principale
+  if [[ -n "$session" && "$(jq -r '"\(.tool_input.skill // "")|\(.agent_id // "")"' <<<"$input" 2>/dev/null)" \
+    == "humanizer:humanizer|" ]]; then
+    mkdir -p "$(dirname "$(mark_file "$session")")" &&
+      date -u +%Y-%m-%dT%H:%M:%S.%3NZ >"$(mark_file "$session")"
+  fi
+  exit 0
+fi
 command_text="$(jq -r '.tool_input.command // empty' <<<"$input" 2>/dev/null)" || exit 0
 [[ -n "$command_text" ]] || exit 0
 is_publication "$command_text" || exit 0
 has_marker "$command_text" && exit 0
 transcript="$(jq -r '.transcript_path // empty' <<<"$input" 2>/dev/null)" || exit 0
 [[ -n "$transcript" && -r "$transcript" ]] || exit 0
-recent_passage "$transcript"
+recent_passage "$transcript" "$session"
 case $? in
   1) deny ;;
 esac

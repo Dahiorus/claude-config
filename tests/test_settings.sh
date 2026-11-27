@@ -183,4 +183,6 @@ test_base_settings_humanizer_hook() {
   local b="$REPO/settings/base.json"
   assert_eq "$(jq -r '[.hooks.PreToolUse[] | select(.matcher == "Bash") | .hooks[].command] | join("|")' "$b")" \
     "bash ~/.claude/bash-rewrite-hook.sh|bash ~/.claude/main-guard-hook.sh|bash ~/.claude/humanizer-hook.sh" "ordre"
+  assert_eq "$(jq -r '[.hooks.PreToolUse[] | select(.matcher == "Skill") | .hooks[].command] | join("|")' "$b")" \
+    "bash ~/.claude/humanizer-hook.sh" "passage noté sur Skill"
 }
