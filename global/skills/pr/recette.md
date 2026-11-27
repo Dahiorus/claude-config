@@ -31,7 +31,9 @@ ou dans le message qui suit (liste numérotée écran + élément + observé + a
    rapportés. Appliquer la règle générale plutôt que le cas, sur tout le périmètre indiqué. Intention ambiguë ou
    changement de comportement non prévu par la spec → « à trancher ». Puis contrôle des copies d'une règle changée (étape 1 de `push.md`), vérification du projet et nouvelle exécution
    des scénarios touchés, en local : rouge → ne pas pousser, rapporter. Sur environnement dédié, les rejouer aussi
-   après le push, une fois le build du nouveau SHA au vert (redéploiement).
+   après le push, une fois le SHA poussé redéployé. Dépôt avec un `Jenkinsfile` à la racine : redéployé veut dire
+   `continuous-integration/jenkins/pr-head` en `SUCCESS` sur ce SHA (`gh pr view --json headRefOid,statusCheckRollup`,
+   comme `merge.md`), jamais « le dernier build », qui peut être l'ancien ; absent après ~15 min : rapporter.
 5. **Push** — nouveaux commits au format de `CONTRIBUTING.md`, `push` simple, sans réécriture ni squash. PR de fork ou
    `state` ≠ `OPEN` → corriger dans l'arbre de la PR sans pousser, et le dire.
 6. **Arrêt** — arrêter ce que l'étape 2 a lancé : `TaskStop` sur sa tâche, `docker compose down` pour une pile Docker ;
