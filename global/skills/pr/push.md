@@ -46,7 +46,9 @@ les citer et demander avant de continuer. Sinon toutes les étapes, la descripti
    (constat avec `fichier:ligne`, impact, piste, origine : PR et spec), label `dette-technique` ou `hors-perimetre`
    (créé s'il manque : `gh label create <label>`). Corps passé par `humanizer:humanizer` après l'accord, juste
    avant la création. La ligne du reste à faire renvoie à `#n`.
-3. `git push` simple (`-u origin <branche>` la première fois).
+3. `git push` simple (`-u origin <branche>` la première fois). Depuis un worktree, le cwd remis à zéro est le dépôt
+   principal sur main et le hook refuse : `git -C <arbre> push origin <branche>` (`-u` la première fois), branche
+   écrite en clair, dans un appel à part du commit.
 4. Aucune PR ouverte pour la branche : `gh pr create --body-file <fichier>` (titre = sujet du commit ou de la feature, description
    fonctionnelle en français, sans détail d'un autre projet (nom, PR, taille, venus d'une autre session), passée par `humanizer:humanizer`, terminée par une ligne `Closes #n` par issue que la PR
    règle entièrement, prise dans la spec, les commits ou la branche ; une issue réglée en partie est citée sans `Closes`). PR existante : mettre à jour la description si le périmètre a changé (`update-desc`, `SKILL.md`).
